@@ -2,13 +2,8 @@
 
 {
   environment.systemPackages = with pkgs; [
-    # KiCad avec toutes les bibliothèques
+    # KiCad (les bibliothèques sont incluses par défaut maintenant)
     kicad
-    
-    # Bibliothèques additionnelles
-    kicad-symbols
-    kicad-footprints
-    kicad-packages3d
     
     # Outils complémentaires pour l'électronique
     # ngspice        # Simulation SPICE

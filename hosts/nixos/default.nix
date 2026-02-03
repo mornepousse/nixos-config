@@ -8,11 +8,13 @@
     ../../modules/hardware/usb-serial.nix
     ../../modules/desktop/niri.nix
     ../../modules/desktop/ly.nix
+    ../../modules/desktop/quickshell.nix
     ../../modules/dev/kicad.nix
     ../../modules/dev/stm32.nix
     ../../modules/dev/esp-idf.nix
     ../../modules/dev/freecad.nix
     ../../modules/apps/discord.nix
+    ../../modules/apps/github-desktop.nix
   ];
 
   # Bootloader

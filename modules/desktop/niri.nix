@@ -5,7 +5,7 @@
   environment.systemPackages = with pkgs; [
     niri
     
-    # Apps de base (comme ta config actuelle)
+    # Apps de base
     firefox
     foot
     alacritty
@@ -38,19 +38,20 @@
     pamixer
   ];
 
-  # Enregistrer niri comme session (comme ta config)
+  # Enregistrer niri comme session
   services.displayManager.sessionPackages = [ pkgs.niri ];
 
-  # XDG Portal pour les apps Wayland (comme ta config)
+  # XDG Portal pour les apps Wayland
   xdg.portal = {
     enable = true;
     wlr.enable = true;
     extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+    config.common.default = "*";  # Fix pour le warning portal
   };
 
   # Variables d'environnement Wayland
   environment.sessionVariables = {
-    NIXOS_OZONE_WL = "1";  # Pour les apps Electron (Discord, VSCode...)
+    NIXOS_OZONE_WL = "1";
     MOZ_ENABLE_WAYLAND = "1";
     QT_QPA_PLATFORM = "wayland";
     SDL_VIDEODRIVER = "wayland";
@@ -61,7 +62,7 @@
   fonts.packages = with pkgs; [
     noto-fonts
     noto-fonts-cjk-sans
-    noto-fonts-emoji
+    noto-fonts-color-emoji
     nerd-fonts.jetbrains-mono
     nerd-fonts.fira-code
   ];

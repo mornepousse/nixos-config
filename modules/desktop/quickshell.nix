@@ -1,18 +1,13 @@
-{ config, pkgs, inputs, ... }:
+{ config, pkgs, ... }:
 
 {
   # Quickshell - Shell/Bar moderne pour Wayland
-  environment.systemPackages = [
-    inputs.quickshell.packages.${pkgs.system}.default
-  ];
-
-  # Dépendances utiles pour quickshell
   environment.systemPackages = with pkgs; [
-    # Pour les scripts et widgets
+    quickshell
+    
+    # Dépendances utiles pour quickshell
     jq
     socat
-    
-    # Pour les infos système
     lm_sensors
     acpi
   ];

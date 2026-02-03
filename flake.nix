@@ -8,12 +8,6 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    # Quickshell (à activer plus tard quand on configurera la bar)
-    # quickshell = {
-    #   url = "github:quickshell-mirror/quickshell";
-    #   inputs.nixpkgs.follows = "nixpkgs";
-    # };
   };
 
   outputs = { self, nixpkgs, home-manager, ... }@inputs: {
@@ -23,13 +17,13 @@
       modules = [
         ./hosts/nixos
 
-        # Home-manager
         home-manager.nixosModules.home-manager
         {
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
           home-manager.users.mae = import ./home/mae.nix;
           home-manager.extraSpecialArgs = { inherit inputs; };
+          home-manager.backupFileExtension = "backup";  # Sauvegarde les fichiers existants
         }
       ];
     };

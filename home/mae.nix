@@ -1,17 +1,12 @@
 { config, pkgs, inputs, ... }:
 
 {
-  # Home Manager config pour mae
   home.username = "mae";
   home.homeDirectory = "/home/mae";
 
-  # Packages utilisateur
   home.packages = with pkgs; [
-    # Media
     mpv
-    imv  # Image viewer pour Wayland
-    
-    # Outils
+    imv
     btop
     neofetch
     tree
@@ -20,8 +15,10 @@
   # Git config
   programs.git = {
     enable = true;
-    userName = "mae";
-    userEmail = ""; # À remplir avec ton email GitHub
+    settings = {
+      user.name = "mae";
+      user.email = "";
+    };
   };
 
   # Zsh
@@ -37,7 +34,7 @@
       upgrade = "nix flake update ~/nixos-config && sudo nixos-rebuild switch --flake ~/nixos-config#nixos";
     };
     
-    initExtra = ''
+    initContent = ''
       # ESP-IDF (décommenter après installation)
       # alias get_idf='. $HOME/esp/esp-idf/export.sh'
     '';
@@ -55,11 +52,11 @@
     };
   };
 
+  # Config quickshell
+  xdg.configFile."quickshell/shell.qml".source = ./quickshell/shell.qml;
+
   # Config niri
   home.file.".config/niri/config.kdl".text = ''
-    // Configuration niri
-    // Documentation: https://github.com/YaLTeR/niri/wiki/Configuration
-    
     input {
         keyboard {
             xkb {
@@ -79,25 +76,22 @@
     
     layout {
         gaps 8
-        
         border {
             width 2
         }
-        
         focus-ring {
             width 2
         }
     }
     
     spawn-at-startup "mako"
+    spawn-at-startup "quickshell"
     
     binds {
-        // Lancer des apps
         Mod+Return { spawn "foot"; }
         Mod+D { spawn "fuzzel"; }
         Mod+Shift+Q { close-window; }
         
-        // Navigation
         Mod+H { focus-column-left; }
         Mod+J { focus-window-down; }
         Mod+K { focus-window-up; }
@@ -108,13 +102,11 @@
         Mod+Up { focus-window-up; }
         Mod+Right { focus-column-right; }
         
-        // Déplacer les fenêtres
         Mod+Shift+H { move-column-left; }
         Mod+Shift+J { move-window-down; }
         Mod+Shift+K { move-window-up; }
         Mod+Shift+L { move-column-right; }
         
-        // Workspaces
         Mod+1 { focus-workspace 1; }
         Mod+2 { focus-workspace 2; }
         Mod+3 { focus-workspace 3; }
@@ -127,24 +119,19 @@
         Mod+Shift+4 { move-window-to-workspace 4; }
         Mod+Shift+5 { move-window-to-workspace 5; }
         
-        // Fullscreen
         Mod+F { maximize-column; }
         Mod+Shift+F { fullscreen-window; }
         
-        // Screenshot
         Print { screenshot; }
         Mod+Print { screenshot-window; }
         
-        // Audio
         XF86AudioRaiseVolume { spawn "pamixer" "-i" "5"; }
         XF86AudioLowerVolume { spawn "pamixer" "-d" "5"; }
         XF86AudioMute { spawn "pamixer" "-t"; }
         
-        // Luminosité
         XF86MonBrightnessUp { spawn "brightnessctl" "set" "+5%"; }
         XF86MonBrightnessDown { spawn "brightnessctl" "set" "5%-"; }
         
-        // Quitter niri
         Mod+Shift+E { quit; }
     }
   '';
@@ -158,7 +145,6 @@
     };
   };
 
-  # Version Home Manager
-  home.stateVersion = "24.11";
+  home.stateVersion = "26.05";
   programs.home-manager.enable = true;
 }
