@@ -7,15 +7,6 @@
 
   # Packages utilisateur
   home.packages = with pkgs; [
-    # Navigateur
-    firefox
-    
-    # Éditeur
-    vscode
-    
-    # Fichiers
-    nautilus  # ou pcmanfm, thunar
-    
     # Media
     mpv
     imv  # Image viewer pour Wayland
@@ -30,7 +21,7 @@
   programs.git = {
     enable = true;
     userName = "mae";
-    userEmail = ""; # À remplir avec ton email
+    userEmail = ""; # À remplir avec ton email GitHub
   };
 
   # Zsh
@@ -52,7 +43,7 @@
     '';
   };
 
-  # Starship prompt (optionnel mais joli)
+  # Starship prompt
   programs.starship = {
     enable = true;
     settings = {
@@ -64,16 +55,15 @@
     };
   };
 
-  # Config niri (sera dans ~/.config/niri/config.kdl)
-  # Tu pourras personnaliser ça plus tard
+  # Config niri
   home.file.".config/niri/config.kdl".text = ''
-    // Configuration niri de base
+    // Configuration niri
     // Documentation: https://github.com/YaLTeR/niri/wiki/Configuration
     
     input {
         keyboard {
             xkb {
-                layout "fr"
+                layout "us"
             }
         }
         
@@ -84,7 +74,6 @@
     }
     
     output "eDP-1" {
-        // mode "1920x1080@60"
         scale 1.0
     }
     
@@ -100,7 +89,6 @@
         }
     }
     
-    spawn-at-startup "swaybg" "-m" "fill" "-i" "/home/mae/.config/wallpaper.jpg"
     spawn-at-startup "mako"
     
     binds {
@@ -164,8 +152,10 @@
   # Mako (notifications)
   services.mako = {
     enable = true;
-    defaultTimeout = 5000;
-    borderRadius = 8;
+    settings = {
+      default-timeout = 5000;
+      border-radius = 8;
+    };
   };
 
   # Version Home Manager

@@ -19,13 +19,16 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
+  # Kernel latest (comme ta config actuelle)
+  boot.kernelPackages = pkgs.linuxPackages_latest;
+
   # Hostname
   networking.hostName = "nixos";
   networking.networkmanager.enable = true;
 
-  # Timezone & Locale
+  # Timezone & Locale (gardé comme ta config actuelle)
   time.timeZone = "Europe/Paris";
-  i18n.defaultLocale = "fr_FR.UTF-8";
+  i18n.defaultLocale = "en_US.UTF-8";
   i18n.extraLocaleSettings = {
     LC_ADDRESS = "fr_FR.UTF-8";
     LC_IDENTIFICATION = "fr_FR.UTF-8";
@@ -38,8 +41,11 @@
     LC_TIME = "fr_FR.UTF-8";
   };
 
-  # Clavier
-  console.keyMap = "fr";
+  # Clavier X11 (pour compatibilité)
+  services.xserver.xkb = {
+    layout = "us";
+    variant = "";
+  };
 
   # User
   users.users.mae = {
@@ -61,6 +67,8 @@
   # Packages système de base
   environment.systemPackages = with pkgs; [
     vim
+    nano
+    neovim
     git
     wget
     curl
@@ -70,10 +78,10 @@
     fd
   ];
 
-  # Autoriser les packages non-libres (pour certains drivers)
+  # Autoriser les packages non-libres
   nixpkgs.config.allowUnfree = true;
 
-  # Nix settings
+  # Nix settings (flakes activés)
   nix.settings = {
     experimental-features = [ "nix-command" "flakes" ];
     auto-optimise-store = true;
@@ -89,7 +97,8 @@
   # OpenGL / Graphics
   hardware.graphics.enable = true;
 
-  # Audio avec PipeWire
+  # Audio avec PipeWire (comme ta config)
+  security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
     alsa.enable = true;
@@ -97,9 +106,9 @@
     pulse.enable = true;
   };
 
-  # Polkit (nécessaire pour niri et autres)
+  # Polkit
   security.polkit.enable = true;
 
-  # Version de NixOS
-  system.stateVersion = "24.11";
+  # Version de NixOS - IMPORTANT: garde la même que ton install
+  system.stateVersion = "26.05";
 }

@@ -1,34 +1,19 @@
 { config, pkgs, inputs, ... }:
 
 {
-  # Activer niri via le flake
-  programs.niri = {
-    enable = true;
-    package = pkgs.niri;
-  };
-
-  # XDG Portal pour les apps Wayland
-  xdg.portal = {
-    enable = true;
-    extraPortals = with pkgs; [
-      xdg-desktop-portal-gtk
-      xdg-desktop-portal-gnome
-    ];
-  };
-
-  # Variables d'environnement Wayland
-  environment.sessionVariables = {
-    NIXOS_OZONE_WL = "1";  # Pour les apps Electron (Discord, VSCode...)
-    MOZ_ENABLE_WAYLAND = "1";
-    QT_QPA_PLATFORM = "wayland";
-    SDL_VIDEODRIVER = "wayland";
-    XDG_SESSION_TYPE = "wayland";
-  };
-
-  # Packages utiles pour niri
+  # Niri - installé comme package + enregistré comme session
   environment.systemPackages = with pkgs; [
-    # Launcher
+    niri
+    
+    # Apps de base (comme ta config actuelle)
+    firefox
+    foot
+    alacritty
     fuzzel
+    nautilus
+    vscode
+    
+    # Launcher
     wofi
     
     # Notifications
@@ -51,17 +36,33 @@
     brightnessctl
     playerctl
     pamixer
-    
-    # Terminal
-    foot
-    alacritty
   ];
+
+  # Enregistrer niri comme session (comme ta config)
+  services.displayManager.sessionPackages = [ pkgs.niri ];
+
+  # XDG Portal pour les apps Wayland (comme ta config)
+  xdg.portal = {
+    enable = true;
+    wlr.enable = true;
+    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+  };
+
+  # Variables d'environnement Wayland
+  environment.sessionVariables = {
+    NIXOS_OZONE_WL = "1";  # Pour les apps Electron (Discord, VSCode...)
+    MOZ_ENABLE_WAYLAND = "1";
+    QT_QPA_PLATFORM = "wayland";
+    SDL_VIDEODRIVER = "wayland";
+    XDG_SESSION_TYPE = "wayland";
+  };
 
   # Fonts
   fonts.packages = with pkgs; [
     noto-fonts
     noto-fonts-cjk-sans
     noto-fonts-emoji
-    (nerdfonts.override { fonts = [ "JetBrainsMono" "FiraCode" ]; })
+    nerd-fonts.jetbrains-mono
+    nerd-fonts.fira-code
   ];
 }

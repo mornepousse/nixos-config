@@ -9,28 +9,19 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Niri compositor
-    niri = {
-      url = "github:sodiboo/niri-flake";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    # Quickshell
-    quickshell = {
-      url = "github:quickshell-mirror/quickshell";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    # Quickshell (à activer plus tard quand on configurera la bar)
+    # quickshell = {
+    #   url = "github:quickshell-mirror/quickshell";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
   };
 
-  outputs = { self, nixpkgs, home-manager, niri, quickshell, ... }@inputs: {
+  outputs = { self, nixpkgs, home-manager, ... }@inputs: {
     nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       specialArgs = { inherit inputs; };
       modules = [
         ./hosts/nixos
-
-        # Niri flake module
-        niri.nixosModules.niri
 
         # Home-manager
         home-manager.nixosModules.home-manager
