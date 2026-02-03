@@ -8,9 +8,27 @@
     mpv
     imv
     btop
-    neofetch
+    fastfetch
     tree
+    
+    # LazyVim dependencies
+    git
+    gcc
+    ripgrep
+    fd
+    lazygit
   ];
+
+  # Neovim avec LazyVim
+  programs.neovim = {
+    enable = true;
+    defaultEditor = true;
+    viAlias = true;
+    vimAlias = true;
+  };
+
+  # Config LazyVim sauvegardée
+  xdg.configFile."nvim".source = ./nvim;
 
   # Git config
   programs.git = {
@@ -52,9 +70,6 @@
     };
   };
 
-  # Config quickshell
-  xdg.configFile."quickshell/shell.qml".source = ./quickshell/shell.qml;
-
   # Config niri
   home.file.".config/niri/config.kdl".text = ''
     input {
@@ -89,6 +104,7 @@
     
     binds {
         Mod+Return { spawn "alacritty"; }
+        Mod+B {spawn "firefox"; }
         Mod+D { spawn "fuzzel"; }
         Mod+Q { close-window; }
         
