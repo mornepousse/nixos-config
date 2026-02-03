@@ -1,0 +1,21 @@
+# Ignorer le lock file si tu veux (perso je le commit)
+# flake.lock
+
+# Fichiers de résultat nix
+result
+result-*
+
+# Fichiers secrets (si tu en ajoutes)
+secrets/
+*.age
+*.gpg
+
+# Éditeurs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store

@@ -1,0 +1,174 @@
+{ config, pkgs, inputs, ... }:
+
+{
+  # Home Manager config pour mae
+  home.username = "mae";
+  home.homeDirectory = "/home/mae";
+
+  # Packages utilisateur
+  home.packages = with pkgs; [
+    # Navigateur
+    firefox
+    
+    # Éditeur
+    vscode
+    
+    # Fichiers
+    nautilus  # ou pcmanfm, thunar
+    
+    # Media
+    mpv
+    imv  # Image viewer pour Wayland
+    
+    # Outils
+    btop
+    neofetch
+    tree
+  ];
+
+  # Git config
+  programs.git = {
+    enable = true;
+    userName = "mae";
+    userEmail = ""; # À remplir avec ton email
+  };
+
+  # Zsh
+  programs.zsh = {
+    enable = true;
+    enableCompletion = true;
+    autosuggestion.enable = true;
+    syntaxHighlighting.enable = true;
+    
+    shellAliases = {
+      ll = "ls -la";
+      update = "sudo nixos-rebuild switch --flake ~/nixos-config#nixos";
+      upgrade = "nix flake update ~/nixos-config && sudo nixos-rebuild switch --flake ~/nixos-config#nixos";
+    };
+    
+    initExtra = ''
+      # ESP-IDF (décommenter après installation)
+      # alias get_idf='. $HOME/esp/esp-idf/export.sh'
+    '';
+  };
+
+  # Starship prompt (optionnel mais joli)
+  programs.starship = {
+    enable = true;
+    settings = {
+      add_newline = false;
+      character = {
+        success_symbol = "[➜](bold green)";
+        error_symbol = "[➜](bold red)";
+      };
+    };
+  };
+
+  # Config niri (sera dans ~/.config/niri/config.kdl)
+  # Tu pourras personnaliser ça plus tard
+  home.file.".config/niri/config.kdl".text = ''
+    // Configuration niri de base
+    // Documentation: https://github.com/YaLTeR/niri/wiki/Configuration
+    
+    input {
+        keyboard {
+            xkb {
+                layout "fr"
+            }
+        }
+        
+        touchpad {
+            tap
+            natural-scroll
+        }
+    }
+    
+    output "eDP-1" {
+        // mode "1920x1080@60"
+        scale 1.0
+    }
+    
+    layout {
+        gaps 8
+        
+        border {
+            width 2
+        }
+        
+        focus-ring {
+            width 2
+        }
+    }
+    
+    spawn-at-startup "swaybg" "-m" "fill" "-i" "/home/mae/.config/wallpaper.jpg"
+    spawn-at-startup "mako"
+    
+    binds {
+        // Lancer des apps
+        Mod+Return { spawn "foot"; }
+        Mod+D { spawn "fuzzel"; }
+        Mod+Shift+Q { close-window; }
+        
+        // Navigation
+        Mod+H { focus-column-left; }
+        Mod+J { focus-window-down; }
+        Mod+K { focus-window-up; }
+        Mod+L { focus-column-right; }
+        
+        Mod+Left { focus-column-left; }
+        Mod+Down { focus-window-down; }
+        Mod+Up { focus-window-up; }
+        Mod+Right { focus-column-right; }
+        
+        // Déplacer les fenêtres
+        Mod+Shift+H { move-column-left; }
+        Mod+Shift+J { move-window-down; }
+        Mod+Shift+K { move-window-up; }
+        Mod+Shift+L { move-column-right; }
+        
+        // Workspaces
+        Mod+1 { focus-workspace 1; }
+        Mod+2 { focus-workspace 2; }
+        Mod+3 { focus-workspace 3; }
+        Mod+4 { focus-workspace 4; }
+        Mod+5 { focus-workspace 5; }
+        
+        Mod+Shift+1 { move-window-to-workspace 1; }
+        Mod+Shift+2 { move-window-to-workspace 2; }
+        Mod+Shift+3 { move-window-to-workspace 3; }
+        Mod+Shift+4 { move-window-to-workspace 4; }
+        Mod+Shift+5 { move-window-to-workspace 5; }
+        
+        // Fullscreen
+        Mod+F { maximize-column; }
+        Mod+Shift+F { fullscreen-window; }
+        
+        // Screenshot
+        Print { screenshot; }
+        Mod+Print { screenshot-window; }
+        
+        // Audio
+        XF86AudioRaiseVolume { spawn "pamixer" "-i" "5"; }
+        XF86AudioLowerVolume { spawn "pamixer" "-d" "5"; }
+        XF86AudioMute { spawn "pamixer" "-t"; }
+        
+        // Luminosité
+        XF86MonBrightnessUp { spawn "brightnessctl" "set" "+5%"; }
+        XF86MonBrightnessDown { spawn "brightnessctl" "set" "5%-"; }
+        
+        // Quitter niri
+        Mod+Shift+E { quit; }
+    }
+  '';
+
+  # Mako (notifications)
+  services.mako = {
+    enable = true;
+    defaultTimeout = 5000;
+    borderRadius = 8;
+  };
+
+  # Version Home Manager
+  home.stateVersion = "24.11";
+  programs.home-manager.enable = true;
+}
