@@ -13,9 +13,6 @@
     nautilus
     vscode
     
-    # Launcher
-    wofi
-    
     # Notifications
     mako
     libnotify

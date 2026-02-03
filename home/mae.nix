@@ -85,12 +85,12 @@
     }
     
     spawn-at-startup "mako"
-    spawn-at-startup "quickshell"
+    spawn-at-startup "noctalia-shell"
     
     binds {
-        Mod+Return { spawn "foot"; }
+        Mod+Return { spawn "alacritty"; }
         Mod+D { spawn "fuzzel"; }
-        Mod+Shift+Q { close-window; }
+        Mod+Q { close-window; }
         
         Mod+H { focus-column-left; }
         Mod+J { focus-window-down; }
