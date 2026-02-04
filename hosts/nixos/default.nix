@@ -6,6 +6,7 @@
     
     # Modules
     ../../modules/hardware/usb-serial.nix
+    ../../modules/hardware/dns.nix
     ../../modules/desktop/niri.nix
     ../../modules/desktop/ly.nix
     ../../modules/desktop/quickshell.nix
