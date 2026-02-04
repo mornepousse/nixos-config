@@ -62,11 +62,12 @@
       "plugdev"  # Pour les périphériques USB
       "uucp"     # Pour les ports série
     ];
-    shell = pkgs.zsh;
+    shell = pkgs.fish;
   };
 
-  # Enable zsh
+  # Enable shells
   programs.zsh.enable = true;
+  programs.fish.enable = true;
 
   # Packages système de base
   environment.systemPackages = with pkgs; [

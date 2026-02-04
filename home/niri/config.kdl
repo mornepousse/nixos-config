@@ -11,6 +11,9 @@ input {
     }
 }
 
+// XWayland pour les apps X11 (STM32CubeMX, etc.)
+spawn-at-startup "xwayland-satellite"
+
 output "eDP-1" {
     scale 1.0
 }
@@ -21,9 +24,11 @@ layout {
         width 2
     }
     focus-ring {
-        width 2
+        off
     }
 }
+
+prefer-no-csd
 
 spawn-at-startup "mako"
 spawn-at-startup "noctalia-shell"

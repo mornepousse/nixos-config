@@ -4,6 +4,7 @@
   # Niri - installé comme package + enregistré comme session
   environment.systemPackages = with pkgs; [
     niri
+    xwayland-satellite  # Pour les apps X11
     
     # Apps de base
     firefox
@@ -37,6 +38,9 @@
 
   # Enregistrer niri comme session
   services.displayManager.sessionPackages = [ pkgs.niri ];
+
+  # XWayland pour les applications X11 (STM32CubeMX, etc.)
+  programs.xwayland.enable = true;
 
   # XDG Portal pour les apps Wayland
   xdg.portal = {

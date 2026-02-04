@@ -51,6 +51,19 @@
     initContent = ''
       # ESP-IDF (décommenter après installation)
       # alias get_idf='. $HOME/esp/esp-idf/export.sh'
+      
+      # Fastfetch à l'ouverture du terminal
+      fastfetch
+    '';
+  };
+
+  # Fish shell
+  programs.fish = {
+    enable = true;
+    shellAliases = import ./shell/aliases.nix;
+    interactiveShellInit = ''
+      # Fastfetch à l'ouverture du terminal
+      fastfetch
     '';
   };
 
