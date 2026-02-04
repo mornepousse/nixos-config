@@ -2,10 +2,11 @@
 
 {
   environment.systemPackages = with pkgs; [
-    # Discord officiel (nécessite allowUnfree = true)
-    discord
+    # Vesktop - Client Discord avec Vencord intégré
+    # Meilleur support Wayland/Niri que le client officiel
+    vesktop
     
-    # Alternative open source (si tu préfères)
-    # vesktop  # Client Discord avec Vencord intégré
+    # Discord officiel (peut avoir des problèmes sur Wayland)
+    # discord
   ];
 }

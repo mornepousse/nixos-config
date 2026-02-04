@@ -5,6 +5,7 @@
   # NixOS
   update = "sudo nixos-rebuild switch --flake ~/nixos-config#nixos";
   upgrade = "nix flake update ~/nixos-config && sudo nixos-rebuild switch --flake ~/nixos-config#nixos";
+  check-updates = "nix flake update ~/nixos-config && nixos-rebuild dry-build --flake ~/nixos-config#nixos";
   
   # Git
   gs = "git status";

@@ -13,6 +13,7 @@
     ../../modules/dev/stm32.nix
     ../../modules/dev/esp-idf.nix
     ../../modules/dev/freecad.nix
+    ../../modules/dev/rider.nix
     ../../modules/apps/discord.nix
     ../../modules/apps/github-desktop.nix
   ];
@@ -20,6 +21,7 @@
   # Bootloader
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
+  boot.loader.systemd-boot.configurationLimit = 10;  # Limite à 10 versions dans le menu boot
 
   # Kernel latest (comme ta config actuelle)
   boot.kernelPackages = pkgs.linuxPackages_latest;
@@ -78,6 +80,7 @@
     unzip
     ripgrep
     fd
+    bluetui
   ];
 
   # Autoriser les packages non-libres
@@ -93,11 +96,24 @@
   nix.gc = {
     automatic = true;
     dates = "weekly";
-    options = "--delete-older-than 30d";
+    options = "--delete-older-than 7d";  # Garde seulement 7 jours au lieu de 30
   };
 
   # OpenGL / Graphics
   hardware.graphics.enable = true;
+
+  # Bluetooth
+  hardware.bluetooth = {
+    enable = true;
+    powerOnBoot = true;  # Active le Bluetooth au démarrage
+    settings = {
+      General = {
+        Enable = "Source,Sink,Media,Socket";
+        Experimental = true;  # Pour certaines fonctionnalités avancées
+      };
+    };
+  };
+  services.blueman.enable = true;  # GUI pour gérer le Bluetooth
 
   # Audio avec PipeWire (comme ta config)
   security.rtkit.enable = true;
