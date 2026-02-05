@@ -12,7 +12,6 @@
     alacritty
     fuzzel
     nautilus
-    vscode
     
     # Notifications
     mako

@@ -19,6 +19,7 @@
     ../../modules/apps/discord.nix
     ../../modules/apps/github-desktop.nix
     ../../modules/apps/valent.nix
+    ../../modules/apps/vscode.nix
   ];
 
   # Bootloader
