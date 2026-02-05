@@ -7,6 +7,7 @@
     # Modules
     ../../modules/hardware/usb-serial.nix
     ../../modules/hardware/dns.nix
+    ../../modules/hardware/displaylink.nix
     ../../modules/desktop/niri.nix
     ../../modules/desktop/ly.nix
     ../../modules/desktop/quickshell.nix
@@ -17,6 +18,7 @@
     ../../modules/dev/rider.nix
     ../../modules/apps/discord.nix
     ../../modules/apps/github-desktop.nix
+    ../../modules/apps/valent.nix
   ];
 
   # Bootloader
@@ -92,13 +94,16 @@
   nix.settings = {
     experimental-features = [ "nix-command" "flakes" ];
     auto-optimise-store = true;
+    # Garder les sources téléchargées (ex: DisplayLink) pour éviter re-téléchargement
+    keep-derivations = true;
+    keep-outputs = true;
   };
 
   # Garbage collection automatique
   nix.gc = {
     automatic = true;
     dates = "weekly";
-    options = "--delete-older-than 7d";  # Garde seulement 7 jours au lieu de 30
+    options = "--delete-older-than 30d";  # 30 jours pour garder les sources plus longtemps
   };
 
   # OpenGL / Graphics

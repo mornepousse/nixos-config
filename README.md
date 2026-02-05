@@ -1,21 +1,27 @@
 # NixOS Config - mae
 
-Ma configuration NixOS avec niri, quickshell et ly.
+Ma configuration NixOS avec niri, noctalia-shell et ly.
 
 ## Stack
 
 - **OS**: NixOS Unstable
 - **Compositor**: niri (Wayland tiling)
-- **Bar**: quickshell
+- **Bar**: noctalia-shell (Quickshell)
 - **Display Manager**: ly
-- **Shell**: zsh + starship
+- **Shell**: fish + starship
+- **Apps**: Valent (KDE Connect), Discord, GitHub Desktop
+
+## Matériel
+
+- **DisplayLink**: Dell Universal Dock D6000
+- **USB Serial**: CH340, CP210x (Arduino/ESP)
+- **DNS**: Configuration réseau personnalisée
 
 ## Outils de dev
 
-- KiCad (électronique)
-- STM32CubeMX + toolchain ARM
-- ESP-IDF (ESP32)
-- FreeCAD (CAO 3D)
+- **Hardware**: KiCad (électronique), FreeCAD (CAO 3D)
+- **Embedded**: STM32CubeMX + toolchain ARM, ESP-IDF (ESP32)
+- **.NET**: JetBrains Rider
 
 ## Installation
 
@@ -25,7 +31,14 @@ Ma configuration NixOS avec niri, quickshell et ly.
 sudo nixos-generate-config --show-hardware-config > ~/nixos-config/hosts/nixos/hardware-configuration.nix
 ```
 
-### 2. Appliquer la config
+### 2. Télécharger le driver DisplayLink (si hub Dell)
+
+```bash
+nix-prefetch-url --name displaylink-620.zip \
+  "https://www.synaptics.com/sites/default/files/exe_files/2025-09/DisplayLink%20USB%20Graphics%20Software%20for%20Ubuntu6.2-EXE.zip"
+```
+
+### 3. Appliquer la config
 
 ```bash
 cd ~/nixos-config
@@ -55,15 +68,20 @@ nixos-config/
 │   ├── default.nix
 │   └── hardware-configuration.nix
 ├── modules/
-│   ├── desktop/                 # niri, ly, quickshell
-│   ├── hardware/                # USB serial (CH340, CP210x)
-│   ├── dev/                     # Outils dev
-│   └── apps/                    # Applications
+│   ├── desktop/                 # niri, ly, noctalia-shell
+│   ├── hardware/                # DisplayLink, USB serial, DNS
+│   ├── dev/                     # KiCad, STM32, ESP-IDF, FreeCAD, Rider
+│   └── apps/                    # Discord, GitHub Desktop, Valent
 └── home/                        # Home-manager
-    └── mae.nix
+    ├── mae.nix
+    ├── niri/config.kdl
+    ├── nvim/
+    └── shell/aliases.nix
 ```
 
-## ESP-IDF
+## Notes spécifiques
+
+### ESP-IDF
 
 ESP-IDF n'est pas installé automatiquement (trop complexe). Pour l'installer:
 
@@ -79,6 +97,14 @@ Puis dans chaque session:
 source ~/esp/esp-idf/export.sh
 # Ou décommente l'alias dans home/mae.nix et utilise: get_idf
 ```
+
+### Valent (KDE Connect)
+
+Installer **KDE Connect** sur ton téléphone (Android/iOS). Valent se connectera automatiquement via le réseau local (ports 1714-1764 ouverts).
+
+### DisplayLink
+
+Le driver DisplayLink nécessite d'accepter l'EULA de Synaptics. Le téléchargement doit être fait manuellement avant le premier rebuild (voir étape 2 de l'installation).
 
 ## Raccourcis niri
 
