@@ -1,11 +1,14 @@
 { config, pkgs, ... }:
 
 {
-  # Ly - Display manager TUI minimaliste
-  services.displayManager.ly = {
+  # greetd + tuigreet - Display manager TUI minimaliste
+  services.greetd = {
     enable = true;
     settings = {
-      animation = "doom";
+      default_session = {
+        command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --remember --cmd niri";
+        user = "greeter";
+      };
     };
   };
 }

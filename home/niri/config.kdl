@@ -9,6 +9,8 @@ input {
         tap
         natural-scroll
     }
+    
+    focus-follows-mouse
 }
 
 // XWayland pour les apps X11 (STM32CubeMX, etc.)
@@ -28,7 +30,13 @@ layout {
     }
 }
 
+
 prefer-no-csd
+
+// Désactiver no-new-privs pour permettre sudo
+environment {
+    NIXOS_ALLOW_SUDO "1"
+}
 
 spawn-at-startup "mako"
 spawn-at-startup "noctalia-shell"
@@ -38,6 +46,7 @@ binds {
     Mod+B { spawn "firefox"; }
     Mod+Space { spawn "fuzzel"; }
     Mod+D{ spawn "fuzzel"; }
+    Mod+E {spawn "nautilus";}
     Mod+Q { close-window; }
     
     Mod+H { focus-column-left; }

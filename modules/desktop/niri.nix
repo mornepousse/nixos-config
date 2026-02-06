@@ -13,6 +13,9 @@
     fuzzel
     nautilus
     
+    # Thème d'icônes pour Nautilus
+    adwaita-icon-theme
+    
     # Notifications
     mako
     libnotify

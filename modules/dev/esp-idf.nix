@@ -1,47 +1,49 @@
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 
 {
+  # nix-ld pour les binaires non-NixOS (utilitaires divers)
+  programs.nix-ld = {
+    enable = true;
+    libraries = with pkgs; [
+      stdenv.cc.cc.lib
+      zlib
+      libusb1
+      udev
+      ncurses
+    ];
+  };
+
   environment.systemPackages = with pkgs; [
-    # ESP-IDF et toolchain
-    # Note: ESP-IDF est complexe sur NixOS, plusieurs options:
-    
-    # Option 1: Utiliser le package nixpkgs (peut être limité)
-    # esp-idf-full
-    
-    # Option 2: Dépendances pour installer ESP-IDF manuellement
-    python3
-    python3Packages.pip
-    python3Packages.virtualenv
-    
-    # Dépendances de build
-    cmake
-    ninja
-    gcc
+    # Outils de base pour ESP-IDF
     git
     wget
-    flex
-    bison
-    gperf
-    
-    # Libs nécessaires
-    ncurses
-    libusb1
-    
-    # Pour le monitoring série
-    python3Packages.pyserial
+    cmake
+    ninja
+    python3
+
+    # Pour le debug et flash
+    openocd
+    esptool
+    dfu-util
+
+    # Script pour entrer dans l'environnement ESP-IDF
+    (pkgs.writeShellScriptBin "esp-shell" ''
+      echo "Entering ESP-IDF development environment..."
+      exec nix develop github:mirrexagon/nixpkgs-esp-dev#esp32-idf
+    '')
+
+    # Script pour lancer VSCode avec l'environnement ESP-IDF
+    (pkgs.writeShellScriptBin "code-esp" ''
+      echo "Launching VSCode with ESP-IDF environment..."
+      nix develop github:mirrexagon/nixpkgs-esp-dev#esp32-idf --command code "$@"
+    '')
   ];
 
-  # Variables d'environnement utiles
-  environment.variables = {
-    # Si tu installes ESP-IDF dans ton home
-    # IDF_PATH = "/home/mae/esp/esp-idf";
-  };
+  # Permettre l'accès USB sans sudo (ESP32/CH340)
+  services.udev.extraRules = ''
+    # ESP32 USB-SERIAL-JTAG
+    SUBSYSTEM=="usb", ATTRS{idVendor}=="303a", MODE="0666"
+    # CH340 USB-Serial
+    SUBSYSTEM=="usb", ATTRS{idVendor}=="1a86", MODE="0666"
+  '';
 }
-
-# Note: Pour installer ESP-IDF proprement, tu peux:
-# 1. Utiliser un shell.nix dédié pour tes projets ESP
-# 2. Installer dans ton home avec:
-#    mkdir -p ~/esp && cd ~/esp
-#    git clone --recursive https://github.com/espressif/esp-idf.git
-#    cd esp-idf && ./install.sh esp32
-#    source export.sh

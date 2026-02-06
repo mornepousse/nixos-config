@@ -8,6 +8,7 @@
     ../../modules/hardware/usb-serial.nix
     ../../modules/hardware/dns.nix
     ../../modules/hardware/displaylink.nix
+    ../../modules/hardware/smb.nix
     ../../modules/desktop/niri.nix
     ../../modules/desktop/ly.nix
     ../../modules/desktop/quickshell.nix
@@ -19,7 +20,7 @@
     ../../modules/apps/discord.nix
     ../../modules/apps/github-desktop.nix
     ../../modules/apps/valent.nix
-    ../../modules/apps/vscode.nix
+    ../../modules/dev/ai.nix
   ];
 
   # Bootloader
@@ -66,7 +67,7 @@
       "plugdev"  # Pour les périphériques USB
       "uucp"     # Pour les ports série
     ];
-    shell = pkgs.fish;
+    shell = pkgs.zsh;
   };
 
   # Enable shells
@@ -86,6 +87,7 @@
     ripgrep
     fd
     bluetui
+    vscode.fhs  # VSCode avec FHS pour compatibilité extensions
   ];
 
   # Autoriser les packages non-libres
@@ -134,6 +136,10 @@
 
   # Polkit
   security.polkit.enable = true;
+
+  # Keyring (pour GitHub Copilot et autres tokens)
+  services.gnome.gnome-keyring.enable = true;
+  security.pam.services.login.enableGnomeKeyring = true;
 
   # Version de NixOS - IMPORTANT: garde la même que ton install
   system.stateVersion = "26.05";

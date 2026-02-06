@@ -27,9 +27,6 @@
     vimAlias = true;
   };
 
-  # Config LazyVim sauvegardée
-  xdg.configFile."nvim".source = ./nvim;
-
   # Git config
   programs.git = {
     enable = true;
@@ -49,8 +46,8 @@
     shellAliases = import ./shell/aliases.nix;
     
     initContent = ''
-      # ESP-IDF (décommenter après installation)
-      # alias get_idf='. $HOME/esp/esp-idf/export.sh'
+      # ESP-IDF
+      alias get_idf='. $HOME/esp/esp-idf/export.sh'
       
       # Fastfetch à l'ouverture du terminal
       fastfetch
