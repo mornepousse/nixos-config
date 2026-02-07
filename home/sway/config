@@ -92,9 +92,14 @@ bindsym XF86MonBrightnessDown exec brightnessctl set 5%-
 # Quit Sway (matches niri's Mod+Shift+E)
 bindsym $mod+Shift+e exec swaynag -t warning -m 'Exit sway?' -b 'Yes' 'swaymsg exit'
 
+# Output configuration - Configuration de base (écrasée par kanshi)
+# Active l'écran laptop par défaut au cas où DisplayLink n'est pas prêt
+output eDP-1 enable
+
 # Systemd integration - démarrer la session target
-exec systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK
-exec systemctl --user start sway-session.target
+# Délai pour attendre DisplayLink (10-30s d'initialisation)
+exec "sleep 5 && systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK"
+exec "sleep 5 && systemctl --user start sway-session.target"
 
 # Startup applications
 # NOTE: Pas de xwayland-satellite (Sway a XWayland intégré)

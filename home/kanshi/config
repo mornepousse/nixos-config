@@ -15,7 +15,18 @@ profile laptop {
 
 # Profil docked - LEN T24i-10 au-dessus (rotation 180°), Odyssey en dessous, laptop off
 profile docked {
-    output DVI-I-2 mode 1920x1080@60Hz position 0,0 transform 180
-    output DVI-I-1 mode 1920x1080@60Hz position 0,1080
+    output DVI-I-2 enable mode 1920x1080@60Hz position 0,0 transform 180
+    output DVI-I-1 enable mode 1920x1080@60Hz position 0,1080
+    output eDP-1 disable
+}
+
+# Profil un seul écran externe (fallback pendant initialisation DisplayLink)
+profile single-external {
+    output DVI-I-1 enable mode 1920x1080@60Hz position 0,0
+    output eDP-1 disable
+}
+
+profile single-external-2 {
+    output DVI-I-2 enable mode 1920x1080@60Hz position 0,0
     output eDP-1 disable
 }

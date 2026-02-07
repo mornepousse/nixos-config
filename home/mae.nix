@@ -137,12 +137,11 @@
   # Config fuzzel
   home.file.".config/fuzzel/fuzzel.ini".source = ./fuzzel/fuzzel.ini;
 
-  # Kanshi - Profils d'écrans automatiques (désactivé temporairement)
-  # TODO: Activer après avoir configuré sway-session.target
-  # services.kanshi = {
-  #   enable = true;
-  #   systemdTarget = "sway-session.target";  # Sway session target
-  # };
+  # Kanshi - Profils d'écrans automatiques
+  services.kanshi = {
+    enable = true;
+    systemdTarget = "sway-session.target";
+  };
 
   # Config kanshi (profils d'écrans)
   home.file.".config/kanshi/config".source = ./kanshi/config;
