@@ -68,5 +68,6 @@
     noto-fonts-color-emoji
     nerd-fonts.jetbrains-mono
     nerd-fonts.fira-code
+    font-awesome          # Icônes modernes pour waybar
   ];
 }

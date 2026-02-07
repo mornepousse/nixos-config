@@ -1,0 +1,101 @@
+* {
+  border: none;
+  border-radius: 0;
+  font-family: "JetBrainsMono Nerd Font", sans-serif;
+  font-size: 13px;
+  min-height: 0;
+}
+
+window#waybar {
+  background: rgba(30, 30, 46, 0.85);
+  color: #cdd6f4;
+}
+
+#custom-launcher {
+  color: #cba6f7;
+  padding: 0 12px;
+}
+
+#custom-valent {
+  color: #94e2d5;
+  padding: 0 10px;
+}
+
+#custom-valent.disconnected {
+  color: #6c7086;
+}
+
+#tray {
+  padding: 0 8px;
+}
+
+#tray > .passive {
+  -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+  -gtk-icon-effect: highlight;
+  color: #f38ba8;
+}
+
+#workspaces button {
+  padding: 0 8px;
+  color: #6c7086;
+  background: transparent;
+}
+
+#workspaces button.active {
+  color: #89b4fa;
+}
+
+#workspaces button:hover {
+  color: #cdd6f4;
+}
+
+#window {
+  color: #a6adc8;
+  padding: 0 12px;
+}
+
+#pulseaudio {
+  color: #f9e2af;
+  padding: 0 10px;
+}
+
+#network {
+  color: #89dceb;
+  padding: 0 10px;
+}
+
+#bluetooth {
+  color: #89b4fa;
+  padding: 0 10px;
+}
+
+#memory {
+  color: #a6e3a1;
+  padding: 0 10px;
+}
+
+#battery {
+  color: #a6e3a1;
+  padding: 0 10px;
+}
+
+#battery.warning {
+  color: #f9e2af;
+}
+
+#battery.critical {
+  color: #f38ba8;
+}
+
+#clock {
+  color: #cba6f7;
+  padding: 0 12px;
+}
+
+#custom-power {
+  color: #f38ba8;
+  padding: 0 12px;
+}

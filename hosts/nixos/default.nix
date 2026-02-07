@@ -10,7 +10,7 @@
     ../../modules/hardware/displaylink.nix
     ../../modules/hardware/smb.nix
     ../../modules/desktop/niri.nix
-    ../../modules/desktop/ly.nix
+    ../../modules/desktop/sddm.nix
     ../../modules/desktop/quickshell.nix
     ../../modules/dev/kicad.nix
     ../../modules/dev/stm32.nix
@@ -19,7 +19,6 @@
     ../../modules/dev/rider.nix
     ../../modules/apps/discord.nix
     ../../modules/apps/github-desktop.nix
-    ../../modules/apps/valent.nix
     ../../modules/dev/ai.nix
   ];
 
@@ -136,6 +135,13 @@
 
   # Polkit
   security.polkit.enable = true;
+
+  # Mode docked : permettre de garder le laptop fermé sur secteur
+  services.logind = {
+    lidSwitch = "suspend";                    # Par défaut : suspend quand capot fermé
+    lidSwitchExternalPower = "ignore";        # Sur secteur : ignorer le capot fermé
+    lidSwitchDocked = "ignore";               # Avec écran externe : ignorer le capot fermé
+  };
 
   # Keyring (pour GitHub Copilot et autres tokens)
   services.gnome.gnome-keyring.enable = true;

@@ -1,9 +1,11 @@
 { config, pkgs, ... }:
 
 {
-  # Quickshell - Shell/Bar moderne pour Wayland
+  # Waybar - Barre légère et configurable pour Wayland
   environment.systemPackages = with pkgs; [
-    noctalia-shell
+    waybar
+    # BACKUP: noctalia-shell (décommenter si waybar ne convient pas)
+    # noctalia-shell
   ];
 
   # Service UPower nécessaire pour le widget batterie

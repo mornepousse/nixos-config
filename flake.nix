@@ -1,5 +1,5 @@
 {
-  description = "NixOS configuration for mae - niri + quickshell + ly";
+  description = "NixOS configuration for mae - niri + waybar + SDDM";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";

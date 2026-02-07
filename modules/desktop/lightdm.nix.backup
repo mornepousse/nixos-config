@@ -1,0 +1,34 @@
+{ config, pkgs, ... }:
+
+{
+  # LightDM - Display manager léger et standard
+  services.xserver.displayManager.lightdm = {
+    enable = true;
+    background = "#1e1e2e";
+    greeters.gtk = {
+      enable = true;
+      theme = {
+        package = pkgs.catppuccin-gtk.override {
+          variant = "mocha";
+          accents = [ "mauve" ];
+        };
+        name = "catppuccin-mocha-mauve-standard";
+      };
+      iconTheme = {
+        package = pkgs.papirus-icon-theme;
+        name = "Papirus-Dark";
+      };
+      cursorTheme = {
+        package = pkgs.kdePackages.breeze;
+        name = "breeze_cursors";
+        size = 24;
+      };
+      indicators = [ "~host" "~spacer" "~clock" "~spacer" "~session" "~power" ];
+      extraConfig = ''
+        font-name = JetBrainsMono Nerd Font 11
+      '';
+    };
+  };
+  
+  services.xserver.enable = true;
+}

@@ -39,7 +39,12 @@ environment {
 }
 
 spawn-at-startup "mako"
-spawn-at-startup "noctalia-shell"
+spawn-at-startup "waybar"
+spawn-at-startup "nm-applet --indicator"
+spawn-at-startup "blueman-applet"
+spawn-at-startup "restore-wallpaper"
+spawn-at-startup "kanshi"
+// BACKUP: spawn-at-startup "noctalia-shell"
 
 binds {
     Mod+Return { spawn "alacritty"; }
@@ -47,6 +52,8 @@ binds {
     Mod+Space { spawn "fuzzel"; }
     Mod+D{ spawn "fuzzel"; }
     Mod+E {spawn "nautilus";}
+    Mod+W { spawn "waypaper"; }
+    Mod+P { spawn "wdisplays"; }
     Mod+Q { close-window; }
     
     Mod+H { focus-column-left; }

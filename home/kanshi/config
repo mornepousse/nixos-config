@@ -1,0 +1,21 @@
+# Kanshi - Configuration automatique des écrans
+# Les profils sont détectés automatiquement selon les écrans connectés
+
+# Profil laptop seul
+profile laptop {
+    output eDP-1 enable mode 1920x1080 position 0,0 scale 1
+}
+
+# Profil travail - exemple avec écran externe à droite
+# Décommente et adapte selon ton setup travail
+# profile travail {
+#     output eDP-1 enable mode 1920x1080 position 0,0 scale 1
+#     output "Dell Inc. DELL U2419H ABC123" enable mode 1920x1080 position 1920,0 scale 1
+# }
+
+# Profil perso - disposition actuelle détectée
+profile perso {
+    output "Lenovo Group Limited - LEN T24i-10 - DVI-I-2" enable mode 1920x1080 position 0,0 scale 1
+    output "Samsung Electric Company - Odyssey G40B - DVI-I-1" enable mode 1920x1080 position 1920,0 scale 1
+    output "Lenovo Group Limited - 0x40A9 - eDP-1" disable
+}

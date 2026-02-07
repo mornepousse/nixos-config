@@ -12,11 +12,18 @@
   # Charger le module au démarrage
   boot.kernelModules = [ "evdi" ];
 
-  # Paquet DisplayLink
+  # Paquet DisplayLink + script de reload
   environment.systemPackages = with pkgs; [
     displaylink
+    (pkgs.writeShellScriptBin "displaylink-reload" ''
+      echo "Reloading DisplayLink..."
+      sudo ${pkgs.systemd}/bin/systemctl restart dlm.service
+      sudo ${pkgs.kmod}/bin/modprobe -r evdi
+      sudo ${pkgs.kmod}/bin/modprobe evdi
+      echo "DisplayLink reloaded. Wait 10-30s for screens to connect."
+    '')
   ];
 
-  # Service DisplayLink
+  # Service DisplayLink (config de base déjà gérée par NixOS)
   systemd.services.dlm.wantedBy = [ "multi-user.target" ];
 }
