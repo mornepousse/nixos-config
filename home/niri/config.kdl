@@ -16,10 +16,6 @@ input {
 // XWayland pour les apps X11 (STM32CubeMX, etc.)
 spawn-at-startup "xwayland-satellite"
 
-output "eDP-1" {
-    scale 1.0
-}
-
 layout {
     gaps 8
     border {
@@ -43,7 +39,7 @@ spawn-at-startup "waybar"
 spawn-at-startup "nm-applet --indicator"
 spawn-at-startup "blueman-applet"
 spawn-at-startup "restore-wallpaper"
-spawn-at-startup "kanshi"
+// spawn-at-startup "kanshi"  # Désactivé - config directe dans niri
 // BACKUP: spawn-at-startup "noctalia-shell"
 
 binds {

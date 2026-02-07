@@ -113,7 +113,7 @@ gs, ga, gc, gp  # git status/add/commit/push
 - **Launcher** : fuzzel (dmenu Wayland)
 - **Notifications** : mako (timeout 5s, border-radius 8)
 - **Wallpaper** : swaybg via scripts `set-wallpaper`/`restore-wallpaper`
-- **Multi-écrans** : kanshi (service activé, démarre avec niri) + wdisplays (GUI) + wlr-randr (CLI)
+- **Multi-écrans** : Configuration manuelle avec wdisplays (GUI) ou wlr-randr (CLI)
 - **Curseur** : breeze_cursors (KDE)
 - **Applets** : pavucontrol (audio), nm-applet (WiFi)
 

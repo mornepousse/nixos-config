@@ -3,13 +3,14 @@
 {
   imports = [
     ./hardware-configuration.nix
-    
+
     # Modules
     ../../modules/hardware/usb-serial.nix
     ../../modules/hardware/dns.nix
     ../../modules/hardware/displaylink.nix
     ../../modules/hardware/smb.nix
     ../../modules/desktop/niri.nix
+    ../../modules/desktop/sway.nix        # Sway compositor (installation parallèle pour test)
     ../../modules/desktop/sddm.nix
     ../../modules/desktop/quickshell.nix
     ../../modules/dev/kicad.nix

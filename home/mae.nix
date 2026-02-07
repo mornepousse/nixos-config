@@ -37,12 +37,20 @@
     '')
     
     # Script power menu (shutdown/reboot/logout)
+    # Détection automatique du compositor actif (niri ou sway)
     (pkgs.writeShellScriptBin "power-menu" ''
       choice=$(printf "󰐥 Éteindre\n󰜉 Redémarrer\n󰍃 Déconnexion" | fuzzel --dmenu -p "Power: ")
       case "$choice" in
         "󰐥 Éteindre") systemctl poweroff ;;
         "󰜉 Redémarrer") systemctl reboot ;;
-        "󰍃 Déconnexion") niri msg action quit ;;
+        "󰍃 Déconnexion")
+          # Détection du compositor actif
+          if pgrep -x sway >/dev/null; then
+            swaymsg exit
+          elif pgrep -x niri >/dev/null; then
+            niri msg action quit
+          fi
+          ;;
       esac
     '')
     
@@ -118,18 +126,23 @@
   # Config niri
   home.file.".config/niri/config.kdl".source = ./niri/config.kdl;
 
+  # Config Sway
+  home.file.".config/sway/config".source = ./sway/config;
+
   # Config waybar
   home.file.".config/waybar/config".source = ./waybar/config.json;
+  home.file.".config/waybar/config-sway.json".source = ./waybar/config-sway.json;
   home.file.".config/waybar/style.css".source = ./waybar/style.css;
 
   # Config fuzzel
   home.file.".config/fuzzel/fuzzel.ini".source = ./fuzzel/fuzzel.ini;
 
-  # Kanshi - gestion automatique des profils d'écrans
-  services.kanshi = {
-    enable = true;
-    systemdTarget = "niri.service";  # Démarrer avec niri
-  };
+  # Kanshi - Profils d'écrans automatiques (désactivé temporairement)
+  # TODO: Activer après avoir configuré sway-session.target
+  # services.kanshi = {
+  #   enable = true;
+  #   systemdTarget = "sway-session.target";  # Sway session target
+  # };
 
   # Config kanshi (profils d'écrans)
   home.file.".config/kanshi/config".source = ./kanshi/config;

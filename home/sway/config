@@ -1,0 +1,112 @@
+# Sway Configuration
+# Traduction de home/niri/config.kdl vers syntaxe Sway
+
+# Mod key
+set $mod Mod4
+
+# Input configuration
+input type:keyboard {
+    xkb_layout us
+}
+
+input type:touchpad {
+    tap enabled
+    natural_scroll enabled
+}
+
+focus_follows_mouse yes
+
+# Appearance (matching niri: 8px gaps, 2px border)
+gaps inner 8
+default_border pixel 2
+default_floating_border pixel 2
+
+# Focus ring off (matching niri)
+client.focused #000000 #000000 #ffffff #000000 #000000
+
+# Disable CSD (prefer-no-csd in niri)
+for_window [class=".*"] border pixel 2
+
+# Application launchers
+bindsym $mod+Return exec alacritty
+bindsym $mod+b exec firefox
+bindsym $mod+Space exec fuzzel
+bindsym $mod+d exec fuzzel
+bindsym $mod+e exec nautilus
+bindsym $mod+w exec waypaper
+bindsym $mod+p exec wdisplays
+
+# Window management
+bindsym $mod+q kill
+
+# Focus navigation (vim-style)
+bindsym $mod+h focus left
+bindsym $mod+j focus down
+bindsym $mod+k focus up
+bindsym $mod+l focus right
+
+# Focus navigation (arrow keys)
+bindsym $mod+Left focus left
+bindsym $mod+Down focus down
+bindsym $mod+Up focus up
+bindsym $mod+Right focus right
+
+# Move windows (vim-style)
+bindsym $mod+Shift+h move left
+bindsym $mod+Shift+j move down
+bindsym $mod+Shift+k move up
+bindsym $mod+Shift+l move right
+
+# Workspaces (5 total, matching niri)
+bindsym $mod+1 workspace number 1
+bindsym $mod+2 workspace number 2
+bindsym $mod+3 workspace number 3
+bindsym $mod+4 workspace number 4
+bindsym $mod+5 workspace number 5
+
+# Move to workspace
+bindsym $mod+Shift+1 move container to workspace number 1
+bindsym $mod+Shift+2 move container to workspace number 2
+bindsym $mod+Shift+3 move container to workspace number 3
+bindsym $mod+Shift+4 move container to workspace number 4
+bindsym $mod+Shift+5 move container to workspace number 5
+
+# Fullscreen (Mod+F matches niri's maximize-column)
+bindsym $mod+f fullscreen toggle
+
+# True fullscreen (Mod+Shift+F matches niri's fullscreen-window)
+bindsym $mod+Shift+f fullscreen toggle global
+
+# Screenshots
+bindsym Print exec grim - | wl-copy
+bindsym $mod+Print exec grim -g "$(slurp)" - | wl-copy
+
+# Multimedia keys
+bindsym XF86AudioRaiseVolume exec pamixer -i 5
+bindsym XF86AudioLowerVolume exec pamixer -d 5
+bindsym XF86AudioMute exec pamixer -t
+
+bindsym XF86MonBrightnessUp exec brightnessctl set +5%
+bindsym XF86MonBrightnessDown exec brightnessctl set 5%-
+
+# Quit Sway (matches niri's Mod+Shift+E)
+bindsym $mod+Shift+e exec swaynag -t warning -m 'Exit sway?' -b 'Yes' 'swaymsg exit'
+
+# Systemd integration - démarrer la session target
+exec systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK
+exec systemctl --user start sway-session.target
+
+# Startup applications
+# NOTE: Pas de xwayland-satellite (Sway a XWayland intégré)
+exec mako
+exec waybar -c ~/.config/waybar/config-sway.json -s ~/.config/waybar/style.css
+exec nm-applet --indicator
+exec blueman-applet
+exec restore-wallpaper
+
+# DisplayLink auto-detection pendant les 60 premières secondes
+# Sway re-scanne les outputs dynamiquement pour gérer le délai DisplayLink
+exec --no-startup-id "for i in {1..12}; do sleep 5; swaymsg -t get_outputs >/dev/null; done"
+
+# Environment: permettre sudo (comme niri)
+set $NIXOS_ALLOW_SUDO 1
