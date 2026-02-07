@@ -2,12 +2,12 @@
 
 ## Architecture
 
-Configuration **NixOS basée sur flakes** avec Home Manager. Setup **niri + waybar + SDDM** (Wayland).
+Configuration **NixOS basée sur flakes** avec Home Manager. Setup **Sway + waybar + SDDM** (Wayland).
 
 - **`flake.nix`** - Point d'entrée, définit les inputs (nixpkgs, home-manager, nixpkgs-esp-dev)
 - **`hosts/nixos/`** - Config machine ; `default.nix` importe tous les modules
 - **`modules/`** - Modules NixOS organisés par catégorie (hardware, desktop, dev, apps)
-- **`home/`** - Config Home Manager pour l'utilisateur `mae` (dotfiles niri, waybar, fuzzel, nvim, shell)
+- **`home/`** - Config Home Manager pour l'utilisateur `mae` (dotfiles Sway, waybar, fuzzel, nvim, shell)
 
 ## Structure des Modules
 
@@ -20,7 +20,7 @@ Les modules dans `modules/` sont organisés en 4 catégories :
 - `usb-serial.nix` - Support USB série (CH340, CP210x)
 
 ### Desktop (`modules/desktop/`)
-- `niri.nix` - Wayland compositor (scrollable tiling)
+- `sway.nix` - Wayland compositor i3-compatible
 - `sddm.nix` - Display manager avec support Wayland natif (thème Catppuccin)
 - `quickshell.nix` - Contient waybar (barre de statut Wayland)
 
@@ -58,10 +58,10 @@ Chaque module est autonome avec ses packages, services et règles udev :
 
 ### Dotfiles Wayland
 Les fichiers de config sont symlinqués depuis `home/` :
-- `home/niri/config.kdl` → `.config/niri/config.kdl` (config niri)
-- `home/waybar/config.json` + `style.css` → Barre de statut Wayland
+- `home/sway/config` → `.config/sway/config` (config Sway)
+- `home/waybar/config-sway.json` + `style.css` → Barre de statut Wayland
 - `home/fuzzel/fuzzel.ini` → Lanceur d'applications (dmenu Wayland)
-- `home/kanshi/config` → Profils multi-écrans automatiques
+- `home/kanshi/config` → Profils multi-écrans automatiques (systemd service)
 
 ### Shell
 - **Aliases** : Centralisés dans `home/shell/aliases.nix` (partagés zsh/fish)
@@ -79,7 +79,7 @@ Les fichiers de config sont symlinqués depuis `home/` :
 ### Scripts Custom
 Scripts shell intégrés via `writeShellScriptBin` dans `home/mae.nix` :
 - `set-wallpaper` / `restore-wallpaper` - Gestion wallpaper swaybg
-- `power-menu` - Menu power avec fuzzel (shutdown/reboot/logout)
+- `power-menu` - Menu power avec fuzzel, détection auto compositor (shutdown/reboot/logout)
 
 ## Commandes
 
@@ -99,7 +99,7 @@ gs, ga, gc, gp  # git status/add/commit/push
 
 ## Hardware
 
-- **DisplayLink** : Télécharger le driver manuellement avant le premier build. ⚠️ La connexion au hub prend 10-30s (comportement normal)
+- **DisplayLink** : Télécharger le driver manuellement avant le premier build. ⚠️ La connexion au hub prend 10-30s (comportement normal). **Important** : Débrancher le hub DisplayLink avant le boot, le rebrancher après login pour éviter crash de Sway (limitation DisplayLink)
 - **USB série (CH340/CP210x)** : Règles udev auto ; utilisateur dans groupe `dialout`
 - **STM32** : Règles ST-Link dans `modules/dev/stm32.nix` ; groupe `plugdev`
 - **ESP32** : PlatformIO + ESP-IDF ; alias `get_idf` pour sourcer export.sh
@@ -107,15 +107,16 @@ gs, ga, gc, gp  # git status/add/commit/push
 
 ## Wayland/Desktop
 
-- **Compositor** : niri (scrollable tiling)
+- **Compositor** : Sway (i3-compatible tiling)
 - **Display Manager** : SDDM avec support Wayland natif (thème Catppuccin Mocha)
 - **Barre** : waybar (config JSON + CSS)
 - **Launcher** : fuzzel (dmenu Wayland)
 - **Notifications** : mako (timeout 5s, border-radius 8)
 - **Wallpaper** : swaybg via scripts `set-wallpaper`/`restore-wallpaper`
-- **Multi-écrans** : Configuration manuelle avec wdisplays (GUI) ou wlr-randr (CLI)
+- **Multi-écrans** : kanshi (profils automatiques via systemd), wdisplays (GUI) ou wlr-randr (CLI) pour config manuelle
 - **Curseur** : breeze_cursors (KDE)
 - **Applets** : pavucontrol (audio), nm-applet (WiFi)
+- **Raccourcis utiles** : `Mod+Shift+W` pour relancer waybar après reconfiguration écrans
 
 ## Système
 

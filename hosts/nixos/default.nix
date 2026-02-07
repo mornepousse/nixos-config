@@ -9,8 +9,8 @@
     ../../modules/hardware/dns.nix
     ../../modules/hardware/displaylink.nix
     ../../modules/hardware/smb.nix
-    ../../modules/desktop/niri.nix
-    ../../modules/desktop/sway.nix        # Sway compositor (installation parallèle pour test)
+    # ../../modules/desktop/niri.nix      # Désactivé - migration vers Sway
+    ../../modules/desktop/sway.nix
     ../../modules/desktop/sddm.nix
     ../../modules/desktop/quickshell.nix
     ../../modules/dev/kicad.nix
