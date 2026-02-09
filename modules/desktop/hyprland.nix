@@ -56,6 +56,9 @@
     brightnessctl
     playerctl
     pamixer
+
+    # Polkit authentication agent (popup mot de passe pour apps root)
+    polkit_gnome
   ];
 
   # XDG Portal pour Hyprland (même config que Sway)

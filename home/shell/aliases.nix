@@ -4,8 +4,8 @@
   
   # NixOS
   update = "sudo nixos-rebuild switch --flake ~/nixos-config#nixos";
-  upgrade = "nix flake update ~/nixos-config && nixos-rebuild switch --flake ~/nixos-config#nixos";
-  check-updates = "nix flake update ~/nixos-config && nixos-rebuild dry-build --flake ~/nixos-config#nixos";
+  upgrade = "cd ~/nixos-config && nix flake update && sudo nixos-rebuild switch --flake .#nixos";
+  check-updates = "cd ~/nixos-config && nix flake update && sudo nixos-rebuild build --flake .#nixos && nix store diff-closures /run/current-system ./result; git restore flake.lock && rm -f result";
   
   # Git
   gs = "git status";

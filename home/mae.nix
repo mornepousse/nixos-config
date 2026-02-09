@@ -179,6 +179,25 @@
     };
   };
 
+  # Polkit GNOME authentication agent (popup mot de passe GUI)
+  systemd.user.services.polkit-gnome-authentication-agent-1 = {
+    Unit = {
+      Description = "polkit-gnome-authentication-agent-1";
+      Wants = [ "hyprland-session.target" ];
+      After = [ "hyprland-session.target" ];
+    };
+    Service = {
+      Type = "simple";
+      ExecStart = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";
+      Restart = "on-failure";
+      RestartSec = 1;
+      TimeoutStopSec = 10;
+    };
+    Install = {
+      WantedBy = [ "hyprland-session.target" ];
+    };
+  };
+
   # Curseur style KDE (Breeze)
   home.pointerCursor = {
     name = "breeze_cursors";
