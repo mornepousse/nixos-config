@@ -9,9 +9,6 @@
     evdi
   ];
 
-  # Charger le module au démarrage
-  boot.kernelModules = [ "evdi" ];
-
   # Paquet DisplayLink + script de reload
   environment.systemPackages = with pkgs; [
     displaylink
@@ -24,6 +21,10 @@
     '')
   ];
 
-  # Service DisplayLink (config de base déjà gérée par NixOS)
-  systemd.services.dlm.wantedBy = [ "multi-user.target" ];
+  # Service DisplayLink - Démarrage automatique au boot
+  # NOTE: Prend 10-30s pour initialiser les écrans
+  systemd.services.dlm = {
+    enable = true;
+    wantedBy = [ "multi-user.target" ];
+  };
 }

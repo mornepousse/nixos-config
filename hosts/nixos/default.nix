@@ -11,6 +11,7 @@
     ../../modules/hardware/smb.nix
     # ../../modules/desktop/niri.nix      # Désactivé - migration vers Sway
     ../../modules/desktop/sway.nix
+    ../../modules/desktop/hyprland.nix   # Installation parallèle pour test
     ../../modules/desktop/sddm.nix
     ../../modules/desktop/quickshell.nix
     ../../modules/dev/kicad.nix

@@ -8,7 +8,7 @@
     package = pkgs.kdePackages.sddm;
 
     # Thème Catppuccin
-    theme = "catppuccin-mocha";
+    theme = "catppuccin-mocha-mauve";
 
     # Settings
     settings = {
