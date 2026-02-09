@@ -190,6 +190,48 @@
     fill = fill
   '';
 
+  # Fichiers .desktop pour applications sans desktop file natif
+  home.file.".local/share/applications/mpv.desktop".text = ''
+    [Desktop Entry]
+    Type=Application
+    Name=mpv Media Player
+    Comment=Play videos and music
+    Icon=mpv
+    Exec=mpv %U
+    Terminal=false
+    Categories=AudioVideo;Audio;Video;Player;
+    MimeType=video/mp4;video/x-matroska;video/webm;video/mpeg;audio/mpeg;audio/flac;audio/ogg;audio/mp3;
+  '';
+
+  home.file.".local/share/applications/imv.desktop".text = ''
+    [Desktop Entry]
+    Type=Application
+    Name=imv Image Viewer
+    Comment=Fast image viewer for Wayland
+    Icon=image-viewer
+    Exec=imv %U
+    Terminal=false
+    Categories=Graphics;Viewer;
+    MimeType=image/jpeg;image/png;image/gif;image/webp;image/bmp;image/tiff;
+  '';
+
+  home.file.".local/share/applications/alacritty.desktop".text = ''
+    [Desktop Entry]
+    Type=Application
+    Name=Alacritty
+    Comment=Fast GPU-accelerated terminal emulator
+    Icon=Alacritty
+    Exec=alacritty
+    Terminal=false
+    Categories=System;TerminalEmulator;
+  '';
+
+  # XDG user directories
+  xdg.userDirs = {
+    enable = true;
+    createDirectories = true;
+  };
+
   # Associations MIME pour ouverture fichiers avec bons programmes
   xdg.mimeApps = {
     enable = true;
