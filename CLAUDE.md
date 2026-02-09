@@ -95,9 +95,10 @@ Scripts shell intégrés via `writeShellScriptBin` dans `home/mae.nix` :
 sudo nixos-rebuild switch --flake ~/nixos-config#nixos
 
 # Raccourcis (alias dans home/shell/aliases.nix)
-update          # rebuild seulement
-upgrade         # update flake + rebuild
-check-updates   # dry-build pour voir les changements
+update          # rebuild et applique la config actuelle
+upgrade         # update flake.lock + rebuild et applique
+check-updates   # update flake.lock temporaire, build, affiche liste détaillée des paquets
+                # mis à jour avec versions (ancien→nouveau), puis restore flake.lock
 clean           # garbage collect
 
 # Git shortcuts

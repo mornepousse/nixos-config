@@ -50,16 +50,17 @@ sudo nixos-rebuild switch --flake .#nixos
 ## Mise à jour
 
 ```bash
-# Rebuild seulement
+# Rebuild seulement (applique la config actuelle)
 update
 
-# Update flake + rebuild
+# Update flake + rebuild (met à jour les paquets et applique)
 upgrade
 
-# Voir les changements sans appliquer
+# Voir la liste détaillée des mises à jour disponibles sans les appliquer
+# Affiche : paquets mis à jour (ancien→nouveau), paquets ajoutés/supprimés, taille
 check-updates
 
-# Garbage collect
+# Garbage collect (nettoie les anciennes générations)
 clean
 ```
 
