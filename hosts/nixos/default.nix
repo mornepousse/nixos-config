@@ -21,6 +21,7 @@
     ../../modules/dev/rider.nix
     ../../modules/apps/discord.nix
     ../../modules/apps/github-desktop.nix
+    ../../modules/apps/disk-tools.nix
     ../../modules/dev/ai.nix
   ];
 
