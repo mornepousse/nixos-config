@@ -13,8 +13,6 @@
     psmisc  # Pour killall
     waypaper # Gestionnaire de wallpaper pour Wayland
     wdisplays # Gestionnaire graphique de disposition d'écrans (Wayland)
-    wlr-randr # CLI pour gérer les écrans (Wayland)
-    kanshi    # Daemon pour profils d'écrans automatiques
     cliphist  # Clipboard manager pour Hyprland
     
     # Script pour sauvegarder et restaurer le wallpaper
@@ -56,7 +54,24 @@
           ;;
       esac
     '')
-    
+
+    # Script pour basculer entre les profils d'écrans (Hyprland)
+    (pkgs.writeShellScriptBin "monitor-toggle" ''
+      choice=$(printf "🖥️ Bureau (côte à côte)\n📺 Docked (vertical)" | fuzzel --dmenu -p "Profil écran: ")
+      case "$choice" in
+        "🖥️ Bureau (côte à côte)")
+          hyprctl keyword monitor "eDP-1,disable"
+          hyprctl keyword monitor "DVI-I-1,1920x1080@60,0x0,1"
+          hyprctl keyword monitor "DVI-I-2,1920x1080@60,1920x0,1"
+          ;;
+        "📺 Docked (vertical)")
+          hyprctl keyword monitor "eDP-1,disable"
+          hyprctl keyword monitor "DVI-I-2,1920x1080@60,0x0,1,transform,2"
+          hyprctl keyword monitor "DVI-I-1,1920x1080@60,0x1080,1"
+          ;;
+      esac
+    '')
+
     # Applets système
     pavucontrol          # Contrôle audio graphique
     networkmanagerapplet # nm-applet pour le réseau WiFi
@@ -154,16 +169,6 @@
 
   # Config fuzzel
   home.file.".config/fuzzel/fuzzel.ini".source = ./fuzzel/fuzzel.ini;
-
-  # Kanshi - Profils d'écrans automatiques
-  # Note: fonctionne avec Sway et Hyprland (détection automatique des outputs Wayland)
-  services.kanshi = {
-    enable = true;
-    systemdTarget = "sway-session.target";  # Fonctionne aussi avec Hyprland
-  };
-
-  # Config kanshi (profils d'écrans)
-  home.file.".config/kanshi/config".source = ./kanshi/config;
 
   # Mako (notifications)
   services.mako = {

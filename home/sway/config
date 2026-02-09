@@ -92,6 +92,9 @@ bindsym XF86MonBrightnessDown exec brightnessctl set 5%-
 # Quit Sway (matches niri's Mod+Shift+E)
 bindsym $mod+Shift+e exec swaynag -t warning -m 'Exit sway?' -b 'Yes' 'swaymsg exit'
 
+# Toggle monitor profiles (bureau/docked)
+bindsym $mod+Shift+m exec monitor-toggle
+
 # Relancer waybar (utile après reconfiguration des écrans)
 bindsym $mod+Shift+w exec "pkill waybar; waybar -c ~/.config/waybar/config-sway.json -s ~/.config/waybar/style.css &"
 

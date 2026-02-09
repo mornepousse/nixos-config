@@ -6,11 +6,19 @@ profile laptop {
     output eDP-1 enable mode 1920x1080 position 0,0 scale 1
 }
 
-# Profil travail - exemple avec écran externe à droite
-# Décommente et adapte selon ton setup travail
-# profile travail {
-#     output eDP-1 enable mode 1920x1080 position 0,0 scale 1
-#     output "Dell Inc. DELL U2419H ABC123" enable mode 1920x1080 position 1920,0 scale 1
+# Profil bureau - Écrans DisplayLink côte à côte (horizontal)
+# Odyssey (DVI-I-1) à gauche, LEN T24i-10 (DVI-I-2) à droite, sans rotation
+profile bureau {
+    output DVI-I-1 enable mode 1920x1080@60Hz position 0,0
+    output DVI-I-2 enable mode 1920x1080@60Hz position 1920,0
+    output eDP-1 disable
+}
+
+# Exemple alternatif: Laptop désactivé, 2 écrans externes côte à côte
+# profile bureau-dual {
+#     output eDP-1 disable
+#     output "Écran1" enable mode 1920x1080 position 0,0
+#     output "Écran2" enable mode 1920x1080 position 1920,0
 # }
 
 # Profil docked - LEN T24i-10 au-dessus (rotation 180°), Odyssey en dessous, laptop off

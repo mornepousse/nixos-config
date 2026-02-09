@@ -2,12 +2,12 @@
 
 ## Architecture
 
-Configuration **NixOS basée sur flakes** avec Home Manager. Setup **Sway + waybar + SDDM** (Wayland).
+Configuration **NixOS basée sur flakes** avec Home Manager. Setup **Hyprland / Sway + waybar + SDDM** (Wayland).
 
 - **`flake.nix`** - Point d'entrée, définit les inputs (nixpkgs, home-manager, nixpkgs-esp-dev)
 - **`hosts/nixos/`** - Config machine ; `default.nix` importe tous les modules
 - **`modules/`** - Modules NixOS organisés par catégorie (hardware, desktop, dev, apps)
-- **`home/`** - Config Home Manager pour l'utilisateur `mae` (dotfiles Sway, waybar, fuzzel, nvim, shell)
+- **`home/`** - Config Home Manager pour l'utilisateur `mae` (dotfiles Hyprland/Sway, waybar, fuzzel, nvim, shell)
 
 ## Structure des Modules
 
@@ -20,6 +20,7 @@ Les modules dans `modules/` sont organisés en 4 catégories :
 - `usb-serial.nix` - Support USB série (CH340, CP210x)
 
 ### Desktop (`modules/desktop/`)
+- `hyprland.nix` - Wayland compositor moderne avec animations (recommandé)
 - `sway.nix` - Wayland compositor i3-compatible
 - `sddm.nix` - Display manager avec support Wayland natif (thème Catppuccin)
 - `quickshell.nix` - Contient waybar (barre de statut Wayland)
@@ -58,10 +59,15 @@ Chaque module est autonome avec ses packages, services et règles udev :
 
 ### Dotfiles Wayland
 Les fichiers de config sont symlinqués depuis `home/` :
-- `home/sway/config` → `.config/sway/config` (config Sway)
-- `home/waybar/config-sway.json` + `style.css` → Barre de statut Wayland
-- `home/fuzzel/fuzzel.ini` → Lanceur d'applications (dmenu Wayland)
-- `home/kanshi/config` → Profils multi-écrans automatiques (systemd service)
+- **Hyprland** (config modulaire dans `home/hypr/`) :
+  - `hyprland.conf` - Config principale (source tous les modules)
+  - `env.conf`, `monitors.conf`, `input.conf`, `keybinds.conf`, etc. - Modules spécialisés
+  - `waybar/config-hyprland.json` - Barre de statut Hyprland
+- **Sway** :
+  - `home/sway/config` - Config Sway
+  - `home/waybar/config-sway.json` + `style.css` - Barre de statut Sway
+- **Commun** :
+  - `home/fuzzel/fuzzel.ini` - Lanceur d'applications (dmenu Wayland)
 
 ### Shell
 - **Aliases** : Centralisés dans `home/shell/aliases.nix` (partagés zsh/fish)
@@ -80,6 +86,7 @@ Les fichiers de config sont symlinqués depuis `home/` :
 Scripts shell intégrés via `writeShellScriptBin` dans `home/mae.nix` :
 - `set-wallpaper` / `restore-wallpaper` - Gestion wallpaper swaybg
 - `power-menu` - Menu power avec fuzzel, détection auto compositor (shutdown/reboot/logout)
+- `monitor-toggle` - Basculer entre profils d'écrans (Bureau côte à côte / Docked vertical) via `hyprctl`
 
 ## Commandes
 
@@ -107,16 +114,24 @@ gs, ga, gc, gp  # git status/add/commit/push
 
 ## Wayland/Desktop
 
-- **Compositor** : Sway (i3-compatible tiling)
+- **Compositeurs** :
+  - **Hyprland** (recommandé) : Compositor moderne avec animations, tiling dynamique
+  - **Sway** : Compositor i3-compatible, plus sobre
 - **Display Manager** : SDDM avec support Wayland natif (thème Catppuccin Mocha)
-- **Barre** : waybar (config JSON + CSS)
+- **Barre** : waybar (config JSON + CSS, adaptée par compositor)
 - **Launcher** : fuzzel (dmenu Wayland)
 - **Notifications** : mako (timeout 5s, border-radius 8)
 - **Wallpaper** : swaybg via scripts `set-wallpaper`/`restore-wallpaper`
-- **Multi-écrans** : kanshi (profils automatiques via systemd), wdisplays (GUI) ou wlr-randr (CLI) pour config manuelle
+- **Multi-écrans** :
+  - **Hyprland** : Config native dans `monitors.conf` + script `monitor-toggle` (`Mod+Shift+M`)
+  - **Sway** : wdisplays (GUI) pour config manuelle
+- **Explorateur de fichiers** : Dolphin (KDE) avec kio-extras (SMB, archives, thumbnails)
 - **Curseur** : breeze_cursors (KDE)
-- **Applets** : pavucontrol (audio), nm-applet (WiFi)
-- **Raccourcis utiles** : `Mod+Shift+W` pour relancer waybar après reconfiguration écrans
+- **Applets** : pavucontrol (audio), nm-applet (WiFi), blueman-applet (Bluetooth)
+- **Clipboard** : cliphist pour Hyprland
+- **Raccourcis utiles** :
+  - `Mod+Shift+M` : Basculer entre profils d'écrans (Bureau/Docked)
+  - `Mod+Shift+W` : Relancer waybar après reconfiguration écrans
 
 ## Système
 

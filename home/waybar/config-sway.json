@@ -14,8 +14,17 @@
   },
 
   "sway/workspaces": {
-    "format": "{index}",
-    "on-click": "activate"
+    "format": "{name}",
+    "on-click": "activate",
+    "all-outputs": false,
+    "disable-scroll": true,
+    "persistent-workspaces": {
+      "1": [],
+      "2": [],
+      "3": [],
+      "4": [],
+      "5": []
+    }
   },
 
   "sway/window": {

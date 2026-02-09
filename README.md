@@ -1,27 +1,29 @@
 # NixOS Config - mae
 
-Ma configuration NixOS avec niri, noctalia-shell et ly.
+Ma configuration NixOS avec Hyprland/Sway, waybar et SDDM.
 
 ## Stack
 
 - **OS**: NixOS Unstable
-- **Compositor**: niri (Wayland tiling)
-- **Bar**: noctalia-shell (Quickshell)
-- **Display Manager**: ly
-- **Shell**: fish + starship
-- **Apps**: Valent (KDE Connect), Discord, GitHub Desktop
+- **Compositeurs**: Hyprland (recommandé) / Sway (i3-compatible)
+- **Bar**: waybar
+- **Display Manager**: SDDM (thème Catppuccin Mocha)
+- **Shell**: zsh (défaut) / fish + starship
+- **File Manager**: Dolphin (KDE) avec support SMB, archives, thumbnails
+- **Apps**: Discord, GitHub Desktop, Valent (KDE Connect)
 
 ## Matériel
 
-- **DisplayLink**: Dell Universal Dock D6000
+- **DisplayLink**: Dell Universal Dock D6000 (driver évdi)
 - **USB Serial**: CH340, CP210x (Arduino/ESP)
-- **DNS**: Configuration réseau personnalisée
+- **Multi-écrans**: DisplayLink + script `monitor-toggle` pour basculer entre dispositions
 
 ## Outils de dev
 
 - **Hardware**: KiCad (électronique), FreeCAD (CAO 3D)
-- **Embedded**: STM32CubeMX + toolchain ARM, ESP-IDF (ESP32)
+- **Embedded**: STM32 (ST-Link) + ESP-IDF (ESP32)
 - **.NET**: JetBrains Rider
+- **AI/ML**: Outils IA (modules/dev/ai.nix)
 
 ## Installation
 
@@ -48,15 +50,17 @@ sudo nixos-rebuild switch --flake .#nixos
 ## Mise à jour
 
 ```bash
-# Mettre à jour les inputs du flake
-nix flake update
+# Rebuild seulement
+update
 
-# Rebuild
-sudo nixos-rebuild switch --flake ~/nixos-config#nixos
+# Update flake + rebuild
+upgrade
 
-# Ou utiliser l'alias
-update   # rebuild seulement
-upgrade  # update flake + rebuild
+# Voir les changements sans appliquer
+check-updates
+
+# Garbage collect
+clean
 ```
 
 ## Structure
@@ -68,52 +72,77 @@ nixos-config/
 │   ├── default.nix
 │   └── hardware-configuration.nix
 ├── modules/
-│   ├── desktop/                 # niri, ly, noctalia-shell
-│   ├── hardware/                # DisplayLink, USB serial, DNS
-│   ├── dev/                     # KiCad, STM32, ESP-IDF, FreeCAD, Rider
+│   ├── desktop/                 # hyprland, sway, sddm, waybar
+│   ├── hardware/                # DisplayLink, USB serial, DNS, SMB
+│   ├── dev/                     # KiCad, STM32, ESP-IDF, FreeCAD, Rider, AI
 │   └── apps/                    # Discord, GitHub Desktop, Valent
 └── home/                        # Home-manager
-    ├── mae.nix
-    ├── niri/config.kdl
-    ├── nvim/
-    └── shell/aliases.nix
+    ├── mae.nix                  # Config principale + scripts
+    ├── hypr/                    # Config Hyprland (modulaire)
+    │   ├── hyprland.conf
+    │   ├── monitors.conf
+    │   ├── keybinds.conf
+    │   └── ...
+    ├── sway/config              # Config Sway
+    ├── waybar/                  # Configs waybar (hyprland/sway)
+    ├── nvim/                    # LazyVim config
+    └── shell/aliases.nix        # Aliases partagés
 ```
+
+## Raccourcis Hyprland
+
+| Raccourci | Action |
+|-----------|--------|
+| `Mod+Return` | Terminal (alacritty) |
+| `Mod+B` | Navigateur (Firefox) |
+| `Mod+Space` / `Mod+D` | Launcher (fuzzel) |
+| `Mod+E` | Explorateur de fichiers (Dolphin) |
+| `Mod+Q` | Fermer fenêtre |
+| `Mod+H/J/K/L` | Navigation (vim-style) |
+| `Mod+Shift+H/J/K/L` | Déplacer fenêtre |
+| `Mod+1-5` | Workspaces |
+| `Mod+F` | Fullscreen |
+| `Mod+Shift+M` | **Basculer profils d'écrans** (Bureau/Docked) |
+| `Mod+Shift+W` | Relancer waybar |
+| `Mod+Shift+E` | Quitter Hyprland |
 
 ## Notes spécifiques
 
+### Multi-écrans
+
+La gestion des écrans est native dans Hyprland via `monitors.conf` et le script `monitor-toggle`:
+
+- **Profil Bureau** : Écrans DisplayLink côte à côte (horizontal)
+- **Profil Docked** : Écrans DisplayLink vertical (écran du haut avec rotation 180°)
+
+Basculer avec `Mod+Shift+M` ou lancer `monitor-toggle` dans un terminal.
+
 ### ESP-IDF
 
-ESP-IDF n'est pas installé automatiquement (trop complexe). Pour l'installer:
+ESP-IDF est installé via le flake `nixpkgs-esp-dev`. Utilise l'alias pour sourcer l'environnement:
 
 ```bash
-mkdir -p ~/esp && cd ~/esp
-git clone --recursive https://github.com/espressif/esp-idf.git
-cd esp-idf
-./install.sh esp32,esp32s3  # Ajoute les targets dont tu as besoin
+get_idf  # Source ~/esp/esp-idf/export.sh
 ```
 
-Puis dans chaque session:
-```bash
-source ~/esp/esp-idf/export.sh
-# Ou décommente l'alias dans home/mae.nix et utilise: get_idf
-```
+### DisplayLink
+
+Le driver DisplayLink nécessite d'accepter l'EULA de Synaptics. Le téléchargement doit être fait manuellement avant le premier rebuild.
+
+⚠️ **Important** : Débrancher le hub DisplayLink avant le boot, le rebrancher après login pour éviter des problèmes de stabilité.
 
 ### Valent (KDE Connect)
 
 Installer **KDE Connect** sur ton téléphone (Android/iOS). Valent se connectera automatiquement via le réseau local (ports 1714-1764 ouverts).
 
-### DisplayLink
+### Dolphin
 
-Le driver DisplayLink nécessite d'accepter l'EULA de Synaptics. Le téléchargement doit être fait manuellement avant le premier rebuild (voir étape 2 de l'installation).
+Dolphin est configuré avec le support complet :
+- **Archives** : Extraction via Ark (7z, rar, zip)
+- **SMB** : Accès aux partages réseau
+- **Thumbnails** : Aperçus vidéos, images, PDF
+- **Open With** : Associations MIME configurées pour mpv, imv, alacritty
 
-## Raccourcis niri
+## Documentation
 
-| Raccourci | Action |
-|-----------|--------|
-| `Mod+Return` | Terminal (foot) |
-| `Mod+D` | Launcher (fuzzel) |
-| `Mod+Shift+Q` | Fermer fenêtre |
-| `Mod+H/J/K/L` | Navigation |
-| `Mod+1-5` | Workspaces |
-| `Mod+F` | Maximize |
-| `Mod+Shift+E` | Quitter niri |
+Voir [CLAUDE.md](CLAUDE.md) pour la documentation complète destinée à Claude Code (architecture, modules, conventions).
