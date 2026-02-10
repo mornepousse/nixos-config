@@ -55,6 +55,21 @@
     DOTNET_CLI_TELEMETRY_OPTOUT = "1";  # Désactive la télémétrie
   };
   environment.sessionVariables = {
-    LD_LIBRARY_PATH = "${pkgs.icu}/lib";
+    LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [
+      pkgs.icu
+      pkgs.fontconfig
+      pkgs.freetype
+      pkgs.libGL
+      pkgs.libxkbcommon
+      pkgs.libX11
+      pkgs.libXrandr
+      pkgs.libXinerama
+      pkgs.libXi
+      pkgs.libXcursor
+      pkgs.libXext
+      pkgs.libXrender
+      pkgs.xorg.libXxf86vm
+      pkgs.libxcb
+    ];
   };
 }
