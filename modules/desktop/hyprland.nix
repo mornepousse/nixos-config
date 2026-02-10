@@ -11,6 +11,7 @@
   environment.systemPackages = with pkgs; [
     # Apps de base
     firefox
+    vivaldi
     foot
     alacritty
     fuzzel

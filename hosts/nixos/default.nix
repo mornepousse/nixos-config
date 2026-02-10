@@ -20,9 +20,10 @@
     ../../modules/dev/freecad.nix
     ../../modules/dev/rider.nix
     ../../modules/apps/discord.nix
-    ../../modules/apps/github-desktop.nix
     ../../modules/apps/disk-tools.nix
+    ../../modules/apps/flatpak.nix
     ../../modules/dev/ai.nix
+    ../../modules/dev/dev_other.nix
   ];
 
   # Bootloader
