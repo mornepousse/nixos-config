@@ -147,6 +147,9 @@
     lidSwitchDocked = "ignore";               # Avec écran externe : ignorer le capot fermé
   };
 
+  # Profils d'énergie (performance / balanced / power-saver)
+  services.power-profiles-daemon.enable = true;
+
   # Keyring (pour GitHub Copilot et autres tokens)
   services.gnome.gnome-keyring.enable = true;
   security.pam.services.login.enableGnomeKeyring = true;

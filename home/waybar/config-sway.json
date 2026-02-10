@@ -5,7 +5,7 @@
   "spacing": 0,
   "modules-left": ["custom/launcher", "sway/workspaces"],
   "modules-center": ["sway/window"],
-  "modules-right": ["tray", "memory", "pulseaudio", "network", "bluetooth", "battery", "clock", "custom/power"],
+  "modules-right": ["tray", "memory", "pulseaudio", "network", "bluetooth", "battery", "power-profiles-daemon", "clock", "custom/power"],
 
   "custom/launcher": {
     "format": "󰀻",
@@ -74,6 +74,17 @@
   "tray": {
     "icon-size": 16,
     "spacing": 8
+  },
+
+  "power-profiles-daemon": {
+    "format": "{icon}",
+    "tooltip-format": "Profil : {profile}",
+    "format-icons": {
+      "default": "󰾅",
+      "performance": "󱐌",
+      "balanced": "󰾅",
+      "power-saver": "󰾆"
+    }
   },
 
   "clock": {

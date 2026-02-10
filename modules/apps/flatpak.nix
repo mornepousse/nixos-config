@@ -4,6 +4,11 @@
   # Support Flatpak
   services.flatpak.enable = true;
 
+  # KDE Discover : interface graphique pour gérer les apps Flatpak
+  environment.systemPackages = with pkgs; [
+    kdePackages.discover  # GUI pour gérer les apps Flatpak (backend Flatpak activé auto)
+  ];
+
   # XDG portals requis pour Flatpak sous Wayland
   xdg.portal = {
     enable = true;
