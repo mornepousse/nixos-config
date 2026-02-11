@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 
 {
   # Hyprland - Compositor Wayland moderne avec animations
@@ -11,9 +11,10 @@
   environment.systemPackages = with pkgs; [
     # Apps de base
     firefox
-    vivaldi
-    foot
+    ungoogled-chromium
+    inputs.zen-browser.packages.${pkgs.system}.default
     alacritty
+    kitty
     fuzzel
 
     # Dolphin - File manager KDE avec plugins complets

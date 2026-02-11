@@ -13,6 +13,7 @@
     ../../modules/desktop/sway.nix
     ../../modules/desktop/hyprland.nix   # Installation parallèle pour test
     ../../modules/desktop/sddm.nix
+    ../../modules/desktop/desktop-others.nix
     ../../modules/desktop/quickshell.nix
     ../../modules/dev/kicad.nix
     ../../modules/dev/stm32.nix
@@ -91,6 +92,8 @@
     fd
     bluetui
     vscode.fhs  # VSCode avec FHS pour compatibilité extensions
+    nvd          # Diff entre générations NixOS
+    nh           # Helper NixOS (wrapper nixos-rebuild + nvd intégré)
   ];
 
   # Autoriser les packages non-libres

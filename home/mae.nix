@@ -112,10 +112,9 @@
     
     initContent = ''
       # ESP-IDF
-      alias get_idf='. $HOME/esp/esp-idf/export.sh'
+      #alias get_idf='. $HOME/esp/esp-idf/export.sh'
       
-      # Fastfetch à l'ouverture du terminal
-      fastfetch
+      # Fastfetch à l'ouverture du terminal 
     '';
   };
 
