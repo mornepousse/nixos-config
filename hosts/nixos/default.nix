@@ -145,10 +145,10 @@
   security.polkit.enable = true;
 
   # Mode docked : permettre de garder le laptop fermé sur secteur
-  services.logind = {
-    lidSwitch = "suspend";                    # Par défaut : suspend quand capot fermé
-    lidSwitchExternalPower = "ignore";        # Sur secteur : ignorer le capot fermé
-    lidSwitchDocked = "ignore";               # Avec écran externe : ignorer le capot fermé
+  services.logind.settings.Login = {
+    HandleLidSwitch = "suspend";                    # Par défaut : suspend quand capot fermé
+    HandleLidSwitchExternalPower = "ignore";        # Sur secteur : ignorer le capot fermé
+    HandleLidSwitchDocked = "ignore";               # Avec écran externe : ignorer le capot fermé
   };
 
   # Profils d'énergie (performance / balanced / power-saver)

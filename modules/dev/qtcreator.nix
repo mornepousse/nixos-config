@@ -3,15 +3,21 @@
 {
   environment.systemPackages = with pkgs; [
     # Qt Creator IDE
-    qt-creator
+    qtcreator
 
-    # Qt libraries
-    qt5.full
-    qt6.full
+    # Qt 5 core packages
+    qt5.base
+    qt5.declarative
+    qt5.tools
+    qt5.doc
+    qt5.svg
+    qt5.imageformats
+    qt5.connectivity
 
-    # Qt tools
-    qt5.tools.full
-    qt6.tools.full
+    # Qt 6 core packages
+    qt6.base
+    qt6.declarative
+    qt6.tools
 
     # Compilation tools
     gcc
@@ -29,42 +35,24 @@
     automake
     libtool
 
-    # Additional Qt utilities
-    qt5.qtbase
-    qt5.qtdeclarative
-    qt5.qttools
-    qt6.qtbase
-    qt6.qtdeclarative
-
-    # For Qt development
+    # X11 and Wayland support
     libxkbcommon
     libxcb
     xcb-util-image
     xcb-util-keysyms
     xcb-util-renderutil
     xcb-util-wm
+    wayland
 
-    # Optional: useful dev tools
-    gitFull
+    # Additional libraries
+    libGL
+    xorg.libX11
+
+    # Useful dev tools
+    git
     wget
     curl
     htop
   ];
-
-  # Environment variables for Qt
-  environment.variables = {
-    QT_QPA_PLATFORM_PLUGIN_PATH = "${pkgs.qt5.full}/lib/qt-${pkgs.qt5.full.version}/plugins";
-    LD_LIBRARY_PATH = lib.makeLibraryPath [
-      pkgs.qt5.full
-      pkgs.qt6.full
-      pkgs.libxkbcommon
-    ] + ":$LD_LIBRARY_PATH";
-  };
-
-  # Optional: Desktop entry for Qt Creator (already provided by qt-creator package)
-  # But we can ensure the application menu shows it correctly
-
-  # Qt Creator configuration symlink (optional, allows shared config across projects)
-  # This creates a default Qt Creator settings directory structure
 
 }
