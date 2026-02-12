@@ -20,6 +20,7 @@
     ../../modules/dev/esp-idf.nix
     ../../modules/dev/freecad.nix
     ../../modules/dev/rider.nix
+    ../../modules/dev/qtcreator.nix
     ../../modules/apps/discord.nix
     ../../modules/apps/disk-tools.nix
     ../../modules/apps/flatpak.nix

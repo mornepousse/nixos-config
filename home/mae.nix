@@ -14,6 +14,10 @@
     waypaper # Gestionnaire de wallpaper pour Wayland
     wdisplays # Gestionnaire graphique de disposition d'écrans (Wayland)
     cliphist  # Clipboard manager pour Hyprland
+
+    # Thèmes Catppuccin (dark mode)
+    catppuccin-gtk
+    catppuccin-qt5ct
     
     # Script pour sauvegarder et restaurer le wallpaper
     (pkgs.writeShellScriptBin "set-wallpaper" ''
@@ -57,8 +61,13 @@
 
     # Script pour basculer entre les profils d'écrans (Hyprland)
     (pkgs.writeShellScriptBin "monitor-toggle" ''
-      choice=$(printf "🖥️ Bureau (côte à côte)\n📺 Docked (vertical)" | fuzzel --dmenu -p "Profil écran: ")
+      choice=$(printf "💻 Laptop seul\n🖥️ Bureau (côte à côte)\n📺 Docked (vertical)" | fuzzel --dmenu -p "Profil écran: ")
       case "$choice" in
+        "💻 Laptop seul")
+          hyprctl keyword monitor "DVI-I-1,disable"
+          hyprctl keyword monitor "DVI-I-2,disable"
+          hyprctl keyword monitor "eDP-1,preferred,auto,1"
+          ;;
         "🖥️ Bureau (côte à côte)")
           hyprctl keyword monitor "eDP-1,disable"
           hyprctl keyword monitor "DVI-I-1,1920x1080@60,0x0,1"
@@ -168,6 +177,39 @@
 
   # Config fuzzel
   home.file.".config/fuzzel/fuzzel.ini".source = ./fuzzel/fuzzel.ini;
+
+  # GTK Theme - Catppuccin Mocha (dark mode)
+  gtk = {
+    enable = true;
+    theme = {
+      name = "Catppuccin-Mocha";
+      package = pkgs.catppuccin-gtk;
+    };
+    iconTheme = {
+      name = "Adwaita";
+      package = pkgs.adwaita-icon-theme;
+    };
+  };
+
+  # Qt Theme - Forcer le dark mode
+  qt = {
+    enable = true;
+    platformTheme.name = "gtk3";
+  };
+
+  # GNOME dconf settings - Indiquer au système la préférence dark
+  dconf.settings = {
+    "org/gnome/desktop/interface" = {
+      gtk-application-prefer-dark-theme = true;
+      color-scheme = "prefer-dark";
+    };
+  };
+
+  # Variables d'environnement pour forcer le dark mode
+  home.sessionVariables = {
+    GTK_THEME = "Catppuccin-Mocha";
+    QT_QPA_PLATFORMTHEME = "gtk3";
+  };
 
   # Mako (notifications)
   services.mako = {
