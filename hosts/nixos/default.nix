@@ -21,6 +21,8 @@
     ../../modules/dev/freecad.nix
     ../../modules/dev/rider.nix
     ../../modules/dev/qtcreator.nix
+    ../../modules/dev/benchmark.nix
+    ../../modules/dev/ssh.nix
     ../../modules/apps/discord.nix
     ../../modules/apps/disk-tools.nix
     ../../modules/apps/flatpak.nix

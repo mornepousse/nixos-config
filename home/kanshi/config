@@ -11,7 +11,7 @@ profile laptop {
 profile bureau {
     output DVI-I-1 enable mode 1920x1080@60Hz position 0,0
     output DVI-I-2 enable mode 1920x1080@60Hz position 1920,0
-    output eDP-1 disable
+    output eDP-1 enable mode 1920x1080 position 1920,0 scale 1
 }
 
 # Exemple alternatif: Laptop désactivé, 2 écrans externes côte à côte
@@ -25,16 +25,16 @@ profile bureau {
 profile docked {
     output DVI-I-2 enable mode 1920x1080@60Hz position 0,0 transform 180
     output DVI-I-1 enable mode 1920x1080@60Hz position 0,1080
-    output eDP-1 disable
+    output eDP-1 enable mode 1920x1080 position 1920,0 scale 1
 }
 
 # Profil un seul écran externe (fallback pendant initialisation DisplayLink)
 profile single-external {
     output DVI-I-1 enable mode 1920x1080@60Hz position 0,0
-    output eDP-1 disable
+    output eDP-1 enable mode 1920x1080 position 0,0 scale 1
 }
 
 profile single-external-2 {
     output DVI-I-2 enable mode 1920x1080@60Hz position 0,0
-    output eDP-1 disable
+   output eDP-1 enable mode 1920x1080 position 0,0 scale 1
 }
