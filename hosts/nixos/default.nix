@@ -8,9 +8,7 @@
     ../../modules/hardware/usb-serial.nix
     ../../modules/hardware/dns.nix
     ../../modules/hardware/displaylink.nix
-    ../../modules/hardware/smb.nix
-    # ../../modules/desktop/niri.nix      # Désactivé - migration vers Sway
-    ../../modules/desktop/sway.nix
+    ../../modules/hardware/smb.nix  
     ../../modules/desktop/hyprland.nix   # Installation parallèle pour test
     ../../modules/desktop/sddm.nix
     ../../modules/desktop/desktop-others.nix
@@ -20,8 +18,7 @@
     ../../modules/dev/esp-idf.nix
     ../../modules/dev/freecad.nix
     ../../modules/dev/rider.nix
-    ../../modules/dev/qtcreator.nix
-    ../../modules/dev/benchmark.nix
+    ../../modules/dev/qtcreator.nix 
     ../../modules/dev/ssh.nix
     ../../modules/apps/discord.nix
     ../../modules/apps/disk-tools.nix

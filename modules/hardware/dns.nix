@@ -5,17 +5,18 @@
   # Désactive le DNS de NetworkManager pour utiliser nos propres serveurs
   networking.networkmanager.dns = "none";
 
-  # Serveurs DNS (Cloudflare - rapide et privé)
+  # Serveurs DNS : Pi-hole en priorité, Cloudflare en fallback
   networking.nameservers = [
+    "192.168.1.4"
     "1.1.1.1"
     "1.0.0.1"
-    # IPv6 Cloudflare (optionnel)
-    # "2606:4700:4700::1111"
-    # "2606:4700:4700::1001"
   ];
 
-  # Alternatives si tu veux changer :
-  # Google : "8.8.8.8" "8.8.4.4"
-  # Quad9 (bloque malware) : "9.9.9.9" "149.112.112.112"
-  # AdGuard (bloque pubs) : "94.140.14.14" "94.140.15.15"
+  # Domaines locaux YunoHost (ThinkPad NAS)
+  networking.extraHosts = ''
+    192.168.1.4 nas.local
+    192.168.1.4 jelly.local
+    192.168.1.4 pihole.local
+    192.168.1.4 esphome.local
+  '';
 }

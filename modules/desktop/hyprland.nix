@@ -12,7 +12,6 @@
     # Apps de base
     firefox
     ungoogled-chromium
-    inputs.zen-browser.packages.${pkgs.system}.default
     alacritty
     kitty
     fuzzel
