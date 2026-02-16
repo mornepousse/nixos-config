@@ -9,8 +9,7 @@
     ../../modules/hardware/dns.nix
     ../../modules/hardware/displaylink.nix
     ../../modules/hardware/smb.nix  
-    ../../modules/desktop/hyprland.nix   # Installation parallèle pour test
-    ../../modules/desktop/sddm.nix
+    ../../modules/desktop/hyprland.nix
     ../../modules/desktop/desktop-others.nix
     ../../modules/desktop/quickshell.nix
     ../../modules/dev/kicad.nix
@@ -20,6 +19,7 @@
     ../../modules/dev/rider.nix
     ../../modules/dev/qtcreator.nix 
     ../../modules/dev/ssh.nix
+    ../../modules/apps/nemo.nix
     ../../modules/apps/discord.nix
     ../../modules/apps/disk-tools.nix
     ../../modules/apps/flatpak.nix
@@ -64,9 +64,9 @@
   users.users.mae = {
     isNormalUser = true;
     description = "mae";
-    extraGroups = [ 
-      "wheel" 
-      "networkmanager" 
+    extraGroups = [
+      "wheel"
+      "networkmanager"
       "dialout"  # Pour les ports série (ESP32, STM32)
       "plugdev"  # Pour les périphériques USB
       "uucp"     # Pour les ports série
@@ -153,7 +153,7 @@
   # Profils d'énergie (performance / balanced / power-saver)
   services.power-profiles-daemon.enable = true;
 
-  # Keyring (pour GitHub Copilot et autres tokens)
+  # Keyring (pour SMB, GitHub Desktop, tokens, etc.)
   services.gnome.gnome-keyring.enable = true;
   security.pam.services.login.enableGnomeKeyring = true;
 

@@ -120,10 +120,13 @@
     shellAliases = import ./shell/aliases.nix;
     
     initContent = ''
+      # Lancement automatique de Hyprland sur TTY1
+      if [ -z "$DISPLAY" ] && [ -z "$WAYLAND_DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
+        exec Hyprland
+      fi
+
       # ESP-IDF
       #alias get_idf='. $HOME/esp/esp-idf/export.sh'
-      
-      # Fastfetch à l'ouverture du terminal 
     '';
   };
 
@@ -186,8 +189,14 @@
       package = pkgs.catppuccin-gtk;
     };
     iconTheme = {
-      name = "Adwaita";
-      package = pkgs.adwaita-icon-theme;
+      name = "Papirus-Dark";
+      package = pkgs.papirus-icon-theme;
+    };
+    gtk3.extraConfig = {
+      gtk-application-prefer-dark-theme = true;
+    };
+    gtk4.extraConfig = {
+      gtk-application-prefer-dark-theme = true;
     };
   };
 
@@ -197,15 +206,27 @@
     platformTheme.name = "gtk3";
   };
 
-  # GNOME dconf settings - Indiquer au système la préférence dark
+  # GNOME dconf settings - Dark mode pour toutes les apps GTK
   dconf.settings = {
     "org/gnome/desktop/interface" = {
-      gtk-application-prefer-dark-theme = true;
       color-scheme = "prefer-dark";
+      gtk-theme = "Catppuccin-Mocha";
+      icon-theme = "Papirus-Dark";
+    };
+
+    # Nemo file manager preferences
+    "org/nemo/preferences" = {
+      show-hidden-files = true;
+      show-location-entry = true;
+      sort-directories-first = true;
+    };
+
+    "org/nemo/desktop" = {
+      show-desktop-icons = false;
     };
   };
 
-  # Variables d'environnement pour forcer le dark mode
+  # Variables d'environnement pour dark mode
   home.sessionVariables = {
     GTK_THEME = "Catppuccin-Mocha";
     QT_QPA_PLATFORMTHEME = "gtk3";
@@ -328,15 +349,15 @@
       # Texte
       "text/plain" = "nvim.desktop";
 
-      # Archives (Ark - extraction directe dans Dolphin)
-      "application/zip" = "org.kde.ark.desktop";
-      "application/x-tar" = "org.kde.ark.desktop";
-      "application/x-7z-compressed" = "org.kde.ark.desktop";
-      "application/x-rar" = "org.kde.ark.desktop";
-      "application/gzip" = "org.kde.ark.desktop";
+      # Archives (file-roller - extraction directe dans Nemo)
+      "application/zip" = "file-roller.desktop";
+      "application/x-tar" = "file-roller.desktop";
+      "application/x-7z-compressed" = "file-roller.desktop";
+      "application/x-rar" = "file-roller.desktop";
+      "application/gzip" = "file-roller.desktop";
 
       # File manager
-      "inode/directory" = "org.kde.dolphin.desktop";
+      "inode/directory" = "nemo.desktop";
     };
   };
 

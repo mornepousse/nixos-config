@@ -12,22 +12,6 @@
       alacritty
       fuzzel
 
-      # Dolphin - File manager KDE avec plugins complets
-      kdePackages.dolphin
-      kdePackages.dolphin-plugins
-      kdePackages.kio-extras  # SMB, thumbnails, protocoles réseau
-      kdePackages.ark  # Gestionnaire d'archives (extraction intégrée)
-      kdePackages.ffmpegthumbs  # Thumbnails vidéos
-      kdePackages.kdegraphics-thumbnailers  # Thumbnails images
-      kdePackages.kimageformats  # Formats images supplémentaires
-      kdePackages.kde-cli-tools  # kioclient pour ouvrir fichiers
-      kdePackages.kio-admin  # Accès root pour fichiers
-
-      # Support archives
-      p7zip  # 7z, rar
-      unzip
-      unrar
-
       # Thèmes d'icônes
       adwaita-icon-theme
       kdePackages.breeze-icons

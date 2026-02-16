@@ -1,15 +1,11 @@
 { config, pkgs, ... }:
 
 {
-  # Support SMB/CIFS pour Nautilus
+  # Support SMB/CIFS
   services.gvfs = {
     enable = true;
     package = pkgs.gvfs;
   };
-
-  # Tracker pour l'indexation de fichiers (nécessaire pour Nautilus)
-  services.gnome.localsearch.enable = true;
-  services.gnome.tinysparql.enable = true;
 
   # Paquets nécessaires pour SMB
   environment.systemPackages = with pkgs; [
