@@ -5,8 +5,9 @@
   environment.systemPackages = with pkgs; [
     nemo
 
-    # Support réseau SMB/CIFS
+    # Support réseau SMB/CIFS et NFS
     gvfs
+    nfs-utils
 
     # Thumbnails vidéo
     ffmpegthumbnailer

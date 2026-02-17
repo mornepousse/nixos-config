@@ -13,14 +13,20 @@
       url = "github:mirrexagon/nixpkgs-esp-dev";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-     zen-browser = {
-    url = "github:0xc000022070/zen-browser-flake";
-    inputs = {
-      # IMPORTANT: To ensure compatibility with the latest Firefox version, use nixpkgs-unstable.
-      nixpkgs.follows = "nixpkgs";
-      home-manager.follows = "home-manager";
+
+    rust-overlay = {
+      url = "github:oxalica/rust-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
-  };
+
+    zen-browser = {
+      url = "github:0xc000022070/zen-browser-flake";
+      inputs = {
+        # IMPORTANT: To ensure compatibility with the latest Firefox version, use nixpkgs-unstable.
+        nixpkgs.follows = "nixpkgs";
+        home-manager.follows = "home-manager";
+      };
+    };
   };
 
   outputs = { self, nixpkgs, home-manager, ... }@inputs: {
@@ -29,6 +35,11 @@
       specialArgs = { inherit inputs; };
       modules = [
         ./hosts/nixos
+
+        # Overlay rust-overlay pour toolchain Rust à jour
+        ({ config, pkgs, ... }: {
+          nixpkgs.overlays = [ inputs.rust-overlay.overlays.default ];
+        })
 
         home-manager.nixosModules.home-manager
         {

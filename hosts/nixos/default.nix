@@ -8,7 +8,8 @@
     ../../modules/hardware/usb-serial.nix
     ../../modules/hardware/dns.nix
     ../../modules/hardware/displaylink.nix
-    ../../modules/hardware/smb.nix  
+    ../../modules/hardware/smb.nix
+    ../../modules/hardware/nfs.nix
     ../../modules/desktop/hyprland.nix
     ../../modules/desktop/desktop-others.nix
     ../../modules/desktop/quickshell.nix
@@ -16,8 +17,10 @@
     ../../modules/dev/stm32.nix
     ../../modules/dev/esp-idf.nix
     ../../modules/dev/freecad.nix
-    ../../modules/dev/rider.nix
-    ../../modules/dev/qtcreator.nix 
+    ../../modules/dev/slint-rust.nix
+    ../../modules/dev/qt-quick.nix
+    # ../../modules/dev/rider.nix       # Remplacé par Slint + Rust
+    # ../../modules/dev/qtcreator.nix    # Remplacé par Slint + Rust
     ../../modules/dev/ssh.nix
     ../../modules/apps/nemo.nix
     ../../modules/apps/discord.nix
@@ -33,7 +36,7 @@
   boot.loader.systemd-boot.configurationLimit = 10;  # Limite à 10 versions dans le menu boot
 
   # Kernel latest (comme ta config actuelle)
-  boot.kernelPackages = pkgs.linuxPackages_latest;
+  boot.kernelPackages = pkgs.linuxPackages_zen;
 
   # Hostname
   networking.hostName = "nixos";
