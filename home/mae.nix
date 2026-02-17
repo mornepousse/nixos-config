@@ -165,6 +165,7 @@ project(app LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Quick Widgets SerialPort)
 qt_policy(SET QTP0001 NEW)
@@ -235,6 +236,22 @@ ApplicationWindow {
 }
 QML
 
+cat > .clangd << 'CLANGD'
+# Configuration clangd pour projets Qt6
+CompileFlags:
+  Add:
+    - -fPIC
+    - -Wno-unknown-warning-option
+  Remove:
+    # Désactiver les warnings Qt (macros, MOC, etc.)
+    - -Wsuggest-override
+    - -Woverloaded-virtual
+InlayHints:
+  DeducedTypes: true
+  Designators: true
+  BlockEnd: false
+CLANGD
+
 mkdir -p build
 
 echo ""
@@ -245,6 +262,8 @@ echo "  cd $PROJECT_NAME"
 echo "  cmake -B build -G Ninja && ninja -C build    # Compiler"
 echo "  ./build/app                                    # Lancer"
 echo "  qml ui/Main.qml                               # Preview live QML"
+echo ""
+echo "Fichier .clangd cree pour configuration clangd/Neovim LSP"
     '')
 
     # Applets système

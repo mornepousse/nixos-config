@@ -34,6 +34,9 @@
     gcc
     pkg-config
 
+    # LSP & Language tools pour Neovim
+    clang-tools  # clangd pour C++ LSP
+
     # Debug
     gdb
 
@@ -45,6 +48,7 @@
   environment.pathsToLink = [ "/libexec" ];
 
   # Variables pour que CMake trouve Qt6 et OpenGL
+  # + configuration pour clangd (LSP C++) dans Neovim
   environment.sessionVariables = {
     QT_PLUGIN_PATH = "${pkgs.qt6.qtbase}/${pkgs.qt6.qtbase.qtPluginPrefix}";
     QML2_IMPORT_PATH = "${pkgs.qt6.qtdeclarative}/${pkgs.qt6.qtbase.qtQmlPrefix}";
@@ -58,5 +62,14 @@
     # FindOpenGL.cmake a besoin de ces chemins explicites sur NixOS
     CMAKE_INCLUDE_PATH = "${pkgs.libGL.dev}/include";
     CMAKE_LIBRARY_PATH = "${pkgs.libGL}/lib";
+
+    # clangd: configuration pour trouver les includes Qt6
+    # Le plugin Neovim utilisera CMAKE_PREFIX_PATH pour chercher compile_commands.json
+    CLANG_CXX_INCLUDE_PATHS = pkgs.lib.concatStringsSep ":" [
+      "${pkgs.qt6.qtbase.dev}/include"
+      "${pkgs.qt6.qtdeclarative.dev}/include"
+      "${pkgs.libGL.dev}/include"
+      "${pkgs.libxkbcommon.dev}/include"
+    ];
   };
 }
