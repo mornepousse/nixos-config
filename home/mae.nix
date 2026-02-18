@@ -341,9 +341,6 @@ echo "✓ Configuration Qt Creator, .clangd et build.sh generes"
         exec Hyprland
       fi
 
-      # Fastfetch au démarrage du shell
-      fastfetch
-
       # Completion options
       setopt COMPLETE_IN_WORD
       setopt ALWAYS_TO_END
