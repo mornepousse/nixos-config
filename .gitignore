@@ -19,3 +19,4 @@ secrets/
 
 # macOS
 .DS_Store
+.smbcredentials

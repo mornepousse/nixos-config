@@ -300,6 +300,44 @@ echo "✓ Configuration Qt Creator, .clangd et build.sh generes"
     ripgrep
     fd
     lazygit
+
+    # Script pour configurer rclone avec Synology NAS
+    (pkgs.writeShellScriptBin "setup-rclone-nas" ''
+      mkdir -p ~/.config/rclone
+
+      # Créer la config rclone pour Synology
+      cat > ~/.config/rclone/rclone.conf << 'EOF'
+[nas]
+type = smb
+host = 192.168.1.11
+user = mae
+pass = ''${RCLONE_SMB_PASS:-}
+domain =
+EOF
+
+      # Demander le password s'il n'est pas défini
+      if [ -z "$RCLONE_SMB_PASS" ]; then
+        read -sp "Entrez le password SMB pour mae: " PASS
+        echo ""
+        sed -i "s|pass = |pass = $PASS|" ~/.config/rclone/rclone.conf
+      fi
+
+      chmod 600 ~/.config/rclone/rclone.conf
+      echo "✓ Config rclone créée dans ~/.config/rclone/rclone.conf"
+      echo ""
+      echo "Montage: rclone mount nas:/FULLACCESS ~/mnt/nas/fullaccess --daemon"
+      echo "Démont: fusermount -u ~/mnt/nas/fullaccess"
+    '')
+
+    # Script pour monter le NAS Synology via GVFS
+    (pkgs.writeShellScriptBin "mount-nas" ''
+      mkdir -p $HOME/mnt/nas
+      ${glib}/bin/gio mount smb://mae@192.168.1.11/FULLACCESS
+      sleep 1
+      rm -f $HOME/mnt/nas/fullaccess 2>/dev/null
+      ln -sf '/run/user/1000/gvfs/smb-share:server=192.168.1.11,share=fullaccess,user=mae' $HOME/mnt/nas/fullaccess
+      echo "✓ NAS monté sur $HOME/mnt/nas/fullaccess"
+    '')
   ];
 
   # Neovim avec LazyVim
@@ -595,6 +633,23 @@ echo "✓ Configuration Qt Creator, .clangd et build.sh generes"
     enable = true;
     createDirectories = true;
   };
+
+  # Activation script pour créer le fichier credentials avec permissions sécurisées
+  # Le fichier réel ne doit PAS être tracké dans git!
+  home.activation.createSmbCredentials = config.lib.dag.entryAfter ["writeBoundary"] ''
+    mkdir -p ~/.config
+    if [ ! -f ~/.smbcredentials ]; then
+      cat > ~/.smbcredentials << 'EOF'
+# Créer ce fichier manuellement avec vos credentials SMB
+# Format:
+# username=<user>
+# password=<pass>
+# domain=<domain>
+EOF
+      chmod 600 ~/.smbcredentials
+      echo "Fichier ~/.smbcredentials créé. Complétez-le avec vos credentials!"
+    fi
+  '';
 
   # Entrées .desktop pour les applications (pour fuzzel et launchers)
   xdg.desktopEntries = {

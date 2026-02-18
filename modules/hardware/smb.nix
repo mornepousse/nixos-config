@@ -1,22 +1,14 @@
 { config, pkgs, ... }:
 
 {
-  # Support SMB/CIFS
+  # NFS est configuré dans modules/hardware/nfs.nix
+  # Ce fichier garde juste GVFS pour Nemo
   services.gvfs = {
     enable = true;
     package = pkgs.gvfs;
   };
 
-  # Paquets nécessaires pour SMB
   environment.systemPackages = with pkgs; [
     gvfs
-    cifs-utils
-    samba
   ];
-
-  # Activer le client Samba
-  services.samba = {
-    enable = false;  # Pas besoin du serveur, juste le client
-    package = pkgs.samba;
-  };
 }
