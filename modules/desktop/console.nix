@@ -9,12 +9,12 @@
   boot.postBootCommands = ''
     sleep 2
     # Activer tous les écrans détectés
-    ${pkgs.xorg.xrandr}/bin/xrandr --auto 2>/dev/null || true
+    ${pkgs.xrandr}/bin/xrandr --auto 2>/dev/null || true
   '';
 
   # Dépendances pour multi-écrans en TTY
   environment.systemPackages = with pkgs; [
-    xorg.xrandr
+    xrandr
     wdisplays
   ];
 }

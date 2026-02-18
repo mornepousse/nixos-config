@@ -32,7 +32,6 @@
     script = ''
       ${pkgs.flatpak}/bin/flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
       ${pkgs.flatpak}/bin/flatpak install -y --noninteractive flathub io.github.shiftey.Desktop
-      ${pkgs.flatpak}/bin/flatpak install -y --noninteractive flathub com.jetbrains.Rider
     '';
   };
 }

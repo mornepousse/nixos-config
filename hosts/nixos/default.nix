@@ -20,7 +20,7 @@
     ../../modules/dev/freecad.nix
     ../../modules/dev/slint-rust.nix
     ../../modules/dev/qt-quick.nix
-    # ../../modules/dev/rider.nix       # Remplacé par Slint + Rust
+    ../../modules/dev/rider.nix
     # ../../modules/dev/qtcreator.nix    # Remplacé par Slint + Rust
     ../../modules/dev/ssh.nix
     ../../modules/apps/nemo.nix
