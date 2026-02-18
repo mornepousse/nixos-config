@@ -252,18 +252,44 @@ InlayHints:
   BlockEnd: false
 CLANGD
 
+# Qt Creator .pro: configuration de Qt Creator
+cat > "''${PROJECT_NAME}.pro" << 'QTPRO'
+# Fichier Qt Creator pour reconnaissance du projet
+TEMPLATE = app
+QT += quick widgets serialport
+LANGUAGE = C++17
+CONFIG += c++17
+SOURCES += src/main.cpp
+QML_FILES += ui/Main.qml
+QTPRO
+
 mkdir -p build
+
+# Créer un script de build qui copie compile_commands.json à la racine (pour clangd/Neovim)
+cat > build.sh << 'BUILDSCRIPT'
+#!/bin/bash
+set -e
+echo "Configuration CMake..."
+cmake -B build -G Ninja
+echo "Compilation..."
+ninja -C build
+echo "Copie compile_commands.json à la racine pour clangd/Neovim..."
+cp build/compile_commands.json .
+echo "✓ Compilation reussie !"
+BUILDSCRIPT
+chmod +x build.sh
 
 echo ""
 echo "Projet '$PROJECT_NAME' cree avec succes !"
 echo ""
 echo "Commandes utiles :"
 echo "  cd $PROJECT_NAME"
-echo "  cmake -B build -G Ninja && ninja -C build    # Compiler"
+echo "  qtcreator .                                    # Ouvrir dans Qt Creator"
+echo "  ./build.sh                                     # Compiler (et configurer clangd)"
 echo "  ./build/app                                    # Lancer"
 echo "  qml ui/Main.qml                               # Preview live QML"
 echo ""
-echo "Fichier .clangd cree pour configuration clangd/Neovim LSP"
+echo "✓ Configuration Qt Creator, .clangd et build.sh generes"
     '')
 
     # Applets système
