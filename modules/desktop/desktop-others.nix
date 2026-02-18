@@ -3,6 +3,6 @@
 {
   environment.systemPackages = with pkgs; [
     signal-cli
-    brave
+    #brave
   ];
 }

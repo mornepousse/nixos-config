@@ -13,19 +13,19 @@
     ../../modules/desktop/console.nix
     ../../modules/desktop/desktop-others.nix
     ../../modules/desktop/quickshell.nix
-    ../../modules/dev/kicad.nix
-    ../../modules/dev/stm32.nix
-    ../../modules/dev/esp-idf.nix
-    ../../modules/dev/freecad.nix
-    ../../modules/dev/slint-rust.nix 
+    #../../modules/dev/kicad.nix
+    #../../modules/dev/stm32.nix
+    #../../modules/dev/esp-idf.nix
+    #../../modules/dev/freecad.nix
+    #../../modules/dev/slint-rust.nix 
     # ../../modules/dev/qtcreator.nix    # Remplacé par Slint + Rust
     ../../modules/dev/ssh.nix
     ../../modules/apps/nemo.nix
-    ../../modules/apps/discord.nix
+    #../../modules/apps/discord.nix
     ../../modules/apps/disk-tools.nix
     ../../modules/apps/flatpak.nix
-    ../../modules/dev/ai.nix
-    ../../modules/dev/dev_other.nix
+    #../../modules/dev/ai.nix
+    ##../../modules/dev/dev_other.nix
     # ../../modules/hardware/displaylink.nix  # ✗ Sans DisplayLink (x230t)
   ];
 
