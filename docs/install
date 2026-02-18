@@ -1,0 +1,101 @@
+#!/usr/bin/env bash
+# Installation NixOS config de Mae
+# Usage: curl -fsSL https://TONDOMAINE.fr/install | bash
+#   ou:  curl -fsSL https://TONDOMAINE.fr/install | bash -s -- --device /dev/sda
+#
+# Modes:
+#   Sans arguments → setup post-Calamares (config sur NixOS existant)
+#   --device /dev/sda → installation complète depuis clé live USB
+
+set -e
+
+# Couleurs
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+NC='\033[0m'
+
+REPO_URL="https://github.com/mornepousse/nixos-config"
+REPO_NAME="nixos-config"
+
+log_info()    { echo -e "${BLUE}[INFO]${NC} $1"; }
+log_success() { echo -e "${GREEN}[✓]${NC} $1"; }
+log_warning() { echo -e "${YELLOW}[⚠]${NC} $1"; }
+log_error()   { echo -e "${RED}[✗]${NC} $1"; }
+
+# Banner
+echo -e "${CYAN}"
+cat << 'BANNER'
+
+  ███╗   ███╗ █████╗ ███████╗     ██████╗ ███████╗
+  ████╗ ████║██╔══██╗██╔════╝    ██╔═══██╗██╔════╝
+  ██╔████╔██║███████║█████╗      ██║   ██║███████╗
+  ██║╚██╔╝██║██╔══██║██╔══╝      ██║   ██║╚════██║
+  ██║ ╚═╝ ██║██║  ██║███████╗    ╚██████╔╝███████║
+  ╚═╝     ╚═╝╚═╝  ╚═╝╚══════╝     ╚═════╝ ╚══════╝
+
+  NixOS • Hyprland • Wayland
+BANNER
+echo -e "${NC}"
+
+# Détecter le mode d'installation
+INSTALL_MODE="setup"
+for arg in "$@"; do
+  if [ "$arg" = "--device" ]; then
+    INSTALL_MODE="full"
+    break
+  fi
+done
+
+# Vérifier qu'on est bien sur NixOS (ou live USB)
+if [ ! -f /etc/os-release ] || ! grep -qi "nixos" /etc/os-release 2>/dev/null; then
+  log_error "Ce script est prévu pour NixOS uniquement"
+  log_info "Installe d'abord NixOS depuis: https://nixos.org/download"
+  exit 1
+fi
+
+# Vérifier git (et l'installer si nécessaire sur live USB)
+if ! command -v git &> /dev/null; then
+  log_warning "git non trouvé, installation temporaire..."
+  nix-shell -p git --run "echo ok" > /dev/null 2>&1
+  GIT_CMD="nix-shell -p git --run"
+else
+  GIT_CMD=""
+fi
+
+# Cloner le repo
+if [ "$INSTALL_MODE" = "full" ]; then
+  CONFIG_DIR="/tmp/$REPO_NAME"
+else
+  CONFIG_DIR="$HOME/$REPO_NAME"
+fi
+
+if [ -d "$CONFIG_DIR" ]; then
+  log_warning "$CONFIG_DIR existe déjà, mise à jour..."
+  cd "$CONFIG_DIR" && git pull --ff-only 2>/dev/null || true
+else
+  log_info "Clonage de la config..."
+  if [ -n "$GIT_CMD" ]; then
+    nix-shell -p git --run "git clone $REPO_URL $CONFIG_DIR"
+  else
+    git clone "$REPO_URL" "$CONFIG_DIR"
+  fi
+fi
+
+log_success "Config prête dans $CONFIG_DIR"
+echo ""
+
+# Lancer le bon script
+if [ "$INSTALL_MODE" = "full" ]; then
+  log_info "Mode: Installation complète (clé live USB)"
+  log_info "Lancement de install-complete.sh..."
+  echo ""
+  exec sudo bash "$CONFIG_DIR/install-complete.sh" "$@"
+else
+  log_info "Mode: Configuration post-installation"
+  log_info "Lancement de setup.sh..."
+  echo ""
+  exec bash "$CONFIG_DIR/setup.sh" "$@"
+fi

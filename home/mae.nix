@@ -1,6 +1,10 @@
 { config, pkgs, inputs, ... }:
 
 {
+  imports = [
+    #../modules/hardware/displaylink.nix
+  ];
+
   home.username = "mae";
   home.homeDirectory = "/home/mae";
 

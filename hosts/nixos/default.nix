@@ -7,7 +7,6 @@
     # Modules
     ../../modules/hardware/usb-serial.nix
     ../../modules/hardware/dns.nix
-    ../../modules/hardware/displaylink.nix
     ../../modules/hardware/smb.nix
     ../../modules/hardware/nfs.nix
     ../../modules/desktop/hyprland.nix

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mae OS - NixOS Config</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      background: #1e1e2e;
+      color: #cdd6f4;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .container { max-width: 700px; text-align: center; }
+    h1 {
+      font-size: 3rem;
+      background: linear-gradient(135deg, #89b4fa, #cba6f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+    .subtitle {
+      color: #a6adc8;
+      font-size: 1.1rem;
+      margin-bottom: 2.5rem;
+    }
+    .install-box {
+      background: #313244;
+      border: 1px solid #45475a;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      text-align: left;
+      position: relative;
+    }
+    .install-box .label {
+      color: #a6adc8;
+      font-size: 0.85rem;
+      margin-bottom: 0.5rem;
+    }
+    .install-box code {
+      color: #a6e3a1;
+      font-size: 1.05rem;
+      word-break: break-all;
+    }
+    .install-box .copy-btn {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: #45475a;
+      border: none;
+      color: #cdd6f4;
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-family: inherit;
+      transition: background 0.2s;
+    }
+    .install-box .copy-btn:hover { background: #585b70; }
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin: 2rem 0;
+      text-align: left;
+    }
+    .feature {
+      background: #313244;
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    .feature .icon { font-size: 1.5rem; margin-bottom: 0.3rem; }
+    .feature .name { color: #89b4fa; font-weight: bold; font-size: 0.95rem; }
+    .feature .desc { color: #a6adc8; font-size: 0.8rem; margin-top: 0.3rem; }
+    .links { margin-top: 2rem; }
+    .links a {
+      color: #89b4fa;
+      text-decoration: none;
+      margin: 0 1rem;
+      font-size: 0.95rem;
+    }
+    .links a:hover { text-decoration: underline; }
+    .modes {
+      text-align: left;
+      margin: 1.5rem 0;
+    }
+    .modes h3 { color: #cba6f7; margin-bottom: 0.8rem; font-size: 1rem; }
+    .modes p { color: #a6adc8; font-size: 0.9rem; margin-bottom: 0.4rem; }
+    .modes code { color: #fab387; font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Mae OS</h1>
+    <p class="subtitle">NixOS &bull; Hyprland &bull; Wayland</p>
+
+    <div class="install-box">
+      <div class="label">Installation en une commande :</div>
+      <code id="install-cmd">curl -fsSL https://TONDOMAINE.fr/install | bash</code>
+      <button class="copy-btn" onclick="navigator.clipboard.writeText(document.getElementById('install-cmd').textContent)">Copier</button>
+    </div>
+
+    <div class="modes">
+      <h3>Deux modes disponibles :</h3>
+      <p><code>curl ... | bash</code> &mdash; Configure NixOS existant (post-Calamares)</p>
+      <p><code>curl ... | bash -s -- --device /dev/sda</code> &mdash; Installation compl&egrave;te depuis cl&eacute; live</p>
+    </div>
+
+    <div class="features">
+      <div class="feature">
+        <div class="icon">&#127912;</div>
+        <div class="name">Hyprland</div>
+        <div class="desc">Compositor Wayland avec animations</div>
+      </div>
+      <div class="feature">
+        <div class="icon">&#9881;&#65039;</div>
+        <div class="name">Flakes</div>
+        <div class="desc">Config 100% reproductible</div>
+      </div>
+      <div class="feature">
+        <div class="icon">&#128187;</div>
+        <div class="name">Dev Ready</div>
+        <div class="desc">ESP32, STM32, Qt, KiCad</div>
+      </div>
+      <div class="feature">
+        <div class="icon">&#127968;</div>
+        <div class="name">Home Manager</div>
+        <div class="desc">Dotfiles d&eacute;claratifs</div>
+      </div>
+    </div>
+
+    <div class="links">
+      <a href="https://github.com/mornepousse/nixos-config">GitHub</a>
+      <a href="https://github.com/mornepousse/nixos-config/blob/main/README.md">Documentation</a>
+    </div>
+  </div>
+</body>
+</html>
