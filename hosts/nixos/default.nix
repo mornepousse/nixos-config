@@ -28,6 +28,7 @@
     ../../modules/apps/flatpak.nix
     ../../modules/dev/ai.nix
     ../../modules/dev/dev_other.nix
+    ../../modules/hardware/displaylink.nix
   ];
 
   # Bootloader
