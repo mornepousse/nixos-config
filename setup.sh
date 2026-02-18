@@ -20,12 +20,17 @@ log_error() { echo -e "${RED}[✗]${NC} $1"; }
 # Parser arguments
 REPO_URL="https://github.com/mornepousse/nixos-config"
 CONFIG_DIR="$HOME/nixos-config"
+MACHINE=""
 HOSTNAME=""
 
 while [[ $# -gt 0 ]]; do
   case $1 in
     --repo-url)
       REPO_URL="$2"
+      shift 2
+      ;;
+    --machine)
+      MACHINE="$2"
       shift 2
       ;;
     --hostname)
@@ -36,12 +41,14 @@ while [[ $# -gt 0 ]]; do
       echo "Usage: bash setup.sh [options]"
       echo ""
       echo "Options:"
-      echo "  --repo-url <url>    URL de la config"
-      echo "  --hostname <name>   Hostname de la machine"
-      echo "  --help              Affiche cette aide"
+      echo "  --repo-url <url>       URL de la config"
+      echo "  --machine <name>       Machine : morthinkpad ou x230t"
+      echo "  --hostname <name>      Hostname de la machine (optionnel)"
+      echo "  --help                 Affiche cette aide"
       echo ""
-      echo "Exemple:"
-      echo "  bash setup.sh --hostname morthinkpad"
+      echo "Exemples:"
+      echo "  bash setup.sh --machine morthinkpad"
+      echo "  bash setup.sh --machine x230t --hostname zzz"
       exit 0
       ;;
     *)
@@ -89,42 +96,69 @@ fi
 
 cd "$CONFIG_DIR"
 
-# Étape 2: Générer hardware-configuration.nix
+# Étape 2: Choisir la machine
 log_info ""
-log_info "Étape 2: Génération du hardware-configuration.nix..."
+log_info "Étape 2: Sélection de la machine..."
+
+if [ -z "$MACHINE" ]; then
+  echo -e "${YELLOW}Machines disponibles:${NC}"
+  echo "  1. morthinkpad (avec DisplayLink)"
+  echo "  2. x230t (sans DisplayLink - recommandé pour ThinkPad X230t)"
+  echo ""
+  read -p "Quelle est ta machine? (1 ou 2, ou nom): " MACHINE_INPUT
+  
+  case $MACHINE_INPUT in
+    1|morthinkpad)
+      MACHINE="morthinkpad"
+      ;;
+    2|x230t)
+      MACHINE="x230t"
+      ;;
+    *)
+      log_error "Machine inconnue: $MACHINE_INPUT"
+      exit 1
+      ;;
+  esac
+fi
+
+log_success "Machine sélectionnée: $MACHINE"
+
+# Étape 3: Générer hardware-configuration.nix
+log_info ""
+log_info "Étape 3: Génération du hardware-configuration.nix..."
 
 sudo nixos-generate-config --root /
-sudo mv /etc/nixos/hardware-configuration.nix "$CONFIG_DIR/hosts/nixos/hardware-configuration.nix"
-log_success "hardware-configuration.nix généré et copié"
+sudo mv /etc/nixos/hardware-configuration.nix "$CONFIG_DIR/hosts/$MACHINE/hardware-configuration.nix"
+log_success "hardware-configuration.nix généré et copié pour $MACHINE"
 
-# Étape 3: Configurer le hostname
+# Étape 4: Configurer le hostname (optionnel)
 log_info ""
-log_info "Étape 3: Configuration du hostname..."
+log_info "Étape 4: Configuration du hostname..."
 
 if [ -z "$HOSTNAME" ]; then
-  read -p "Quel hostname veux-tu pour cette machine? (défaut: nixos) " HOSTNAME
-  HOSTNAME="${HOSTNAME:-nixos}"
+  read -p "Quel hostname veux-tu pour cette machine? (défaut: $MACHINE) " HOSTNAME
+  HOSTNAME="${HOSTNAME:-$MACHINE}"
 fi
 
 log_info "Hostname: $HOSTNAME"
 
 # Remplacer le hostname dans la config
-CONFIG_FILE="$CONFIG_DIR/hosts/nixos/default.nix"
-if grep -q 'networking.hostName = "nixos"' "$CONFIG_FILE"; then
-  sed -i "s/networking.hostName = \"nixos\"/networking.hostName = \"$HOSTNAME\"/" "$CONFIG_FILE"
+CONFIG_FILE="$CONFIG_DIR/hosts/$MACHINE/default.nix"
+if grep -q 'networking.hostName = "' "$CONFIG_FILE"; then
+  sed -i "s/networking.hostName = \"[^\"]*\"/networking.hostName = \"$HOSTNAME\"/" "$CONFIG_FILE"
   log_success "Hostname configuré: $HOSTNAME"
 else
   log_warning "Impossible de trouver la ligne hostname dans la config"
 fi
 
-# Étape 4: Vérifier la structure
+# Étape 5: Vérifier la structure
 log_info ""
-log_info "Étape 4: Vérification de la structure..."
+log_info "Étape 5: Vérification de la structure..."
 
 required_files=(
   "$CONFIG_DIR/flake.nix"
-  "$CONFIG_DIR/hosts/nixos/default.nix"
-  "$CONFIG_DIR/hosts/nixos/hardware-configuration.nix"
+  "$CONFIG_DIR/hosts/$MACHINE/default.nix"
+  "$CONFIG_DIR/hosts/$MACHINE/hardware-configuration.nix"
   "$CONFIG_DIR/home/mae.nix"
 )
 
@@ -137,24 +171,24 @@ for file in "${required_files[@]}"; do
   fi
 done
 
-# Étape 5: Build + Apply
+# Étape 6: Build + Apply
 log_info ""
-log_info "Étape 5: Build et application de la config..."
+log_info "Étape 6: Build et application de la config..."
 log_warning "Cela peut prendre 15-30 minutes (en fonction de ton matériel)..."
 
-sudo nixos-rebuild switch --flake "$CONFIG_DIR#nixos" --show-trace
+sudo nixos-rebuild switch --flake "$CONFIG_DIR#$MACHINE" --show-trace
 
 if [ $? -eq 0 ]; then
   log_success "Rebuild réussi!"
 else
   log_error "Erreur lors du rebuild"
-  log_info "Essaie: cd $CONFIG_DIR && sudo nixos-rebuild switch --flake .#nixos --show-trace"
+  log_info "Essaie: cd $CONFIG_DIR && sudo nixos-rebuild switch --flake .#$MACHINE --show-trace"
   exit 1
 fi
 
-# Étape 6: Home Manager
+# Étape 7: Home Manager
 log_info ""
-log_info "Étape 6: Configuration Home Manager..."
+log_info "Étape 7: Configuration Home Manager..."
 
 home-manager switch --flake "$CONFIG_DIR#mae"
 
@@ -179,9 +213,12 @@ echo "     - ${BLUE}upgrade${NC}      # Upgrade flake + rebuild"
 echo "     - ${BLUE}check-updates${NC} # Voir les changements disponibles"
 echo ""
 echo -e "${YELLOW}Notes:${NC}"
+echo "  • Machine installée: ${BLUE}$MACHINE${NC}"
 echo "  • Config clonée dans: ${BLUE}$CONFIG_DIR${NC}"
-echo "  • Vérifie: ${BLUE}cat $CONFIG_DIR/hosts/nixos/hardware-configuration.nix${NC}"
+echo "  • Commandes rebuild:"
+echo "    - ${BLUE}sudo nixos-rebuild switch --flake $CONFIG_DIR#$MACHINE${NC}"
+echo "  • Vérifier hardware: ${BLUE}cat $CONFIG_DIR/hosts/$MACHINE/hardware-configuration.nix${NC}"
 echo "  • En cas de problème:"
 echo "    - Reboot sur une autre génération via systemd-boot"
-echo "    - Reviens et relance: ${BLUE}sudo nixos-rebuild switch --flake $CONFIG_DIR#nixos${NC}"
+echo "    - Reviens et relance: ${BLUE}sudo nixos-rebuild switch --flake $CONFIG_DIR#$MACHINE${NC}"
 echo ""

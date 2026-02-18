@@ -30,26 +30,75 @@
   };
 
   outputs = { self, nixpkgs, home-manager, ... }@inputs: {
-    nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
-      system = "x86_64-linux";
-      specialArgs = { inherit inputs; };
-      modules = [
-        ./hosts/nixos
+    nixosConfigurations = {
+      # Configuration pour morthinkpad (avec DisplayLink)
+      morthinkpad = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        specialArgs = { inherit inputs; };
+        modules = [
+          ./hosts/morthinkpad
 
-        # Overlay rust-overlay pour toolchain Rust à jour
-        ({ config, pkgs, ... }: {
-          nixpkgs.overlays = [ inputs.rust-overlay.overlays.default ];
-        })
+          # Overlay rust-overlay pour toolchain Rust à jour
+          ({ config, pkgs, ... }: {
+            nixpkgs.overlays = [ inputs.rust-overlay.overlays.default ];
+          })
 
-        home-manager.nixosModules.home-manager
-        {
-          home-manager.useGlobalPkgs = true;
-          home-manager.useUserPackages = true;
-          home-manager.users.mae = import ./home/mae.nix;
-          home-manager.extraSpecialArgs = { inherit inputs; };
-          home-manager.backupFileExtension = "backup";  # Sauvegarde les fichiers existants
-        }
-      ];
+          home-manager.nixosModules.home-manager
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.users.mae = import ./home/mae.nix;
+            home-manager.extraSpecialArgs = { inherit inputs; };
+            home-manager.backupFileExtension = "backup";  # Sauvegarde les fichiers existants
+          }
+        ];
+      };
+
+      # Configuration pour x230t (sans DisplayLink)
+      x230t = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        specialArgs = { inherit inputs; };
+        modules = [
+          ./hosts/x230t
+
+          # Overlay rust-overlay pour toolchain Rust à jour
+          ({ config, pkgs, ... }: {
+            nixpkgs.overlays = [ inputs.rust-overlay.overlays.default ];
+          })
+
+          home-manager.nixosModules.home-manager
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.users.mae = import ./home/mae.nix;
+            home-manager.extraSpecialArgs = { inherit inputs; };
+            home-manager.backupFileExtension = "backup";  # Sauvegarde les fichiers existants
+          }
+        ];
+      };
+
+      # Legacy: garder nixos comme alias à morthinkpad
+      nixos = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        specialArgs = { inherit inputs; };
+        modules = [
+          ./hosts/morthinkpad
+
+          # Overlay rust-overlay pour toolchain Rust à jour
+          ({ config, pkgs, ... }: {
+            nixpkgs.overlays = [ inputs.rust-overlay.overlays.default ];
+          })
+
+          home-manager.nixosModules.home-manager
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.users.mae = import ./home/mae.nix;
+            home-manager.extraSpecialArgs = { inherit inputs; };
+            home-manager.backupFileExtension = "backup";  # Sauvegarde les fichiers existants
+          }
+        ];
+      };
     };
   };
 }
