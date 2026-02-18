@@ -93,7 +93,7 @@ cd "$CONFIG_DIR"
 log_info ""
 log_info "Étape 2: Génération du hardware-configuration.nix..."
 
-sudo nixos-generate-config --show-trace --root /
+sudo nixos-generate-config --root /
 sudo mv /etc/nixos/hardware-configuration.nix "$CONFIG_DIR/hosts/nixos/hardware-configuration.nix"
 log_success "hardware-configuration.nix généré et copié"
 

@@ -220,7 +220,7 @@ log_success "Partitions montées"
 log_info ""
 log_info "Étape 4: Génération du hardware-configuration.nix..."
 
-nixos-generate-config --root "$MOUNT_POINT" --show-trace
+nixos-generate-config --root "$MOUNT_POINT"
 log_success "hardware-configuration.nix généré"
 
 # Étape 5: Cloner la config NixOS
