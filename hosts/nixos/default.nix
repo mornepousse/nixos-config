@@ -11,6 +11,7 @@
     ../../modules/hardware/smb.nix
     ../../modules/hardware/nfs.nix
     ../../modules/desktop/hyprland.nix
+    ../../modules/desktop/console.nix
     ../../modules/desktop/desktop-others.nix
     ../../modules/desktop/quickshell.nix
     ../../modules/dev/kicad.nix

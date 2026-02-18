@@ -36,10 +36,23 @@
     xorg.libXcursor
     xorg.libXrandr
     xorg.libXi
+    xorg.libXext
+    xorg.libXrender
+    xorg.libxcb
+
+    mesa
+    libGL
+    libglvnd
+    udev
+
+    # Headers OpenGL supplémentaires
+    xorg.libX11.dev
+    xorg.libxcb.dev
+    libxkbcommon.dev
+    wayland.dev
 
     # Communication série (microcontrôleurs)
     # serialport-rs utilise libudev
-    udev
   ];
 
   # Variables d'environnement pour que les crates Rust trouvent les libs
@@ -51,20 +64,48 @@
       pkgs.libxkbcommon.dev
       pkgs.wayland.dev
       pkgs.libGL.dev
+      pkgs.libglvnd.dev
+      pkgs.udev.dev
+      pkgs.xorg.libX11.dev
+      pkgs.xorg.libXcursor.dev
+      pkgs.xorg.libXrandr.dev
+      pkgs.xorg.libXi.dev
+      pkgs.xorg.libxcb.dev
+      pkgs.vulkan-loader.dev
     ];
 
-    # Linker doit trouver les .so
+    # Linker doit trouver les .so et headers OpenGL
     LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [
       pkgs.fontconfig
       pkgs.freetype
       pkgs.libxkbcommon
       pkgs.libGL
+      pkgs.libglvnd
       pkgs.wayland
       pkgs.xorg.libX11
       pkgs.xorg.libXcursor
       pkgs.xorg.libXrandr
       pkgs.xorg.libXi
-      pkgs.vulkan-loader  # Si Slint utilise le renderer Skia
+      pkgs.xorg.libxcb
+      pkgs.udev
+      pkgs.vulkan-loader
+    ];
+
+    # Headers C/C++ pour compilation OpenGL
+    C_INCLUDE_PATH = pkgs.lib.makeSearchPath "include" [
+      pkgs.libGL.dev
+      pkgs.libglvnd.dev
+      pkgs.xorg.libX11.dev
+      pkgs.xorg.libxcb.dev
+      pkgs.libxkbcommon.dev
+    ];
+
+    CPLUS_INCLUDE_PATH = pkgs.lib.makeSearchPath "include" [
+      pkgs.libGL.dev
+      pkgs.libglvnd.dev
+      pkgs.xorg.libX11.dev
+      pkgs.xorg.libxcb.dev
+      pkgs.libxkbcommon.dev
     ];
   };
 }

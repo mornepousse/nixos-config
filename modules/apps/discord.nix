@@ -5,7 +5,7 @@
     # Vesktop - Client Discord avec Vencord intégré
     # Meilleur support Wayland/Niri que le client officiel
     vesktop
-    
+    ripcord
     # Discord officiel (peut avoir des problèmes sur Wayland)
     # discord
   ];

@@ -40,7 +40,7 @@
     '')
     
     # Script power menu (shutdown/reboot/logout)
-    # Détection automatique du compositor actif (sway, hyprland, niri)
+    # Détection automatique du compositor actif (sway, hyprland)
     (pkgs.writeShellScriptBin "power-menu" ''
       choice=$(printf "󰐥 Éteindre\n󰜉 Redémarrer\n󰍃 Déconnexion" | fuzzel --dmenu -p "Power: ")
       case "$choice" in
@@ -52,8 +52,6 @@
             swaymsg exit
           elif pgrep -x Hyprland >/dev/null; then
             hyprctl dispatch exit
-          elif pgrep -x niri >/dev/null; then
-            niri msg action quit
           fi
           ;;
       esac
@@ -327,14 +325,51 @@ echo "✓ Configuration Qt Creator, .clangd et build.sh generes"
     enableCompletion = true;
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
-    
+
     shellAliases = import ./shell/aliases.nix;
-    
+
+    history = {
+      size = 10000;
+      save = 10000;
+      ignoreAllDups = true;
+      ignoreSpace = true;
+    };
+
     initContent = ''
       # Lancement automatique de Hyprland sur TTY1
       if [ -z "$DISPLAY" ] && [ -z "$WAYLAND_DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
         exec Hyprland
       fi
+
+      # Fastfetch au démarrage du shell
+      fastfetch
+
+      # Completion options
+      setopt COMPLETE_IN_WORD
+      setopt ALWAYS_TO_END
+      setopt AUTO_MENU
+      setopt MENU_COMPLETE
+
+      # History options
+      setopt HIST_FIND_NO_DUPS
+      setopt HIST_IGNORE_DUPS
+      setopt SHARE_HISTORY
+      setopt APPEND_HISTORY
+
+      # Directory options
+      setopt AUTO_CD
+      setopt PUSHD_IGNORE_DUPS
+      setopt CORRECT
+      setopt CORRECT_ALL
+
+      # Key bindings (emacs-like)
+      bindkey "^A" beginning-of-line
+      bindkey "^E" end-of-line
+      bindkey "^R" history-incremental-search-backward
+      bindkey "^S" history-incremental-search-forward
+      bindkey "^[[3~" delete-char
+      bindkey "^[[1;5C" forward-word
+      bindkey "^[[1;5D" backward-word
 
       # ESP-IDF
       #alias get_idf='. $HOME/esp/esp-idf/export.sh'
@@ -363,8 +398,43 @@ echo "✓ Configuration Qt Creator, .clangd et build.sh generes"
     };
   };
 
-  # Config niri
-  home.file.".config/niri/config.kdl".source = ./niri/config.kdl;
+  # Kitty Terminal
+  programs.kitty = {
+    enable = true;
+    settings = {
+      # Ne pas demander confirmation à la fermeture
+      confirm_os_window_close = 0;
+
+      # Appearance
+      font_family = "JetBrains Mono";
+      font_size = 12;
+      background_opacity = 0.95;
+
+      # Colors (Catppuccin Mocha)
+      background = "#1e1e2e";
+      foreground = "#cdd6f4";
+      cursor = "#f5e0dc";
+
+      # Scrollback
+      scrollback_lines = 10000;
+
+      # Copy/Paste
+      copy_on_select = "clipboard";
+      strip_trailing_spaces = "smart";
+
+      # Window
+      window_padding_width = 10;
+      hide_window_decorations = "no";
+
+      # Tab bar
+      tab_bar_edge = "bottom";
+      tab_bar_style = "powerline";
+      active_tab_foreground = "#1e1e2e";
+      active_tab_background = "#a6e3a1";
+      inactive_tab_foreground = "#cdd6f4";
+      inactive_tab_background = "#313244";
+    };
+  };
 
   # Config Sway
   home.file.".config/sway/config".source = ./sway/config;
@@ -527,6 +597,18 @@ echo "✓ Configuration Qt Creator, .clangd et build.sh generes"
   xdg.userDirs = {
     enable = true;
     createDirectories = true;
+  };
+
+  # Entrées .desktop pour les applications (pour fuzzel et launchers)
+  xdg.desktopEntries = {
+    qtcreator = {
+      name = "Qt Creator";
+      exec = "qtcreator %F";
+      icon = "qtcreator";
+      type = "Application";
+      categories = [ "Development" "IDE" ];
+      comment = "Qt Creator - IDE pour Qt6";
+    };
   };
 
   # Associations MIME pour ouverture fichiers avec bons programmes
