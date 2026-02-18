@@ -34,6 +34,7 @@ ENCRYPT=false
 USERNAME="mae"
 
 # Parser arguments
+USER_PASSWORD=""
 while [[ $# -gt 0 ]]; do
   case $1 in
     --device)
@@ -46,6 +47,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --hostname)
       HOSTNAME="$2"
+      shift 2
+      ;;
+    --password)
+      USER_PASSWORD="$2"
       shift 2
       ;;
     --repo-url)
@@ -72,6 +77,7 @@ Options requises:
 
 Options optionnelles:
   --hostname <name>     Hostname (ex: x230t, morthinkpad, etc.)
+  --password <pwd>      Mot de passe pour mae (sinon: demandé à l'installation)
   --repo-url <url>      URL de la config (défaut: GitHub mornepousse)
   --swap <size>         Taille swap en GB (défaut: 4)
   --encrypt             Activer le chiffrement LUKS
@@ -113,6 +119,44 @@ if [[ ! "$MACHINE" =~ ^(morthinkpad|x230t)$ ]]; then
   log_error "Machine inconnue: $MACHINE (doit être morthinkpad ou x230t)"
   exit 1
 fi
+
+# Demander le mot de passe si non fourni
+if [ -z "$USER_PASSWORD" ]; then
+  log_info ""
+  log_warning "Veuillez entrer un mot de passe pour l'utilisateur $USERNAME"
+  while true; do
+    read -sp "Mot de passe: " pass1
+    echo
+    read -sp "Confirmez le mot de passe: " pass2
+    echo
+    if [ "$pass1" = "$pass2" ]; then
+      USER_PASSWORD="$pass1"
+      break
+    else
+      log_error "Les mots de passe ne correspondent pas, réessayez."
+    fi
+  done
+  # Sécuriser: ne pas l'afficher
+  unset pass1 pass2
+fi
+
+# Générer le hash du mot de passe
+log_info "Génération du hash du mot de passe..."
+# Essayer d'abord openssl (plus standard)
+if command -v openssl &> /dev/null; then
+  PASS_HASH=$(echo -n "$USER_PASSWORD" | openssl passwd -stdin 2>/dev/null)
+elif command -v mkpasswd &> /dev/null; then
+  PASS_HASH=$(echo -n "$USER_PASSWORD" | mkpasswd -s 2>/dev/null)
+else
+  log_error "Aucun outil disponible pour hasher le mot de passe (besoin openssl ou mkpasswd)"
+  exit 1
+fi
+
+if [ -z "$PASS_HASH" ]; then
+  log_error "Impossible de générer le hash du mot de passe"
+  exit 1
+fi
+log_success "Hash généré"
 
 # Définir le hostname par défaut en fonction de la machine si non spécifié
 if [ -z "$HOSTNAME" ]; then
@@ -265,17 +309,39 @@ log_success "Config clonée"
 mv "$MOUNT_POINT/etc/nixos/hardware-configuration.nix" "$CONFIG_DIR/hosts/$MACHINE/hardware-configuration.nix"
 log_success "hardware-configuration.nix copié vers hosts/$MACHINE/"
 
-# Étape 6: Configurer le hostname
+# Étape 6: Configurer le hostname et le mot de passe
 log_info ""
-log_info "Étape 6: Configuration du hostname..."
+log_info "Étape 6: Configuration du hostname et du mot de passe..."
 
 CONFIG_FILE="$CONFIG_DIR/hosts/$MACHINE/default.nix"
 if grep -q 'networking.hostName = "' "$CONFIG_FILE"; then
-  # Remplacer le hostname existant
-  sed -i "s/networking.hostName = \"[^\"]*\"/networking.hostName = \"$HOSTNAME\"/" "$CONFIG_FILE"
-  log_success "Hostname configuré: $HOSTNAME (dans $MACHINE)"
+  # Remplacer le hostname existant (utiliser | comme délimiteur pour éviter //// dans les chemins)
+  sed -i "s|networking.hostName = \"[^\"]*\"|networking.hostName = \"$HOSTNAME\"|" "$CONFIG_FILE"
+  log_success "Hostname configuré: $HOSTNAME"
 else
   log_warning "Impossible de trouver la ligne hostname"
+fi
+
+# Configurer le mot de passe dans la config
+# Créer un fichier temporaire avec les modifications
+TEMP_CONFIG=$(mktemp)
+awk -v hash="$PASS_HASH" '
+  /users.users.mae = \{/ { in_user=1 }
+  in_user && /shell = pkgs.zsh;/ {
+    print $0
+    print "    hashedPassword = \"" hash "\";"
+    next
+  }
+  { print }
+  /^  \};$/ && in_user { in_user=0 }
+' "$CONFIG_FILE" > "$TEMP_CONFIG"
+
+if grep -q 'hashedPassword' "$TEMP_CONFIG"; then
+  mv "$TEMP_CONFIG" "$CONFIG_FILE"
+  log_success "Mot de passe configuré pour $USERNAME"
+else
+  log_warning "Impossible de configurer le mot de passe"
+  rm -f "$TEMP_CONFIG"
 fi
 
 # Étape 7: Installation NixOS
@@ -317,7 +383,7 @@ echo -e "${YELLOW}Prochaines étapes:${NC}"
 echo ""
 echo "  1. Reboot: ${BLUE}reboot${NC}"
 echo "  2. Enlever la clé USB"
-echo "  3. Login avec: ${BLUE}$USERNAME${NC} (pas de mdp, changez après)"
+echo "  3. Login avec: ${BLUE}$USERNAME${NC} / mot de passe que tu viens de défini"
 echo "  4. Vérifier la config:"
 echo "     ${BLUE}home-manager switch${NC}"
 echo ""
@@ -335,6 +401,7 @@ if [ "$ENCRYPT" = true ]; then
   echo ""
 fi
 echo -e "${YELLOW}Important:${NC}"
-echo "  • Crée un mot de passe pour $USERNAME: ${BLUE}passwd${NC}"
+echo "  • Le mot de passe a été configuré automatiquement ✓"
+echo "  • Tu peux le changer plus tard avec: ${BLUE}passwd${NC}"
 echo "  • Si affichage USB bugué, reboot et enlève la clé avant de boot"
 echo ""
