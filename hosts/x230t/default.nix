@@ -17,9 +17,7 @@
     ../../modules/dev/stm32.nix
     ../../modules/dev/esp-idf.nix
     ../../modules/dev/freecad.nix
-    ../../modules/dev/slint-rust.nix
-    ../../modules/dev/qt-quick.nix
-    ../../modules/dev/rider.nix
+    ../../modules/dev/slint-rust.nix 
     # ../../modules/dev/qtcreator.nix    # Remplacé par Slint + Rust
     ../../modules/dev/ssh.nix
     ../../modules/apps/nemo.nix

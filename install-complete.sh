@@ -25,7 +25,8 @@ fi
 
 # Variables par défaut
 DEVICE=""
-HOSTNAME="nixos"
+MACHINE=""
+HOSTNAME=""
 REPO_URL="https://github.com/mornepousse/nixos-config"
 MOUNT_POINT="/mnt"
 SWAP_SIZE="4"  # en GB
@@ -37,6 +38,10 @@ while [[ $# -gt 0 ]]; do
   case $1 in
     --device)
       DEVICE="$2"
+      shift 2
+      ;;
+    --machine)
+      MACHINE="$2"
       shift 2
       ;;
     --hostname)
@@ -59,21 +64,22 @@ while [[ $# -gt 0 ]]; do
       cat << 'EOF'
 Installation NixOS complète depuis clé live
 
-Usage: sudo bash install-complete.sh --device /dev/sda [options]
+Usage: sudo bash install-complete.sh --device /dev/sda --machine <nom> [options]
 
 Options requises:
   --device <path>       Disque cible (/dev/sda, /dev/nvme0n1, etc.)
+  --machine <name>      Machine : morthinkpad ou x230t
 
 Options optionnelles:
-  --hostname <name>     Hostname (défaut: nixos)
+  --hostname <name>     Hostname (ex: x230t, morthinkpad, etc.)
   --repo-url <url>      URL de la config (défaut: GitHub mornepousse)
   --swap <size>         Taille swap en GB (défaut: 4)
   --encrypt             Activer le chiffrement LUKS
   --help                Affiche cette aide
 
 Exemple:
-  sudo bash install-complete.sh --device /dev/sda --hostname x230t
-  sudo bash install-complete.sh --device /dev/nvme0n1 --hostname morthinkpad --swap 8
+  sudo bash install-complete.sh --device /dev/sda --machine x230t
+  sudo bash install-complete.sh --device /dev/nvme0n1 --machine morthinkpad --hostname morthinkpad --swap 8
 
 ATTENTION:
   • Assure-toi de spécifier le bon disque (/dev/sda et NON /dev/sda1)
@@ -92,8 +98,25 @@ done
 # Vérifier les arguments obligatoires
 if [ -z "$DEVICE" ]; then
   log_error "Argument --device obligatoire"
-  echo "Usage: sudo bash install-complete.sh --device /dev/sda --hostname x230t"
+  echo "Usage: sudo bash install-complete.sh --device /dev/sda --machine x230t"
   exit 1
+fi
+
+if [ -z "$MACHINE" ]; then
+  log_error "Argument --machine obligatoire (morthinkpad ou x230t)"
+  echo "Usage: sudo bash install-complete.sh --device /dev/sda --machine x230t"
+  exit 1
+fi
+
+# Valider la machine
+if [[ ! "$MACHINE" =~ ^(morthinkpad|x230t)$ ]]; then
+  log_error "Machine inconnue: $MACHINE (doit être morthinkpad ou x230t)"
+  exit 1
+fi
+
+# Définir le hostname par défaut en fonction de la machine si non spécifié
+if [ -z "$HOSTNAME" ]; then
+  HOSTNAME="$MACHINE"
 fi
 
 # Vérifier que c'est bien une clé live
@@ -239,25 +262,30 @@ git clone "$REPO_URL" "$CONFIG_DIR"
 log_success "Config clonée"
 
 # Copier la config générée
-mv "$MOUNT_POINT/etc/nixos/hardware-configuration.nix" "$CONFIG_DIR/hosts/nixos/hardware-configuration.nix"
+mv "$MOUNT_POINT/etc/nixos/hardware-configuration.nix" "$CONFIG_DIR/hosts/$MACHINE/hardware-configuration.nix"
+log_success "hardware-configuration.nix copié vers hosts/$MACHINE/"
 
 # Étape 6: Configurer le hostname
 log_info ""
 log_info "Étape 6: Configuration du hostname..."
 
-CONFIG_FILE="$CONFIG_DIR/hosts/nixos/default.nix"
-if grep -q 'networking.hostName = "nixos"' "$CONFIG_FILE"; then
-  sed -i "s/networking.hostName = \"nixos\"/networking.hostName = \"$HOSTNAME\"/" "$CONFIG_FILE"
-  log_success "Hostname configuré: $HOSTNAME"
+CONFIG_FILE="$CONFIG_DIR/hosts/$MACHINE/default.nix"
+if grep -q 'networking.hostName = "' "$CONFIG_FILE"; then
+  # Remplacer le hostname existant
+  sed -i "s/networking.hostName = \"[^\"]*\"/networking.hostName = \"$HOSTNAME\"/" "$CONFIG_FILE"
+  log_success "Hostname configuré: $HOSTNAME (dans $MACHINE)"
+else
+  log_warning "Impossible de trouver la ligne hostname"
 fi
 
 # Étape 7: Installation NixOS
 log_info ""
 log_info "Étape 7: Installation NixOS (nixos-install)..."
 log_warning "Cela peut prendre 20-45 minutes selon la connexion et le matériel..."
+log_info "Machine: $MACHINE"
 
 nixos-install \
-  --flake "$CONFIG_DIR#nixos" \
+  --flake "$CONFIG_DIR#$MACHINE" \
   --root "$MOUNT_POINT" \
   --show-trace
 
