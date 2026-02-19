@@ -3,6 +3,7 @@
 {
   environment.systemPackages = with pkgs; [
    #sourcegit
+   esphome
   ];
 
 }
