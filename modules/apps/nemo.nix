@@ -25,5 +25,8 @@
     catppuccin-gtk
     adwaita-icon-theme
     papirus-icon-theme
+
+    # Dépendance pour "Open in Terminal"
+    xdg-utils
   ];
 }

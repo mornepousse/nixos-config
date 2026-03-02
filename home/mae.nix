@@ -24,6 +24,7 @@
     # Applets système
     pavucontrol          # Contrôle audio graphique
     networkmanagerapplet # nm-applet pour le réseau WiFi
+    polkit_gnome         # Agent polkit pour authentification GUI
 
     # LazyVim dependencies
     git
@@ -255,8 +256,8 @@
   systemd.user.services.polkit-gnome-authentication-agent-1 = {
     Unit = {
       Description = "polkit-gnome-authentication-agent-1";
-      Wants = [ "hyprland-session.target" ];
-      After = [ "hyprland-session.target" ];
+      After = [ "graphical-session.target" ];
+      PartOf = [ "graphical-session.target" ];
     };
     Service = {
       Type = "simple";
@@ -266,7 +267,7 @@
       TimeoutStopSec = 10;
     };
     Install = {
-      WantedBy = [ "hyprland-session.target" ];
+      WantedBy = [ "graphical-session.target" ];
     };
   };
 
@@ -284,6 +285,18 @@
     folder = ~/Pictures
     backend = swaybg
     fill = fill
+  '';
+
+  # Nemo custom actions - "Open in Terminal"
+  home.file.".local/share/nemo/actions/open-in-terminal.nemo_action".text = ''
+    [Nemo Action]
+    Name=Open in Terminal
+    Comment=Open a terminal window in this directory
+    Exec=kitty --working-directory %f
+    Icon-Name=utilities-terminal
+    Selection=None
+    Extensions=any;
+    Conditions=
   '';
 
   # Fichiers .desktop pour applications sans desktop file natif

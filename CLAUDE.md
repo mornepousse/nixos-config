@@ -4,8 +4,10 @@
 
 Configuration **NixOS basée sur flakes** avec Home Manager. Setup **Hyprland / Sway + waybar + SDDM** (Wayland).
 
-- **`flake.nix`** - Point d'entrée, définit les inputs (nixpkgs, home-manager, nixpkgs-esp-dev)
-- **`hosts/nixos/`** - Config machine ; `default.nix` importe tous les modules
+- **`flake.nix`** - Point d'entrée, définit les inputs (nixpkgs, home-manager, nixpkgs-esp-dev, rust-overlay, zen-browser)
+- **`hosts/morthinkpad/`** - Config machine principale (avec DisplayLink)
+- **`hosts/x230t/`** - Config machine secondaire (sans DisplayLink)
+- **`hosts/nixos/`** - Alias legacy vers morthinkpad
 - **`modules/`** - Modules NixOS organisés par catégorie (hardware, desktop, dev, apps)
 - **`home/`** - Config Home Manager pour l'utilisateur `mae` (dotfiles Hyprland/Sway, waybar, fuzzel, nvim, shell)
 
@@ -17,26 +19,32 @@ Les modules dans `modules/` sont organisés en 4 catégories :
 - `displaylink.nix` - Driver pour hub DisplayLink
 - `dns.nix` - Configuration DNS
 - `smb.nix` - Partages réseau SMB/CIFS
+- `nfs.nix` - Partages réseau NFS
 - `usb-serial.nix` - Support USB série (CH340, CP210x)
 
 ### Desktop (`modules/desktop/`)
 - `hyprland.nix` - Wayland compositor moderne avec animations (recommandé)
-- `sway.nix` - Wayland compositor i3-compatible
-- `sddm.nix` - Display manager avec support Wayland natif (thème Catppuccin)
+- `console.nix` - Configuration console/TTY
+- `desktop-others.nix` - Paquets desktop divers
 - `quickshell.nix` - Contient waybar (barre de statut Wayland)
 
 ### Dev (`modules/dev/`)
 - `ai.nix` - Outils IA/ML
-- `esp-idf.nix` - ESP32 development (ESP-IDF + PlatformIO)
+- `esp-idf.nix` - ESP32 development via nixpkgs-esp-dev (tous les chips)
 - `freecad.nix` - CAO 3D
 - `kicad.nix` - Conception PCB
 - `rider.nix` - IDE .NET/C#
 - `stm32.nix` - Développement STM32 (règles ST-Link)
+- `slint-rust.nix` - Développement Slint + Rust
+- `qt-quick.nix` - Développement Qt Quick
+- `ssh.nix` - Configuration SSH
+- `dev_other.nix` - Outils dev divers
 
 ### Apps (`modules/apps/`)
+- `nemo.nix` - Gestionnaire de fichiers Nemo (gvfs, thumbnails, archives, action "Open in Terminal")
 - `discord.nix` - Client Discord
-- `github-desktop.nix` - GitHub Desktop
-- `valent.nix` - KDE Connect pour GNOME (connectivité mobile)
+- `disk-tools.nix` - Gestion disques (KDE Partition Manager, disktui, filelight, gdu, udisks2 + polkit rules)
+- `flatpak.nix` - Support Flatpak
 
 Chaque module est autonome avec ses packages, services et règles udev :
 ```nix
@@ -49,7 +57,7 @@ Chaque module est autonome avec ses packages, services et règles udev :
 
 ## Ajouter un Logiciel
 
-1. **Module hardware** : Créer `modules/hardware/<nom>.nix`, l'importer dans `hosts/nixos/default.nix`
+1. **Module hardware** : Créer `modules/hardware/<nom>.nix`, l'importer dans `hosts/morthinkpad/default.nix`
 2. **Module desktop** : Créer `modules/desktop/<nom>.nix` pour composants Wayland/graphiques
 3. **Outil dev** : Créer `modules/dev/<nom>.nix` avec packages + règles udev si hardware
 4. **App système** : Créer `modules/apps/<nom>.nix` pour applications standalone
@@ -62,6 +70,7 @@ Les fichiers de config sont symlinqués depuis `home/` :
 - **Hyprland** (config modulaire dans `home/hypr/`) :
   - `hyprland.conf` - Config principale (source tous les modules)
   - `env.conf`, `monitors.conf`, `input.conf`, `keybinds.conf`, etc. - Modules spécialisés
+  - `startup.conf` - Applications au démarrage (polkit, waybar, mako, applets, clipboard)
   - `waybar/config-hyprland.json` - Barre de statut Hyprland
 - **Sway** :
   - `home/sway/config` - Config Sway
@@ -71,7 +80,7 @@ Les fichiers de config sont symlinqués depuis `home/` :
 
 ### Shell
 - **Aliases** : Centralisés dans `home/shell/aliases.nix` (partagés zsh/fish)
-- **Zsh** : `initContent` pour init personnalisé (ESP-IDF, fastfetch)
+- **Zsh** : `initContent` pour init personnalisé
 - **Fish** : `interactiveShellInit` pour init personnalisé
 - **Starship** : Prompt configuré dans `home/mae.nix`
 
@@ -88,11 +97,15 @@ Scripts shell intégrés via `writeShellScriptBin` dans `home/mae.nix` :
 - `power-menu` - Menu power avec fuzzel, détection auto compositor (shutdown/reboot/logout)
 - `monitor-toggle` - Basculer entre profils d'écrans (Bureau côte à côte / Docked vertical) via `hyprctl`
 
+Scripts ESP-IDF dans `modules/dev/esp-idf.nix` :
+- `esp-shell` - Entre dans un shell nix develop avec ESP-IDF (tous les chips)
+- `code-esp` - Lance VSCode avec l'environnement ESP-IDF complet
+
 ## Commandes
 
 ```bash
 # Appliquer les changements
-sudo nixos-rebuild switch --flake ~/nixos-config#nixos
+sudo nixos-rebuild switch --flake ~/nixos-config#morthinkpad
 
 # Raccourcis (alias dans home/shell/aliases.nix)
 update          # rebuild et applique la config actuelle
@@ -101,16 +114,20 @@ check-updates   # update flake.lock temporaire, build, affiche liste détaillée
                 # mis à jour avec versions (ancien→nouveau), puis restore flake.lock
 clean           # garbage collect
 
+# ESP-IDF
+esp-shell       # Shell avec ESP-IDF pour tous les chips ESP32
+code-esp        # VSCode avec environnement ESP-IDF
+
 # Git shortcuts
 gs, ga, gc, gp  # git status/add/commit/push
 ```
 
 ## Hardware
 
-- **DisplayLink** : Télécharger le driver manuellement avant le premier build. ⚠️ La connexion au hub prend 10-30s (comportement normal). **Important** : Débrancher le hub DisplayLink avant le boot, le rebrancher après login pour éviter crash de Sway (limitation DisplayLink)
+- **DisplayLink** : Télécharger le driver manuellement avant le premier build. La connexion au hub prend 10-30s (comportement normal). Débrancher le hub DisplayLink avant le boot, le rebrancher après login
 - **USB série (CH340/CP210x)** : Règles udev auto ; utilisateur dans groupe `dialout`
 - **STM32** : Règles ST-Link dans `modules/dev/stm32.nix` ; groupe `plugdev`
-- **ESP32** : PlatformIO + ESP-IDF ; alias `get_idf` pour sourcer export.sh
+- **ESP32** : Via nixpkgs-esp-dev (nix develop) ; scripts `esp-shell` et `code-esp` ; extension VSCode ESP-IDF incompatible NixOS (binaires non-FHS)
 - **Bluetooth** : Activé au boot avec bluetui et blueman
 
 ## Wayland/Desktop
@@ -126,10 +143,11 @@ gs, ga, gc, gp  # git status/add/commit/push
 - **Multi-écrans** :
   - **Hyprland** : Config native dans `monitors.conf` + script `monitor-toggle` (`Mod+Shift+M`)
   - **Sway** : wdisplays (GUI) pour config manuelle
-- **Explorateur de fichiers** : Dolphin (KDE) avec kio-extras (SMB, archives, thumbnails)
+- **Explorateur de fichiers** : Nemo avec gvfs, thumbnails vidéo, archives (file-roller), action "Open in Terminal" (kitty)
 - **Curseur** : breeze_cursors (KDE)
 - **Applets** : pavucontrol (audio), nm-applet (WiFi), blueman-applet (Bluetooth)
 - **Clipboard** : cliphist pour Hyprland
+- **Polkit** : Agent polkit-gnome lancé via systemd user service + fallback dans `startup.conf`
 - **Raccourcis utiles** :
   - `Mod+Shift+M` : Basculer entre profils d'écrans (Bureau/Docked)
   - `Mod+Shift+W` : Relancer waybar après reconfiguration écrans
@@ -138,12 +156,13 @@ gs, ga, gc, gp  # git status/add/commit/push
 
 - **User** : `mae`, shell par défaut zsh, groupes : wheel, networkmanager, dialout, plugdev, uucp
 - **Bootloader** : systemd-boot, limite 10 entrées
-- **Kernel** : linuxPackages_latest
+- **Kernel** : linuxPackages_zen
 - **Locale** : Europe/Paris (fr_FR.UTF-8 pour formats, en_US.UTF-8 pour système)
 - **Audio** : PipeWire avec ALSA/Pulse support
-- **Polkit** : Activé pour privilèges GUI
+- **Polkit** : Activé + agent polkit-gnome (systemd user service) + rules udisks2/partitionmanager pour groupe wheel
 - **Keyring** : gnome-keyring pour stocker tokens (GitHub Copilot, etc.)
 - **Logind** : Lid switch ignoré sur secteur / avec écran externe (mode docked)
+- **Disques** : udisks2 activé, polkit rules pour KDE Partition Manager et disktui
 
 ## Nix Settings
 
@@ -162,7 +181,9 @@ gs, ga, gc, gp  # git status/add/commit/push
 
 ## Dépendances Externes
 
-- Flake `nixpkgs-esp-dev` pour toolchain ESP32 (ESP-IDF)
+- Flake `nixpkgs-esp-dev` pour toolchain ESP32 (ESP-IDF) - tous les chips supportés
+- Flake `rust-overlay` pour toolchain Rust à jour
+- Flake `zen-browser` pour navigateur Zen
 - Driver DisplayLink nécessite prefetch manuel avant premier rebuild
 - Plugins LazyVim gérés par lazy.nvim (pas par Nix)
 - Wallpapers attendus dans `~/Pictures` (config waypaper)

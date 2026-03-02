@@ -26,6 +26,8 @@
     ../../modules/apps/discord.nix
     ../../modules/apps/disk-tools.nix
     ../../modules/apps/flatpak.nix
+    ../../modules/apps/affinity.nix
+    ../../modules/apps/retroarch.nix
     ../../modules/dev/ai.nix
     ../../modules/dev/dev_other.nix
     ../../modules/hardware/displaylink.nix  # ✓ Avec DisplayLink (morthinkpad)
@@ -142,6 +144,7 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
+    jack.enable = true;
   };
 
   # Polkit

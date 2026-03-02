@@ -26,16 +26,16 @@
     esptool
     dfu-util
 
-    # Script pour entrer dans l'environnement ESP-IDF
+    # Script pour entrer dans l'environnement ESP-IDF (tous les chips)
     (pkgs.writeShellScriptBin "esp-shell" ''
-      echo "Entering ESP-IDF development environment..."
-      exec nix develop github:mirrexagon/nixpkgs-esp-dev#esp32-idf
+      echo "Entering ESP-IDF development environment (all chips)..."
+      exec nix develop github:mirrexagon/nixpkgs-esp-dev#esp-idf-full
     '')
 
     # Script pour lancer VSCode avec l'environnement ESP-IDF
     (pkgs.writeShellScriptBin "code-esp" ''
       echo "Launching VSCode with ESP-IDF environment..."
-      nix develop github:mirrexagon/nixpkgs-esp-dev#esp32-idf --command code "$@"
+      nix develop github:mirrexagon/nixpkgs-esp-dev#esp-idf-full --command code "$@"
     '')
   ];
 

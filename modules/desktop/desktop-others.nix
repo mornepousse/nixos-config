@@ -5,5 +5,10 @@
     signal-cli
     #brave
     vitetris
+    kdePackages.elisa
+    kdePackages.ghostwriter
+    discord
+    inkscape
+    ardour
   ];
 }
