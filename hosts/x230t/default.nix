@@ -57,9 +57,9 @@
     LC_TIME = "fr_FR.UTF-8";
   };
 
-  # Clavier X11 (pour compatibilité)
+  # Clavier AZERTY (X230t)
   services.xserver.xkb = {
-    layout = "us";
+    layout = "fr";
     variant = "";
   };
 

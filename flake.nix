@@ -52,7 +52,7 @@
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
             home-manager.users.mae = import ./home/mae.nix;
-            home-manager.extraSpecialArgs = { inherit inputs; };
+            home-manager.extraSpecialArgs = { inherit inputs; hostname = "morthinkpad"; };
             home-manager.backupFileExtension = "backup";  # Sauvegarde les fichiers existants
           }
         ];
@@ -75,7 +75,7 @@
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
             home-manager.users.mae = import ./home/mae.nix;
-            home-manager.extraSpecialArgs = { inherit inputs; };
+            home-manager.extraSpecialArgs = { inherit inputs; hostname = "x230t"; };
             home-manager.backupFileExtension = "backup";  # Sauvegarde les fichiers existants
           }
         ];
@@ -98,7 +98,7 @@
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
             home-manager.users.mae = import ./home/mae.nix;
-            home-manager.extraSpecialArgs = { inherit inputs; };
+            home-manager.extraSpecialArgs = { inherit inputs; hostname = "morthinkpad"; };
             home-manager.backupFileExtension = "backup";  # Sauvegarde les fichiers existants
           }
         ];

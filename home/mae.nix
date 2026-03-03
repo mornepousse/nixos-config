@@ -1,4 +1,4 @@
-{ config, pkgs, inputs, ... }:
+{ config, pkgs, inputs, hostname, ... }:
 
 {
  
@@ -173,7 +173,25 @@
   home.file.".config/hypr/hyprland.conf".source = ./hypr/hyprland.conf;
   home.file.".config/hypr/env.conf".source = ./hypr/env.conf;
   home.file.".config/hypr/monitors.conf".source = ./hypr/monitors.conf;
-  home.file.".config/hypr/input.conf".source = ./hypr/input.conf;
+  # input.conf généré dynamiquement (layout clavier selon la machine)
+  home.file.".config/hypr/input.conf".text = ''
+    # Input Configuration
+    # Hyprland - NixOS (généré par mae.nix)
+
+    input {
+        kb_layout = ${if hostname == "x230t" then "fr" else "us"}
+        numlock_by_default = true
+
+        touchpad {
+            tap-to-click = true
+            natural_scroll = true
+            disable_while_typing = true
+        }
+
+        follow_mouse = 1
+        sensitivity = 0
+    }
+  '';
   home.file.".config/hypr/gestures.conf".source = ./hypr/gestures.conf;
   home.file.".config/hypr/general.conf".source = ./hypr/general.conf;
   home.file.".config/hypr/decoration.conf".source = ./hypr/decoration.conf;
