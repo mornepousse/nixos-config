@@ -75,6 +75,7 @@
       "uucp"     # Pour les ports série
     ];
     shell = pkgs.zsh;
+    hashedPassword = "$6$..61teXnT1EOGUkG$E.iWszvdU2SoK4/QTal4TTD9mzZKCxdwdzPts/H.PiKmq.6X5ubRtDNocs3btlNtrJqU1XqaJ1qpCwYG0GStk/";
   };
 
   # Enable shells
