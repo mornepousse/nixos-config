@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Script d'installation NixOS COMPLÈTE depuis clé USB live
 # À exécuter depuis la clé NixOS live AVANT Calamares
-# Usage: sudo bash install-complete.sh --device /dev/sda --hostname x230t
+# Usage: sudo bash install-complete.sh --device /dev/sda --machine x230t
 
 set -e
 
@@ -140,15 +140,14 @@ if [ -z "$USER_PASSWORD" ]; then
   unset pass1 pass2
 fi
 
-# Générer le hash du mot de passe
+# Générer le hash du mot de passe (SHA-512 requis pour NixOS hashedPassword)
 log_info "Génération du hash du mot de passe..."
-# Essayer d'abord openssl (plus standard)
-if command -v openssl &> /dev/null; then
-  PASS_HASH=$(echo -n "$USER_PASSWORD" | openssl passwd -stdin 2>/dev/null)
-elif command -v mkpasswd &> /dev/null; then
-  PASS_HASH=$(echo -n "$USER_PASSWORD" | mkpasswd -s 2>/dev/null)
+if command -v mkpasswd &> /dev/null; then
+  PASS_HASH=$(echo -n "$USER_PASSWORD" | mkpasswd -m sha-512 -s 2>/dev/null)
+elif command -v openssl &> /dev/null; then
+  PASS_HASH=$(echo -n "$USER_PASSWORD" | openssl passwd -6 -stdin 2>/dev/null)
 else
-  log_error "Aucun outil disponible pour hasher le mot de passe (besoin openssl ou mkpasswd)"
+  log_error "Aucun outil disponible pour hasher le mot de passe (besoin mkpasswd ou openssl)"
   exit 1
 fi
 
@@ -174,8 +173,10 @@ log_info "Installation NixOS COMPLÈTE"
 log_info "============================"
 log_info ""
 log_info "Paramètres:"
+log_info "  Machine: $MACHINE"
 log_info "  Disque: $DEVICE"
 log_info "  Hostname: $HOSTNAME"
+log_info "  Boot: $([ "$MACHINE" = "x230t" ] && echo 'GRUB BIOS (Libreboot)' || echo 'systemd-boot (UEFI)')"
 log_info "  Swap: ${SWAP_SIZE}GB"
 log_info "  Chiffrement: $([ "$ENCRYPT" = true ] && echo 'OUI' || echo 'NON')"
 log_warning ""
@@ -200,51 +201,89 @@ fi
 log_success "Disque trouvé: $DEVICE"
 lsblk "$DEVICE"
 
-# Étape 2: Partitionnement et formatage
+# Étape 2: Nettoyage + Partitionnement et formatage
 log_info ""
-log_info "Étape 2: Partitionnement et formatage..."
+log_info "Étape 2: Nettoyage et partitionnement..."
 
-# Démonter les partitions si montées
+# --- Nettoyage complet (gère un re-run après échec) ---
+log_info "Nettoyage des montages/swap/LUKS existants..."
+
+# Démonter les sous-montages de /mnt en premier (ordre inverse)
+for mnt in "$MOUNT_POINT/boot" "$MOUNT_POINT/nix" "$MOUNT_POINT/home" "$MOUNT_POINT"; do
+  if mountpoint -q "$mnt" 2>/dev/null; then
+    log_warning "Démontage de $mnt..."
+    umount -l "$mnt" || true
+  fi
+done
+
+# Désactiver le swap sur les partitions du device
 for part in "${DEVICE}"*; do
-  if mountpoint -q "$part" 2>/dev/null; then
+  if [ -b "$part" ] && grep -q "$part" /proc/swaps 2>/dev/null; then
+    log_warning "Désactivation du swap sur $part..."
+    swapoff "$part" || true
+  fi
+done
+
+# Fermer LUKS si ouvert (re-run avec --encrypt)
+if [ -b /dev/mapper/nixos-root ]; then
+  log_warning "Fermeture du volume LUKS nixos-root..."
+  umount -l /dev/mapper/nixos-root 2>/dev/null || true
+  cryptsetup luksClose nixos-root || true
+fi
+
+# Démonter toute partition du device encore montée (filet de sécurité)
+for part in "${DEVICE}"*; do
+  if [ -b "$part" ] && findmnt -rn "$part" > /dev/null 2>&1; then
     log_warning "Démontage de $part..."
-    umount "$part" || true
+    umount -l "$part" || true
   fi
 done
 
 # Effacer table de partition existante
 log_warning "Suppression de la table de partition..."
 wipefs -af "$DEVICE" || true
+partprobe "$DEVICE" 2>/dev/null || true
+sleep 1  # Laisser le kernel relire la table de partitions
 
 # Créer table GPT
 log_info "Création table GPT..."
 parted -s "$DEVICE" mklabel gpt
 
-# Partitions
-EFI_SIZE="512"
-SWAP_SECTORS=$(( (SWAP_SIZE * 1024 * 1024 * 1024) / 512 ))
-EFI_END_SECTOR=$(( (EFI_SIZE * 1024 * 1024) / 512 ))
-SWAP_END_SECTOR=$(( EFI_END_SECTOR + SWAP_SECTORS ))
-
+# Partitions : schéma différent selon UEFI ou BIOS (Libreboot)
 log_info "Création des partitions..."
-parted -s "$DEVICE" mkpart ESP fat32 1MiB ${EFI_SIZE}MiB
-parted -s "$DEVICE" mkpart swap linux-swap ${EFI_SIZE}MiB $((EFI_SIZE + SWAP_SIZE * 1024))MiB
-parted -s "$DEVICE" mkpart nixos btrfs $((EFI_SIZE + SWAP_SIZE * 1024))MiB 100%
-parted -s "$DEVICE" set 1 boot on esp
+
+if [ "$MACHINE" = "x230t" ]; then
+  # x230t avec Libreboot : BIOS boot partition (ef02) + swap + root
+  BOOT_SIZE="2"  # 2 MiB pour BIOS boot
+  parted -s "$DEVICE" mkpart bios_boot 1MiB ${BOOT_SIZE}MiB
+  parted -s "$DEVICE" set 1 bios_grub on
+  parted -s "$DEVICE" mkpart swap linux-swap ${BOOT_SIZE}MiB $((BOOT_SIZE + SWAP_SIZE * 1024))MiB
+  parted -s "$DEVICE" mkpart nixos btrfs $((BOOT_SIZE + SWAP_SIZE * 1024))MiB 100%
+else
+  # morthinkpad et autres : ESP (UEFI) + swap + root
+  EFI_SIZE="512"
+  parted -s "$DEVICE" mkpart ESP fat32 1MiB ${EFI_SIZE}MiB
+  parted -s "$DEVICE" mkpart swap linux-swap ${EFI_SIZE}MiB $((EFI_SIZE + SWAP_SIZE * 1024))MiB
+  parted -s "$DEVICE" mkpart nixos btrfs $((EFI_SIZE + SWAP_SIZE * 1024))MiB 100%
+  parted -s "$DEVICE" set 1 boot on
+fi
 
 # Obtenir les noms de partitions
 if [[ "$DEVICE" =~ nvme ]]; then
-  EFI_PART="${DEVICE}p1"
+  BOOT_PART="${DEVICE}p1"
   SWAP_PART="${DEVICE}p2"
   ROOT_PART="${DEVICE}p3"
 else
-  EFI_PART="${DEVICE}1"
+  BOOT_PART="${DEVICE}1"
   SWAP_PART="${DEVICE}2"
   ROOT_PART="${DEVICE}3"
 fi
 
-log_info "Formatage EFI..."
-mkfs.fat -F 32 "$EFI_PART"
+# Formatage partition 1 : seulement pour UEFI (BIOS boot n'a pas de filesystem)
+if [ "$MACHINE" != "x230t" ]; then
+  log_info "Formatage EFI..."
+  mkfs.fat -F 32 "$BOOT_PART"
+fi
 
 log_info "Formatage Swap..."
 mkswap "$SWAP_PART"
@@ -278,8 +317,11 @@ mount "$ROOT_PART_OPEN" "$MOUNT_POINT"
 btrfs subvolume create "$MOUNT_POINT/nix" || log_warning "Subvolume nix existe déjà"
 btrfs subvolume create "$MOUNT_POINT/home" || log_warning "Subvolume home existe déjà"
 
-mkdir -p "$MOUNT_POINT/boot"
-mount "$EFI_PART" "$MOUNT_POINT/boot"
+# Monter /boot seulement en UEFI (la partition BIOS boot ne se monte pas)
+if [ "$MACHINE" != "x230t" ]; then
+  mkdir -p "$MOUNT_POINT/boot"
+  mount "$BOOT_PART" "$MOUNT_POINT/boot"
+fi
 
 log_success "Partitions montées"
 
@@ -294,15 +336,20 @@ log_success "hardware-configuration.nix généré"
 log_info ""
 log_info "Étape 5: Clonage de la config NixOS..."
 
-# Installer git sur la clé live (peut ne pas être présent)
-if ! command -v git &> /dev/null; then
-  log_warning "Git non trouvé, installation..."
-  nix-shell -p git --run "echo OK" > /dev/null
-  nix-shell -p git
+# Nettoyer un éventuel clone précédent (re-run du script)
+CONFIG_DIR="/tmp/nixos-config"
+if [ -d "$CONFIG_DIR" ]; then
+  log_warning "Suppression de l'ancien clone $CONFIG_DIR..."
+  rm -rf "$CONFIG_DIR"
 fi
 
-CONFIG_DIR="/tmp/nixos-config"
-git clone "$REPO_URL" "$CONFIG_DIR"
+# Cloner la config (nix-shell -p git si git absent sur la clé live)
+if command -v git &> /dev/null; then
+  git clone "$REPO_URL" "$CONFIG_DIR"
+else
+  log_warning "Git non trouvé, utilisation de nix-shell..."
+  nix-shell -p git --run "git clone '$REPO_URL' '$CONFIG_DIR'"
+fi
 log_success "Config clonée"
 
 # Copier la config générée
@@ -350,18 +397,16 @@ log_info "Étape 7: Installation NixOS (nixos-install)..."
 log_warning "Cela peut prendre 20-45 minutes selon la connexion et le matériel..."
 log_info "Machine: $MACHINE"
 
-nixos-install \
+if nixos-install \
   --flake "$CONFIG_DIR#$MACHINE" \
   --root "$MOUNT_POINT" \
   --no-root-passwd \
-  --show-trace
-
-if [ $? -ne 0 ]; then
+  --show-trace; then
+  log_success "Installation réussie!"
+else
   log_error "Erreur lors de nixos-install"
   exit 1
 fi
-
-log_success "Installation réussie!"
 
 # Étape 8: Finalisation
 log_info ""
@@ -370,7 +415,8 @@ log_info "Étape 8: Finalisation..."
 # Copier la config dans le système installé
 mkdir -p "$MOUNT_POINT/home/$USERNAME/"
 cp -r "$CONFIG_DIR" "$MOUNT_POINT/home/$USERNAME/nixos-config"
-chown -R "$(id -u):" "$MOUNT_POINT/home/$USERNAME/nixos-config" || true
+# UID 1000 = premier utilisateur normal créé par NixOS (mae)
+chown -R 1000:100 "$MOUNT_POINT/home/$USERNAME/nixos-config" || true
 
 log_success "Configuration copiée dans le système"
 
