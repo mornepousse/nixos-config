@@ -80,7 +80,7 @@ Options optionnelles:
   --password <pwd>      Mot de passe pour mae (sinon: demandé à l'installation)
   --repo-url <url>      URL de la config (défaut: GitHub mornepousse)
   --swap <size>         Taille swap en GB (défaut: 4)
-  --encrypt             Activer le chiffrement LUKS
+  --encrypt             Activer le chiffrement LUKS (même mot de passe que l'utilisateur)
   --help                Affiche cette aide
 
 Exemple:
@@ -291,14 +291,11 @@ swapon "$SWAP_PART"
 
 log_info "Formatage Root (Btrfs)..."
 if [ "$ENCRYPT" = true ]; then
-  log_warning "Chiffrement LUKS en cours..."
-  read -sp "Mot de passe LUKS: " LUKS_PASS
-  echo
-  echo -n "$LUKS_PASS" | cryptsetup luksFormat --type luks2 "$ROOT_PART" -
-  echo -n "$LUKS_PASS" | cryptsetup luksOpen "$ROOT_PART" nixos-root -
+  log_warning "Chiffrement LUKS2 en cours (même mot de passe que l'utilisateur)..."
+  echo -n "$USER_PASSWORD" | cryptsetup luksFormat --type luks2 "$ROOT_PART" --key-file=-
+  echo -n "$USER_PASSWORD" | cryptsetup luksOpen "$ROOT_PART" nixos-root --key-file=-
   ROOT_PART_OPEN="/dev/mapper/nixos-root"
   mkfs.btrfs -f "$ROOT_PART_OPEN"
-  ROOT_UUID=$(cryptsetup luksDump "$ROOT_PART" | grep "UUID" | awk '{print $2}')
 else
   mkfs.btrfs -f "$ROOT_PART"
   ROOT_PART_OPEN="$ROOT_PART"
@@ -442,9 +439,11 @@ echo "    - ${BLUE}upgrade${NC}      # Upgrade flake + rebuild"
 echo "    - ${BLUE}check-updates${NC} # Voir les changements"
 echo ""
 if [ "$ENCRYPT" = true ]; then
-  echo -e "${YELLOW}Chiffrement:${NC}"
-  echo "  • N'oublie pas ton mot de passe LUKS!"
-  echo "  • À chaque boot, tu seras demandé de le saisir"
+  echo -e "${YELLOW}Chiffrement LUKS:${NC}"
+  echo "  • Le mot de passe LUKS = mot de passe de $USERNAME"
+  echo "  • À chaque boot, tu devras le saisir pour déverrouiller le disque"
+  echo "  • Tu peux ajouter un autre mot de passe LUKS plus tard avec:"
+  echo "    ${BLUE}sudo cryptsetup luksAddKey /dev/sda3${NC}"
   echo ""
 fi
 echo -e "${YELLOW}Important:${NC}"
