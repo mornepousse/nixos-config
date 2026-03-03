@@ -9,6 +9,7 @@
     ../../modules/hardware/dns.nix
     ../../modules/hardware/smb.nix
     ../../modules/hardware/nfs.nix
+    ../../modules/hardware/tablet.nix    # Support tablette X230t (Wacom, tactile, rotation)
     ../../modules/desktop/hyprland.nix
     ../../modules/desktop/console.nix
     ../../modules/desktop/desktop-others.nix

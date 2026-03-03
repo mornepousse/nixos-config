@@ -182,6 +182,7 @@
   home.file.".config/hypr/misc.conf".source = ./hypr/misc.conf;
   home.file.".config/hypr/startup.conf".source = ./hypr/startup.conf;
   home.file.".config/hypr/keybinds.conf".source = ./hypr/keybinds.conf;
+  home.file.".config/hypr/tablet.conf".source = ./hypr/tablet.conf;
 
   # Config waybar
   home.file.".config/waybar/config".source = ./waybar/config.json;
