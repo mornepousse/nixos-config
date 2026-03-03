@@ -353,6 +353,7 @@ log_info "Machine: $MACHINE"
 nixos-install \
   --flake "$CONFIG_DIR#$MACHINE" \
   --root "$MOUNT_POINT" \
+  --no-root-passwd \
   --show-trace
 
 if [ $? -ne 0 ]; then

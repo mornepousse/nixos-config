@@ -2,7 +2,11 @@
 # and may be overwritten by future invocations.  Please make changes
 # to /etc/nixos/configuration.nix instead.
 #
-# For x230t - GENERATE WITH: sudo nixos-generate-config --root / && mv /etc/nixos/hardware-configuration.nix hosts/x230t/
+# For x230t (Libreboot) - GENERATE WITH: sudo nixos-generate-config --root / && mv /etc/nixos/hardware-configuration.nix hosts/x230t/
+# Partitionnement GPT requis :
+#   1. Partition BIOS boot : 1 Mo, type ef02 (pas de filesystem, GRUB s'y installe)
+#   2. Partition root : btrfs (ou ext4)
+#   3. (optionnel) Partition swap
 
 { config, lib, pkgs, modulesPath, ... }:
 
@@ -21,10 +25,12 @@
       fsType = "btrfs";
     };
 
-  fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/REPLACE_WITH_YOUR_UUID";
-      fsType = "vfat";
-    };
+  # Pas de /boot séparé avec GRUB BIOS - GRUB s'installe dans la partition BIOS boot (ef02)
+  # Si tu veux un /boot séparé (ext4), décommente :
+  # fileSystems."/boot" =
+  #   { device = "/dev/disk/by-uuid/REPLACE_WITH_YOUR_UUID";
+  #     fsType = "ext4";
+  #   };
 
   swapDevices = [ ];
 
