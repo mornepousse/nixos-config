@@ -150,6 +150,9 @@
   # Polkit
   security.polkit.enable = true;
 
+  # dconf/GSettings - nécessaire pour les dialogues de fichiers GTK (file chooser)
+  programs.dconf.enable = true;
+
   # Mode docked : permettre de garder le laptop fermé sur secteur
   services.logind.settings.Login = {
     HandleLidSwitch = "suspend";                    # Par défaut : suspend quand capot fermé
