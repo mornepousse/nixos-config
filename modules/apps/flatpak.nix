@@ -12,11 +12,8 @@
   # fwupd : requis par Discover pour les mises à jour firmware
   services.fwupd.enable = true;
 
-  # XDG portals requis pour Flatpak sous Wayland
-  xdg.portal = {
-    enable = true;
-    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
-  };
+  # Note : xdg.portal est configuré dans le module du compositor (hyprland.nix)
+  # avec xdg-desktop-portal-gtk qui fournit le FileChooser nécessaire à Flatpak
 
   # Service systemd pour configurer Flathub et installer les apps Flatpak
   # Tourne après le démarrage du service flatpak (au boot et après nixos-rebuild)
