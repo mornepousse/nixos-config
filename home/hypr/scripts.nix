@@ -1,5 +1,9 @@
 { pkgs }:
 [
+  (pkgs.writeShellScriptBin "hypr-internal-monitor" ''
+    hyprctl monitors | sed -n 's/^Monitor \(eDP-[0-9]\+\|LVDS-[0-9]\+\|DSI-[0-9]\+\).*/\1/p' | head -n1
+  '')
+
   (pkgs.writeShellScriptBin "monitor-toggle" ''
     choice=$(printf "💻 Laptop seul\n🖥️ Bureau (côte à côte)\n📺 Docked (vertical)" | fuzzel --dmenu -p "Profil écran: ")
     case "$choice" in
@@ -26,6 +30,12 @@
   # Fait tourner l'ecran ET les peripheriques d'entree (Wacom, tactile)
   (pkgs.writeShellScriptBin "rotate-screen" ''
     STATE_FILE="/tmp/hypr-rotation-state"
+    INTERNAL_MONITOR="$(hypr-internal-monitor)"
+
+    if [ -z "$INTERNAL_MONITOR" ]; then
+      notify-send -u critical -t 2500 "Rotation ecran" "Ecran interne introuvable"
+      exit 1
+    fi
 
     # Lire l'etat actuel (0=normal, 1=90, 2=180, 3=270)
     if [ -f "$STATE_FILE" ]; then
@@ -33,6 +43,11 @@
     else
       CURRENT=0
     fi
+
+    case "$CURRENT" in
+      0|1|2|3) ;;
+      *) CURRENT=0 ;;
+    esac
 
     # Passer a l'orientation suivante
     NEXT=$(( (CURRENT + 1) % 4 ))
@@ -42,8 +57,11 @@
     # 0 = normal, 1 = 90deg, 2 = 180deg, 3 = 270deg
     TRANSFORM=$NEXT
 
-    # Appliquer la rotation de l'ecran (eDP-1 = ecran interne du X230t)
-    hyprctl keyword monitor "eDP-1,preferred,auto,1,transform,$TRANSFORM"
+    # Appliquer la rotation de l'ecran interne du X230t
+    if ! hyprctl keyword monitor "$INTERNAL_MONITOR,preferred,auto,1,transform,$TRANSFORM" >/dev/null; then
+      notify-send -u critical -t 2500 "Rotation ecran" "Echec rotation sur $INTERNAL_MONITOR"
+      exit 1
+    fi
 
     # Faire tourner les peripheriques d'entree Wacom/tactile pour correspondre
     # Hyprland gere la rotation des inputs via la section device dans la config,
@@ -74,6 +92,24 @@
     notify-send -t 2000 "Rotation ecran" "$NOTIFY"
   '')
 
+  # Script de secours : reinitialise l'ecran interne en orientation normale
+  (pkgs.writeShellScriptBin "reset-internal-monitor" ''
+    INTERNAL_MONITOR="$(hypr-internal-monitor)"
+
+    if [ -z "$INTERNAL_MONITOR" ]; then
+      notify-send -u critical -t 2500 "Ecran interne" "Aucun ecran interne detecte"
+      exit 1
+    fi
+
+    if hyprctl keyword monitor "$INTERNAL_MONITOR,preferred,auto,1,transform,0" >/dev/null; then
+      echo 0 > /tmp/hypr-rotation-state
+      notify-send -t 1800 "Ecran interne" "$INTERNAL_MONITOR reinitialise"
+    else
+      notify-send -u critical -t 2500 "Ecran interne" "Echec reinitialisation $INTERNAL_MONITOR"
+      exit 1
+    fi
+  '')
+
   # Script toggle clavier virtuel (squeekboard)
   (pkgs.writeShellScriptBin "toggle-vkbd" ''
     if pgrep -x squeekboard > /dev/null; then
@@ -86,5 +122,37 @@
       disown
       notify-send -t 1500 "Clavier virtuel" "Active"
     fi
+  '')
+
+  # Script de monitoring mode tablette (fallback si switch events ne marchent pas)
+  # Surveille hotkey_tablet_mode et déclenche rotation/reset
+  (pkgs.writeShellScriptBin "tablet-mode-monitor" ''
+    SYSFS="/sys/devices/platform/thinkpad_acpi/hotkey_tablet_mode"
+    STATE_FILE="/tmp/tablet-mode-last"
+    
+    [ -r "$SYSFS" ] || { echo "Pas de fichier $SYSFS"; exit 1; }
+    
+    # Initialiser l'état
+    cat "$SYSFS" > "$STATE_FILE" 2>/dev/null || echo 0 > "$STATE_FILE"
+    
+    echo "Démarrage monitoring mode tablette..."
+    
+    while true; do
+      current=$(cat "$SYSFS" 2>/dev/null || echo 0)
+      last=$(cat "$STATE_FILE" 2>/dev/null || echo 0)
+      
+      if [ "$current" != "$last" ]; then
+        echo "$current" > "$STATE_FILE"
+        if [ "$current" = "1" ]; then
+          echo "Mode tablette activé"
+          rotate-screen
+        else
+          echo "Mode laptop activé"
+          reset-internal-monitor
+        fi
+      fi
+      
+      sleep 1
+    done
   '')
 ]
