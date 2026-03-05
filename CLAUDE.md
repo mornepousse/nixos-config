@@ -41,7 +41,7 @@ Les modules dans `modules/` sont organisés en 4 catégories :
 - `dev_other.nix` - Outils dev divers
 
 ### Apps (`modules/apps/`)
-- `nemo.nix` - Gestionnaire de fichiers Nemo (gvfs, thumbnails, archives, action "Open in Terminal")
+- `thunar.nix` - Gestionnaire de fichiers Thunar (gvfs, tumbler, thumbnails, archives, plugins, "Open in Terminal")
 - `discord.nix` - Client Discord
 - `disk-tools.nix` - Gestion disques (KDE Partition Manager, disktui, filelight, gdu, udisks2 + polkit rules)
 - `flatpak.nix` - Support Flatpak
@@ -108,10 +108,15 @@ Scripts ESP-IDF dans `modules/dev/esp-idf.nix` :
 sudo nixos-rebuild switch --flake ~/nixos-config#morthinkpad
 
 # Raccourcis (alias dans home/shell/aliases.nix)
-update          # rebuild et applique la config actuelle
-upgrade         # update flake.lock + rebuild et applique
-check-updates   # update flake.lock temporaire, build, affiche liste détaillée des paquets
-                # mis à jour avec versions (ancien→nouveau), puis restore flake.lock
+update          # rebuild et applique la config actuelle (sans mise à jour)
+
+# Mises à jour segmentées
+upgrade         # quotidien — met à jour nixpkgs + home-manager + zen-browser + affinity
+                # (Firefox, VSCode, Discord/Vesktop, Zen Browser, Affinity, etc.)
+upgrade-dev     # selon besoin — met à jour rust-overlay + nixpkgs-esp-dev (toolchains dev)
+upgrade-all     # occasionnel — met à jour TOUS les inputs d'un coup
+check-updates   # prévisualise les changements (build temporaire + nvd diff, sans appliquer)
+
 clean           # garbage collect
 
 # ESP-IDF
@@ -143,7 +148,7 @@ gs, ga, gc, gp  # git status/add/commit/push
 - **Multi-écrans** :
   - **Hyprland** : Config native dans `monitors.conf` + script `monitor-toggle` (`Mod+Shift+M`)
   - **Sway** : wdisplays (GUI) pour config manuelle
-- **Explorateur de fichiers** : Nemo avec gvfs, thumbnails vidéo, archives (file-roller), action "Open in Terminal" (kitty)
+- **Explorateur de fichiers** : Thunar avec gvfs, tumbler, thumbnails (vidéo/PDF/HEIF), archives (thunar-archive-plugin + file-roller), "Open in Terminal" (kitty via helpers.rc)
 - **Curseur** : breeze_cursors (KDE)
 - **Applets** : pavucontrol (audio), nm-applet (WiFi), blueman-applet (Bluetooth)
 - **Clipboard** : cliphist pour Hyprland

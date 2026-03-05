@@ -1,32 +1,40 @@
 { config, pkgs, inputs, hostname, ... }:
 
 {
- 
+  # ══════════════════════════════════════════════════════════════
+  #  Home Manager — Configuration utilisateur mae
+  # ══════════════════════════════════════════════════════════════
 
   home.username = "mae";
   home.homeDirectory = "/home/mae";
 
+  # ── Packages utilisateur ────────────────────────────────────
   home.packages = with pkgs; [
+    # Multimédia
     mpv
     imv
+
+    # Outils système
     btop
     fastfetch
     tree
-    psmisc  # Pour killall
-    waypaper # Gestionnaire de wallpaper pour Wayland
-    wdisplays # Gestionnaire graphique de disposition d'écrans (Wayland)
-    cliphist  # Clipboard manager pour Hyprland
+    psmisc        # killall
+
+    # Wayland
+    waypaper      # Gestionnaire de wallpaper
+    wdisplays     # Disposition d'écrans
+    cliphist      # Clipboard manager (Hyprland)
 
     # Thèmes Catppuccin (dark mode)
     catppuccin-gtk
     catppuccin-qt5ct
 
     # Applets système
-    pavucontrol          # Contrôle audio graphique
-    networkmanagerapplet # nm-applet pour le réseau WiFi
-    polkit_gnome         # Agent polkit pour authentification GUI
+    pavucontrol          # Contrôle audio
+    networkmanagerapplet # WiFi (nm-applet)
+    polkit_gnome         # Authentification GUI
 
-    # LazyVim dependencies
+    # LazyVim — dépendances runtime
     git
     gcc
     ripgrep
@@ -35,7 +43,7 @@
   ] ++ (import ./scripts { inherit pkgs; })
     ++ (import ./hypr/scripts.nix { inherit pkgs; });
 
-  # Neovim avec LazyVim
+  # ── Neovim (LazyVim) ────────────────────────────────────────
   programs.neovim = {
     enable = true;
     defaultEditor = true;
@@ -43,7 +51,7 @@
     vimAlias = true;
   };
 
-  # Git config
+  # ── Git ──────────────────────────────────────────────────────
   programs.git = {
     enable = true;
     settings = {
@@ -52,7 +60,7 @@
     };
   };
 
-  # Zsh
+  # ── Zsh ──────────────────────────────────────────────────────
   programs.zsh = {
     enable = true;
     enableCompletion = true;
@@ -106,7 +114,7 @@
     '';
   };
 
-  # Fish shell
+  # ── Fish ─────────────────────────────────────────────────────
   programs.fish = {
     enable = true;
     shellAliases = import ./shell/aliases.nix;
@@ -116,7 +124,7 @@
     '';
   };
 
-  # Starship prompt
+  # ── Starship prompt ─────────────────────────────────────────
   programs.starship = {
     enable = true;
     settings = {
@@ -128,7 +136,7 @@
     };
   };
 
-  # Kitty Terminal
+  # ── Kitty terminal ──────────────────────────────────────────
   programs.kitty = {
     enable = true;
     settings = {
@@ -166,10 +174,11 @@
     };
   };
 
-  # Config Sway
+  # ── Dotfiles Wayland ────────────────────────────────────────
+  # Sway
   home.file.".config/sway/config".source = ./sway/config;
 
-  # Config Hyprland (structure modulaire)
+  # Hyprland (structure modulaire)
   home.file.".config/hypr/hyprland.conf".source = ./hypr/hyprland.conf;
   home.file.".config/hypr/env.conf".source = ./hypr/env.conf;
   home.file.".config/hypr/monitors.conf".source = ./hypr/monitors.conf;
@@ -202,16 +211,17 @@
   home.file.".config/hypr/keybinds.conf".source = ./hypr/keybinds.conf;
   home.file.".config/hypr/tablet.conf".source = ./hypr/tablet.conf;
 
-  # Config waybar
+  # Waybar
   home.file.".config/waybar/config".source = ./waybar/config.json;
   home.file.".config/waybar/config-sway.json".source = ./waybar/config-sway.json;
   home.file.".config/waybar/config-hyprland.json".source = ./waybar/config-hyprland.json;
   home.file.".config/waybar/style.css".source = ./waybar/style.css;
 
-  # Config fuzzel
+  # Fuzzel (lanceur)
   home.file.".config/fuzzel/fuzzel.ini".source = ./fuzzel/fuzzel.ini;
 
-  # GTK Theme - Catppuccin Mocha (dark mode)
+  # ── Thèmes & Apparence ──────────────────────────────────────
+  # GTK — Catppuccin Mocha (dark mode)
   gtk = {
     enable = true;
     theme = {
@@ -230,13 +240,13 @@
     };
   };
 
-  # Qt Theme - Forcer le dark mode
+  # Qt — dark mode via GTK
   qt = {
     enable = true;
     platformTheme.name = "gtk3";
   };
 
-  # GNOME dconf settings - Dark mode pour toutes les apps GTK
+  # dconf — dark mode + Thunar prefs
   dconf.settings = {
     "org/gnome/desktop/interface" = {
       color-scheme = "prefer-dark";
@@ -251,13 +261,14 @@
     };
   };
 
-  # Variables d'environnement pour dark mode
+  # Variables de session (dark mode global)
   home.sessionVariables = {
     GTK_THEME = "Catppuccin-Mocha";
     QT_QPA_PLATFORMTHEME = "gtk3";
   };
 
-  # Mako (notifications)
+  # ── Services utilisateur ────────────────────────────────────
+  # Mako (notifications Wayland)
   services.mako = {
     enable = true;
     settings = {
@@ -266,7 +277,7 @@
     };
   };
 
-  # Polkit GNOME authentication agent (popup mot de passe GUI)
+  # Polkit GNOME — popup mot de passe GUI
   systemd.user.services.polkit-gnome-authentication-agent-1 = {
     Unit = {
       Description = "polkit-gnome-authentication-agent-1";
@@ -285,7 +296,7 @@
     };
   };
 
-  # Curseur style KDE (Breeze)
+  # ── Curseur ──────────────────────────────────────────────────
   home.pointerCursor = {
     name = "breeze_cursors";
     package = pkgs.kdePackages.breeze;
@@ -293,7 +304,8 @@
     gtk.enable = true;
   };
 
-  # Waypaper config
+  # ── Configs diverses ────────────────────────────────────────
+  # Waypaper
   home.file.".config/waypaper/config.ini".text = ''
     [Settings]
     folder = ~/Pictures
@@ -306,7 +318,7 @@
     TerminalEmulator=kitty
   '';
 
-  # Fichiers .desktop pour applications sans desktop file natif
+  # ── Fichiers .desktop ───────────────────────────────────────
   home.file.".local/share/applications/mpv.desktop".text = ''
     [Desktop Entry]
     Type=Application
@@ -342,14 +354,14 @@
     Categories=System;TerminalEmulator;
   '';
 
-  # XDG user directories
+  # ── XDG ──────────────────────────────────────────────────────
   xdg.userDirs = {
     enable = true;
     createDirectories = true;
   };
 
-  # Activation script pour créer le fichier credentials avec permissions sécurisées
-  # Le fichier réel ne doit PAS être tracké dans git!
+  # ── Activation scripts ──────────────────────────────────────
+  # Credentials SMB (créé au premier deploy si absent)
   home.activation.createSmbCredentials = config.lib.dag.entryAfter ["writeBoundary"] ''
     mkdir -p ~/.config
     if [ ! -f ~/.smbcredentials ]; then
@@ -377,7 +389,7 @@ EOF
     };
   };
 
-  # Associations MIME pour ouverture fichiers avec bons programmes
+  # ── Associations MIME ───────────────────────────────────────
   xdg.mimeApps = {
     enable = true;
     defaultApplications = {
@@ -420,6 +432,7 @@ EOF
     };
   };
 
+  # ══════════════════════════════════════════════════════════════
   home.stateVersion = "26.05";
   programs.home-manager.enable = true;
 }

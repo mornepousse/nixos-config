@@ -1,35 +1,39 @@
 {
-  description = "NixOS configuration for mae - Sway + waybar + SDDM";
+  description = "NixOS configuration — Hyprland / Sway + waybar + SDDM (Wayland)";
 
   inputs = {
+    # ── Base (upgrade) ─────────────────────────────────────────
+    # nixpkgs + home-manager : cœur du système, la plupart des paquets
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nixpkgs-esp-dev = {
-      url = "github:mirrexagon/nixpkgs-esp-dev";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    rust-overlay = {
-      url = "github:oxalica/rust-overlay";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
+    # ── Apps tierces (upgrade) ────────────────────────────────
+    # Navigateur Zen (basé Firefox) — mise à jour fréquente
     zen-browser = {
       url = "github:0xc000022070/zen-browser-flake";
       inputs = {
-        # IMPORTANT: To ensure compatibility with the latest Firefox version, use nixpkgs-unstable.
         nixpkgs.follows = "nixpkgs";
         home-manager.follows = "home-manager";
       };
     };
-
+    # Suite Affinity (Photo/Designer/Publisher) via Wine
     affinity-nix = {
       url = "github:mrshmllow/affinity-nix";
+    };
+
+    # ── Toolchains dev (upgrade-dev) ──────────────────────────
+    # Rust toolchain à jour via overlay
+    rust-overlay = {
+      url = "github:oxalica/rust-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    # ESP-IDF pour développement ESP32 (tous les chips)
+    nixpkgs-esp-dev = {
+      url = "github:mirrexagon/nixpkgs-esp-dev";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 

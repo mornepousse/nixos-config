@@ -1,51 +1,60 @@
 { config, pkgs, inputs, ... }:
 
 {
+  # ══════════════════════════════════════════════════════════════
+  #  morthinkpad — Machine principale (avec DisplayLink)
+  # ══════════════════════════════════════════════════════════════
+
   imports = [
     ./hardware-configuration.nix
 
-    # Modules
-    ../../modules/hardware/usb-serial.nix
+    # ── Hardware ────────────────────────────────────────────────
+    ../../modules/hardware/displaylink.nix   # Hub DisplayLink (spécifique morthinkpad)
+    ../../modules/hardware/usb-serial.nix    # CH340, CP210x
     ../../modules/hardware/dns.nix
-    ../../modules/hardware/smb.nix
-    ../../modules/hardware/nfs.nix
-    ../../modules/desktop/hyprland.nix
-    ../../modules/desktop/console.nix
-    ../../modules/desktop/desktop-others.nix
-    ../../modules/desktop/quickshell.nix
-    ../../modules/dev/kicad.nix
-    ../../modules/dev/stm32.nix
-    ../../modules/dev/esp-idf.nix
-    ../../modules/dev/freecad.nix
-    ../../modules/dev/slint-rust.nix
-    ../../modules/dev/qt-quick.nix
-    ../../modules/dev/rider.nix
-    # ../../modules/dev/qtcreator.nix    # Remplacé par Slint + Rust
+    ../../modules/hardware/smb.nix           # Partages réseau SMB/CIFS
+    ../../modules/hardware/nfs.nix           # Partages réseau NFS
+
+    # ── Desktop / Wayland ──────────────────────────────────────
+    ../../modules/desktop/hyprland.nix       # Compositor principal
+    ../../modules/desktop/console.nix        # TTY
+    ../../modules/desktop/desktop-others.nix # Paquets desktop divers
+    ../../modules/desktop/quickshell.nix     # Waybar
+
+    # ── Dev ─────────────────────────────────────────────────────
     ../../modules/dev/ssh.nix
-    ../../modules/apps/thunar.nix
-    ../../modules/apps/discord.nix
-    ../../modules/apps/disk-tools.nix
-    ../../modules/apps/flatpak.nix
-    ../../modules/apps/affinity.nix
-    ../../modules/apps/retroarch.nix
     ../../modules/dev/ai.nix
     ../../modules/dev/dev_other.nix
-    ../../modules/hardware/displaylink.nix  # ✓ Avec DisplayLink (morthinkpad)
+    ../../modules/dev/kicad.nix              # Conception PCB
+    ../../modules/dev/stm32.nix              # STM32 + ST-Link
+    ../../modules/dev/esp-idf.nix            # ESP32 (tous les chips)
+    ../../modules/dev/freecad.nix            # CAO 3D
+    ../../modules/dev/slint-rust.nix         # Slint + Rust
+    ../../modules/dev/qt-quick.nix           # Qt Quick / QML
+    ../../modules/dev/rider.nix              # IDE .NET/C#
+
+    # ── Apps ────────────────────────────────────────────────────
+    ../../modules/apps/thunar.nix            # Gestionnaire de fichiers
+    ../../modules/apps/discord.nix           # Vesktop + Ripcord
+    ../../modules/apps/disk-tools.nix        # Partition Manager, filelight…
+    ../../modules/apps/flatpak.nix
+    ../../modules/apps/affinity.nix          # Photo/Designer/Publisher (Wine)
+    ../../modules/apps/retroarch.nix         # Émulation
   ];
 
-  # Bootloader
+  # ── Boot ────────────────────────────────────────────────────
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.systemd-boot.configurationLimit = 10;  # Limite à 10 versions dans le menu boot
 
-  # Kernel latest (comme ta config actuelle)
+  # ── Kernel ──────────────────────────────────────────────────
   boot.kernelPackages = pkgs.linuxPackages_zen;
 
-  # Hostname
+  # ── Réseau ──────────────────────────────────────────────────
   networking.hostName = "morthinkpad";
   networking.networkmanager.enable = true;
 
-  # Timezone & Locale (gardé comme ta config actuelle)
+  # ── Locale ──────────────────────────────────────────────────
   time.timeZone = "Europe/Paris";
   i18n.defaultLocale = "en_US.UTF-8";
   i18n.extraLocaleSettings = {
@@ -60,13 +69,13 @@
     LC_TIME = "fr_FR.UTF-8";
   };
 
-  # Clavier X11 (pour compatibilité)
+  # ── Clavier (X11 compat) ────────────────────────────────────
   services.xserver.xkb = {
     layout = "us";
     variant = "";
   };
 
-  # User
+  # ── Utilisateur ─────────────────────────────────────────────
   users.users.mae = {
     isNormalUser = true;
     description = "mae";
@@ -80,11 +89,11 @@
     shell = pkgs.zsh;
   };
 
-  # Enable shells
+  # ── Shells ──────────────────────────────────────────────────
   programs.zsh.enable = true;
   programs.fish.enable = true;
 
-  # Packages système de base
+  # ── Packages système de base ────────────────────────────────
   environment.systemPackages = with pkgs; [
     vim
     nano
@@ -102,10 +111,10 @@
     nh           # Helper NixOS (wrapper nixos-rebuild + nvd intégré)
   ];
 
-  # Autoriser les packages non-libres
+  # ── Nix settings ────────────────────────────────────────────
   nixpkgs.config.allowUnfree = true;
 
-  # Nix settings (flakes activés)
+  # ── Nix flakes & GC ────────────────────────────────────────
   nix.settings = {
     experimental-features = [ "nix-command" "flakes" ];
     auto-optimise-store = true;
@@ -121,7 +130,7 @@
     options = "--delete-older-than 30d";  # 30 jours pour garder les sources plus longtemps
   };
 
-  # OpenGL / Graphics
+  # ── Hardware (GPU, Bluetooth) ───────────────────────────────
   hardware.graphics.enable = true;
 
   # Bluetooth
@@ -137,7 +146,7 @@
   };
   services.blueman.enable = true;  # GUI pour gérer le Bluetooth
 
-  # Audio avec PipeWire (comme ta config)
+  # ── Audio (PipeWire) ────────────────────────────────────────
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
@@ -147,26 +156,27 @@
     jack.enable = true;
   };
 
-  # Polkit
+  # ── Sécurité & Polkit ───────────────────────────────────────
   security.polkit.enable = true;
 
   # dconf/GSettings - nécessaire pour les dialogues de fichiers GTK (file chooser)
   programs.dconf.enable = true;
 
-  # Mode docked : permettre de garder le laptop fermé sur secteur
+  # ── Mode docked (capot fermé) ──────────────────────────────
   services.logind.settings.Login = {
     HandleLidSwitch = "suspend";                    # Par défaut : suspend quand capot fermé
     HandleLidSwitchExternalPower = "ignore";        # Sur secteur : ignorer le capot fermé
     HandleLidSwitchDocked = "ignore";               # Avec écran externe : ignorer le capot fermé
   };
 
-  # Profils d'énergie (performance / balanced / power-saver)
+  # ── Énergie ─────────────────────────────────────────────────
   services.power-profiles-daemon.enable = true;
 
-  # Keyring (pour SMB, GitHub Desktop, tokens, etc.)
+  # ── Keyring ─────────────────────────────────────────────────
   services.gnome.gnome-keyring.enable = true;
   security.pam.services.login.enableGnomeKeyring = true;
 
-  # Version de NixOS - IMPORTANT: garde la même que ton install
+  # ══════════════════════════════════════════════════════════════
+  # NE JAMAIS modifier sans migration
   system.stateVersion = "26.05";
 }
