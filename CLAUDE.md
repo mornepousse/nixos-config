@@ -113,6 +113,7 @@ update          # rebuild et applique la config actuelle (sans mise à jour)
 # Mises à jour segmentées
 upgrade         # quotidien — met à jour nixpkgs + home-manager + zen-browser + affinity
                 # (Firefox, VSCode, Discord/Vesktop, Zen Browser, Affinity, etc.)
+upgrade-system  # 1-2x/mois — met à jour nixpkgs + home-manager seuls (core système)
 upgrade-dev     # selon besoin — met à jour rust-overlay + nixpkgs-esp-dev (toolchains dev)
 upgrade-all     # occasionnel — met à jour TOUS les inputs d'un coup
 check-updates   # prévisualise les changements (build temporaire + nvd diff, sans appliquer)
