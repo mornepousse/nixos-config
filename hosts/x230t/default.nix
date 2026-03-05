@@ -21,7 +21,7 @@
     #../../modules/dev/slint-rust.nix 
     # ../../modules/dev/qtcreator.nix    # Remplacé par Slint + Rust
     ../../modules/dev/ssh.nix
-    ../../modules/apps/nemo.nix
+    ../../modules/apps/thunar.nix
     #../../modules/apps/discord.nix
     ../../modules/apps/disk-tools.nix
     ../../modules/apps/flatpak.nix

@@ -2,7 +2,7 @@
 
 {
   # NFS est configuré dans modules/hardware/nfs.nix
-  # Ce fichier garde juste GVFS pour Nemo
+  # GVFS pour le file manager (Thunar)
   services.gvfs = {
     enable = true;
     package = pkgs.gvfs;

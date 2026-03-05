@@ -63,7 +63,9 @@
       "Bash(# Chercher où sont les schemas glib-2.0 dans le nix store find /nix/store/ardc48431c6fl1wjqcvjdngp2wd7aqpq-gsettings-desktop-schemas-49.1/ -name \"\"*.xml\"\" -o -name \"\"gschemas.compiled\"\")",
       "Bash(# Trouver le bon path du wrapper nix path-info /home/mae/nixos-config#nixosConfigurations.nixos.config.system.build.toplevel)",
       "Bash(update:*)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "WebSearch",
+      "WebFetch(domain:wiki.nixos.org)"
     ]
   }
 }

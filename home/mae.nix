@@ -244,15 +244,10 @@
       icon-theme = "Papirus-Dark";
     };
 
-    # Nemo file manager preferences
-    "org/nemo/preferences" = {
-      show-hidden-files = true;
-      show-location-entry = true;
-      sort-directories-first = true;
-    };
-
-    "org/nemo/desktop" = {
-      show-desktop-icons = false;
+    # Thunar file manager preferences
+    "org/xfce/thunar" = {
+      misc-show-hidden = true;
+      misc-sort-folders-first = true;
     };
   };
 
@@ -306,16 +301,9 @@
     fill = fill
   '';
 
-  # Nemo custom actions - "Open in Terminal"
-  home.file.".local/share/nemo/actions/open-in-terminal.nemo_action".text = ''
-    [Nemo Action]
-    Name=Open in Terminal
-    Comment=Open a terminal window in this directory
-    Exec=kitty --working-directory %f
-    Icon-Name=utilities-terminal
-    Selection=None
-    Extensions=any;
-    Conditions=
+  # Thunar - Open in Terminal avec kitty
+  home.file.".config/xfce4/helpers.rc".text = ''
+    TerminalEmulator=kitty
   '';
 
   # Fichiers .desktop pour applications sans desktop file natif
@@ -420,7 +408,7 @@ EOF
       # Texte
       "text/plain" = "nvim.desktop";
 
-      # Archives (file-roller - extraction directe dans Nemo)
+      # Archives (file-roller via thunar-archive-plugin)
       "application/zip" = "file-roller.desktop";
       "application/x-tar" = "file-roller.desktop";
       "application/x-7z-compressed" = "file-roller.desktop";
@@ -428,7 +416,7 @@ EOF
       "application/gzip" = "file-roller.desktop";
 
       # File manager
-      "inode/directory" = "nemo.desktop";
+      "inode/directory" = "thunar.desktop";
     };
   };
 
