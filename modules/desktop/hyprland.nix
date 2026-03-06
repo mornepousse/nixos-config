@@ -28,14 +28,15 @@
     grim
     slurp
     wl-clipboard
+    wl-clip-persist
 
     # Wallpaper
     swaybg
     hyprpaper  # Alternative native Hyprland
 
-    # Lock screen
-    swaylock
-    swayidle
+    # Lock screen & idle
+    hyprlock
+    hypridle
 
     # Utilitaires
     brightnessctl
@@ -45,6 +46,9 @@
     # Polkit authentication agent (popup mot de passe pour apps root)
     polkit_gnome
   ];
+
+  # PAM pour hyprlock (verification mot de passe)
+  security.pam.services.hyprlock = {};
 
   # XDG Portal pour Hyprland
   # - xdg-desktop-portal-hyprland est ajouté automatiquement par programs.hyprland.enable
@@ -74,6 +78,9 @@
     QT_QPA_PLATFORM = "wayland";
     SDL_VIDEODRIVER = "wayland";
     XDG_SESSION_TYPE = "wayland";
+    XDG_CURRENT_DESKTOP = "Hyprland";
+    _JAVA_AWT_WM_NONREPARENTING = "1";
+    GDK_BACKEND = "wayland,x11";
   };
 
   # Fonts (identiques à Sway)

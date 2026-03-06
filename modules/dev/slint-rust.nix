@@ -75,7 +75,7 @@
     ];
 
     # Linker doit trouver les .so et headers OpenGL
-    LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [
+    LD_LIBRARY_PATH = map (pkg: "${pkg}/lib") [
       pkgs.fontconfig
       pkgs.freetype
       pkgs.libxkbcommon

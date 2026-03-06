@@ -65,7 +65,12 @@
       "Bash(update:*)",
       "Bash(git reset:*)",
       "WebSearch",
-      "WebFetch(domain:wiki.nixos.org)"
+      "WebFetch(domain:wiki.nixos.org)",
+      "WebFetch(domain:gitea.com)",
+      "WebFetch(domain:wiki.hyprland.org)",
+      "WebFetch(domain:wiki.hypr.land)",
+      "WebFetch(domain:nixos.wiki)",
+      "Bash(hyprctl clients:*)"
     ]
   }
 }

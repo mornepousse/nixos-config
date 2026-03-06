@@ -53,9 +53,15 @@
   # Variables d'environnement pour .NET
   environment.variables = {
     DOTNET_CLI_TELEMETRY_OPTOUT = "1";  # Désactive la télémétrie
+    DOTNET_ROOT = "${pkgs.dotnet-sdk_10}/share/dotnet";
   };
+  # Symlink pour que Rider trouve dotnet a /usr/share/dotnet (son chemin par defaut)
+  system.activationScripts.dotnet-symlink = ''
+    mkdir -p /usr/share
+    ln -sfn ${pkgs.dotnet-sdk_10}/share/dotnet /usr/share/dotnet
+  '';
   environment.sessionVariables = {
-    LD_LIBRARY_PATH = pkgs.lib.mkForce (pkgs.lib.makeLibraryPath [
+    LD_LIBRARY_PATH = map (pkg: "${pkg}/lib") [
       pkgs.icu
       pkgs.fontconfig
       pkgs.freetype
@@ -70,6 +76,6 @@
       pkgs.libXrender
       pkgs.xorg.libXxf86vm
       pkgs.libxcb
-    ]);
+    ];
   };
 }

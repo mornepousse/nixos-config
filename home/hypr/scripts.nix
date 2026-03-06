@@ -1,5 +1,22 @@
 { pkgs }:
 [
+  # Alt+Tab — focus la fenetre selectionnee (change de workspace/ecran)
+  (pkgs.writeShellScriptBin "window-switcher" ''
+    selected=$(hyprctl clients -j | ${pkgs.jq}/bin/jq -r '.[] | select(.mapped == true) | "\(.address) [\(.workspace.name)] \(.class) — \(.title)"' | fuzzel --dmenu -p "Fenetre: ")
+    [ -z "$selected" ] && exit 0
+    addr=$(echo "$selected" | cut -d' ' -f1)
+    hyprctl dispatch focuswindow address:$addr
+  '')
+
+  # Ramene une fenetre sur le workspace actif
+  (pkgs.writeShellScriptBin "window-bring" ''
+    selected=$(hyprctl clients -j | ${pkgs.jq}/bin/jq -r '.[] | select(.mapped == true) | "\(.address) [\(.workspace.name)] \(.class) — \(.title)"' | fuzzel --dmenu -p "Ramener: ")
+    [ -z "$selected" ] && exit 0
+    addr=$(echo "$selected" | cut -d' ' -f1)
+    hyprctl dispatch movetoworkspace e+0,address:$addr
+    hyprctl dispatch focuswindow address:$addr
+  '')
+
   (pkgs.writeShellScriptBin "hypr-internal-monitor" ''
     hyprctl monitors | sed -n 's/^Monitor \(eDP-[0-9]\+\|LVDS-[0-9]\+\|DSI-[0-9]\+\).*/\1/p' | head -n1
   '')
@@ -18,7 +35,7 @@
         hyprctl keyword monitor "DVI-I-2,1920x1080@60,1920x0,1"
         ;;
       "📺 Docked (vertical)")
-        hyprctl keyword monitor "eDP-1,preferred,auto,1"
+        hyprctl keyword monitor "eDP-1,disable"
         hyprctl keyword monitor "DP-3,1920x1080@60,0x0,1,transform,2"
         hyprctl keyword monitor "DP-4,1920x1080@60,0x1080,1"
         ;;

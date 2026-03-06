@@ -1,8 +1,9 @@
 { config, pkgs, ... }:
 
 {
-  # NFS est configuré dans modules/hardware/nfs.nix
-  # GVFS pour le file manager (Thunar)
+  # ── SMB/CIFS ────────────────────────────────────────────────
+
+  # GVFS pour montage dans Thunar (smb://)
   services.gvfs = {
     enable = true;
     package = pkgs.gvfs;
@@ -10,5 +11,7 @@
 
   environment.systemPackages = with pkgs; [
     gvfs
+    cifs-utils   # mount.cifs
+    libsecret    # Stockage mots de passe dans gnome-keyring
   ];
 }

@@ -1,3 +1,9 @@
+/* Waybar — Style principal */
+/* Les couleurs sont importées depuis colors.css généré par matugen */
+/* colors.css est régénéré à chaque set-wallpaper / restore-wallpaper */
+
+@import "colors.css";
+
 * {
   border: none;
   border-radius: 0;
@@ -7,22 +13,22 @@
 }
 
 window#waybar {
-  background: rgba(30, 30, 46, 0.85);
-  color: #cdd6f4;
+  background-color: @surface_container;
+  color: @on_surface;
 }
 
 #custom-launcher {
-  color: #cba6f7;
+  color: @primary;
   padding: 0 12px;
 }
 
 #custom-valent {
-  color: #94e2d5;
+  color: @tertiary;
   padding: 0 10px;
 }
 
 #custom-valent.disconnected {
-  color: #6c7086;
+  color: @outline;
 }
 
 #tray {
@@ -35,80 +41,80 @@ window#waybar {
 
 #tray > .needs-attention {
   -gtk-icon-effect: highlight;
-  color: #f38ba8;
+  color: @error;
 }
 
 #workspaces button {
   padding: 0 8px;
-  color: #6c7086;
+  color: @outline;
   background: transparent;
 }
 
 #workspaces button.active {
-  color: #89b4fa;
+  color: @primary;
 }
 
 #workspaces button:hover {
-  color: #cdd6f4;
+  color: @on_surface;
 }
 
 #window {
-  color: #a6adc8;
+  color: @on_surface_variant;
   padding: 0 12px;
 }
 
 #pulseaudio {
-  color: #f9e2af;
+  color: @secondary;
   padding: 0 10px;
 }
 
 #network {
-  color: #89dceb;
+  color: @tertiary;
   padding: 0 10px;
 }
 
 #bluetooth {
-  color: #89b4fa;
+  color: @secondary;
   padding: 0 10px;
 }
 
 #memory {
-  color: #a6e3a1;
+  color: @on_secondary_container;
   padding: 0 10px;
 }
 
 #battery {
-  color: #a6e3a1;
+  color: @on_secondary_container;
   padding: 0 10px;
 }
 
 #battery.warning {
-  color: #f9e2af;
+  color: @secondary;
 }
 
 #battery.critical {
-  color: #f38ba8;
+  color: @error;
 }
 
 #power-profiles-daemon {
-  color: #fab387;
+  color: @on_tertiary_container;
   padding: 0 10px;
 }
 
 #power-profiles-daemon.performance {
-  color: #f38ba8;
+  color: @error;
 }
 
 #power-profiles-daemon.power-saver {
-  color: #a6e3a1;
+  color: @on_secondary_container;
 }
 
 #clock {
-  color: #cba6f7;
+  color: @primary;
   padding: 0 12px;
 }
 
 #custom-power {
-  color: #f38ba8;
+  color: @error;
   padding: 0 12px;
 }

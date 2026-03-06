@@ -2,7 +2,7 @@
 
 ## Architecture
 
-Configuration **NixOS basée sur flakes** avec Home Manager. Setup **Hyprland / Sway + waybar + SDDM** (Wayland).
+Configuration **NixOS basée sur flakes** avec Home Manager. Setup **Hyprland / Sway + waybar** (Wayland).
 
 - **`flake.nix`** - Point d'entrée, définit les inputs (nixpkgs, home-manager, nixpkgs-esp-dev, rust-overlay, zen-browser)
 - **`hosts/morthinkpad/`** - Config machine principale (avec DisplayLink)
@@ -141,7 +141,7 @@ gs, ga, gc, gp  # git status/add/commit/push
 - **Compositeurs** :
   - **Hyprland** (recommandé) : Compositor moderne avec animations, tiling dynamique
   - **Sway** : Compositor i3-compatible, plus sobre
-- **Display Manager** : SDDM avec support Wayland natif (thème Catppuccin Mocha)
+- **Display Manager** : Aucun — login TTY + `exec Hyprland` via zsh initContent
 - **Barre** : waybar (config JSON + CSS, adaptée par compositor)
 - **Launcher** : fuzzel (dmenu Wayland)
 - **Notifications** : mako (timeout 5s, border-radius 8)

@@ -1,5 +1,5 @@
 {
-  description = "NixOS configuration — Hyprland / Sway + waybar + SDDM (Wayland)";
+  description = "NixOS configuration — Hyprland / Sway + waybar (Wayland)";
 
   inputs = {
     # ── Base (upgrade) ─────────────────────────────────────────

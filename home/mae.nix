@@ -22,8 +22,10 @@
 
     # Wayland
     waypaper      # Gestionnaire de wallpaper
+    matugen       # Génération de palette Material You depuis le wallpaper
     wdisplays     # Disposition d'écrans
     cliphist      # Clipboard manager (Hyprland)
+    udiskie       # Auto-mount USB
 
     # Thèmes Catppuccin (dark mode)
     catppuccin-gtk
@@ -209,6 +211,9 @@
   home.file.".config/hypr/misc.conf".source = ./hypr/misc.conf;
   home.file.".config/hypr/startup.conf".source = ./hypr/startup.conf;
   home.file.".config/hypr/keybinds.conf".source = ./hypr/keybinds.conf;
+  home.file.".config/hypr/windowrules.conf".source = ./hypr/windowrules.conf;
+  home.file.".config/hypr/hypridle.conf".source = ./hypr/hypridle.conf;
+  home.file.".config/hypr/hyprlock.conf".source = ./hypr/hyprlock.conf;
   home.file.".config/hypr/tablet.conf".source = ./hypr/tablet.conf;
 
   # Waybar
@@ -218,7 +223,19 @@
   home.file.".config/waybar/style.css".source = ./waybar/style.css;
 
   # Fuzzel (lanceur)
-  home.file.".config/fuzzel/fuzzel.ini".source = ./fuzzel/fuzzel.ini;
+  # fuzzel.ini est géré dynamiquement par matugen (couleurs du wallpaper)
+  # Le fichier statique de fallback reste dans home/fuzzel/fuzzel.ini
+  # mais n'est PAS symlinké par Home Manager (matugen en prend le contrôle)
+
+  # ── matugen — Material You color generation ─────────────────
+  # Config et templates : matugen génère les couleurs depuis le wallpaper
+  # Les fichiers de sortie (~/.config/hypr/colors.conf, fuzzel.ini, mako/config,
+  # waybar/colors.css) sont écrits par le script set-wallpaper / restore-wallpaper
+  home.file.".config/matugen/config.toml".source        = ./matugen/config.toml;
+  home.file.".config/matugen/templates/hyprland-colors.conf".source = ./matugen/templates/hyprland-colors.conf;
+  home.file.".config/matugen/templates/waybar-colors.css".source    = ./matugen/templates/waybar-colors.css;
+  home.file.".config/matugen/templates/fuzzel.ini".source           = ./matugen/templates/fuzzel.ini;
+  home.file.".config/matugen/templates/mako.ini".source             = ./matugen/templates/mako.ini;
 
   # ── Thèmes & Apparence ──────────────────────────────────────
   # GTK — Catppuccin Mocha (dark mode)
@@ -269,13 +286,9 @@
 
   # ── Services utilisateur ────────────────────────────────────
   # Mako (notifications Wayland)
-  services.mako = {
-    enable = true;
-    settings = {
-      default-timeout = 5000;
-      border-radius = 8;
-    };
-  };
+  # Les couleurs sont gérées dynamiquement par matugen via ~/.config/mako/config
+  # matugen régénère ce fichier à chaque changement de wallpaper
+  services.mako.enable = true;
 
   # Polkit GNOME — popup mot de passe GUI
   systemd.user.services.polkit-gnome-authentication-agent-1 = {
@@ -361,6 +374,112 @@
   };
 
   # ── Activation scripts ──────────────────────────────────────
+  # Couleurs Hyprland de fallback (utilisées avant le premier matugen)
+  # Ce fichier est écrasé par matugen à chaque set-wallpaper / restore-wallpaper
+  # Les couleurs par défaut sont inspirées de Catppuccin Mocha pour cohérence
+  home.activation.createHyprlandColorsFallback = config.lib.dag.entryAfter ["writeBoundary"] ''
+    mkdir -p ~/.config/hypr
+    if [ ! -f ~/.config/hypr/colors.conf ]; then
+      cat > ~/.config/hypr/colors.conf << 'EOF'
+# Couleurs Hyprland — fallback par défaut (Catppuccin Mocha)
+# Sera remplacé par matugen au premier set-wallpaper / restore-wallpaper
+
+$active_border_color   = rgb(cba6f7)
+$inactive_border_color = rgb(45475a)
+$background            = rgb(1e1e2e)
+$surface               = rgb(181825)
+$on_surface            = rgb(cdd6f4)
+$primary               = rgb(cba6f7)
+$on_primary            = rgb(1e1e2e)
+$primary_container     = rgb(313244)
+$secondary             = rgb(89b4fa)
+$secondary_container   = rgb(45475a)
+$tertiary              = rgb(f5c2e7)
+$error                 = rgb(f38ba8)
+EOF
+    fi
+  '';
+
+  # Fichiers de fallback fuzzel et mako (avant premier matugen)
+  home.activation.createMatugenFallbacks = config.lib.dag.entryAfter ["writeBoundary"] ''
+    # Fuzzel — fallback si matugen n'a pas encore tourné
+    mkdir -p ~/.config/fuzzel
+    if [ ! -f ~/.config/fuzzel/fuzzel.ini ]; then
+      cat > ~/.config/fuzzel/fuzzel.ini << 'EOF'
+[main]
+font=JetBrainsMono Nerd Font:size=16
+prompt="󰍉  "
+icon-theme=Papirus-Dark
+layer=overlay
+horizontal-pad=20
+vertical-pad=15
+inner-pad=10
+
+[colors]
+background=1e1e2edd
+text=cdd6f4ff
+match=cba6f7ff
+selection=313244ff
+selection-text=cdd6f4ff
+selection-match=cba6f7ff
+border=cba6f7ff
+
+[border]
+width=2
+radius=12
+EOF
+    fi
+
+    # Mako — fallback si matugen n'a pas encore tourné
+    mkdir -p ~/.config/mako
+    if [ ! -f ~/.config/mako/config ]; then
+      cat > ~/.config/mako/config << 'EOF'
+default-timeout=5000
+border-radius=8
+background-color=#1e1e2e
+text-color=#cdd6f4
+border-color=#cba6f7
+progress-color=over #313244
+
+[urgency=high]
+border-color=#f38ba8
+default-timeout=0
+EOF
+    fi
+
+    # Waybar colors.css — fallback si matugen n'a pas encore tourné
+    mkdir -p ~/.config/waybar
+    if [ ! -f ~/.config/waybar/colors.css ]; then
+      cat > ~/.config/waybar/colors.css << 'EOF'
+/* Couleurs waybar — fallback Catppuccin Mocha */
+:root {
+  --background:              #1e1e2e;
+  --surface:                 #181825;
+  --surface-variant:         #45475a;
+  --surface-container:       #313244;
+  --surface-container-high:  #45475a;
+  --on-surface:              #cdd6f4;
+  --on-surface-variant:      #bac2de;
+  --primary:                 #cba6f7;
+  --on-primary:              #1e1e2e;
+  --primary-container:       #313244;
+  --on-primary-container:    #cdd6f4;
+  --secondary:               #89b4fa;
+  --on-secondary:            #1e1e2e;
+  --secondary-container:     #45475a;
+  --on-secondary-container:  #cdd6f4;
+  --tertiary:                #f5c2e7;
+  --tertiary-container:      #45475a;
+  --on-tertiary-container:   #cdd6f4;
+  --error:                   #f38ba8;
+  --error-container:         #93000a;
+  --outline:                 #6c7086;
+  --outline-variant:         #45475a;
+}
+EOF
+    fi
+  '';
+
   # Credentials SMB (créé au premier deploy si absent)
   home.activation.createSmbCredentials = config.lib.dag.entryAfter ["writeBoundary"] ''
     mkdir -p ~/.config
