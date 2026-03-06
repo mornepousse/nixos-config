@@ -4,7 +4,7 @@
   # Thunar - File manager (module NixOS dédié)
   programs.thunar = {
     enable = true;
-    plugins = with pkgs.xfce; [
+    plugins = with pkgs; [
       thunar-archive-plugin    # Extraction/compression via file-roller
       thunar-volman            # Gestion automatique des volumes USB
       thunar-media-tags-plugin # Tags audio (ID3, OGG)
