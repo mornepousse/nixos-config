@@ -66,27 +66,27 @@
       pkgs.libGL.dev
       pkgs.libglvnd.dev
       pkgs.udev.dev
-      pkgs.xorg.libX11.dev
-      pkgs.xorg.libXcursor.dev
-      pkgs.xorg.libXrandr.dev
-      pkgs.xorg.libXi.dev
-      pkgs.xorg.libxcb.dev
+      pkgs.libX11.dev
+      pkgs.libXcursor.dev
+      pkgs.libXrandr.dev
+      pkgs.libXi.dev
+      pkgs.libxcb.dev
       pkgs.vulkan-loader.dev
     ];
 
     # Linker doit trouver les .so et headers OpenGL
     LD_LIBRARY_PATH = map (pkg: "${pkg}/lib") [
-      pkgs.fontconfig
+      pkgs.fontconfig.lib   # .lib output contient libfontconfig.so.1 (pas .bin)
       pkgs.freetype
       pkgs.libxkbcommon
       pkgs.libGL
       pkgs.libglvnd
       pkgs.wayland
-      pkgs.xorg.libX11
-      pkgs.xorg.libXcursor
-      pkgs.xorg.libXrandr
-      pkgs.xorg.libXi
-      pkgs.xorg.libxcb
+      pkgs.libX11
+      pkgs.libXcursor
+      pkgs.libXrandr
+      pkgs.libXi
+      pkgs.libxcb
       pkgs.udev
       pkgs.vulkan-loader
     ];
@@ -95,16 +95,16 @@
     C_INCLUDE_PATH = pkgs.lib.makeSearchPath "include" [
       pkgs.libGL.dev
       pkgs.libglvnd.dev
-      pkgs.xorg.libX11.dev
-      pkgs.xorg.libxcb.dev
+      pkgs.libX11.dev
+      pkgs.libxcb.dev
       pkgs.libxkbcommon.dev
     ];
 
     CPLUS_INCLUDE_PATH = pkgs.lib.makeSearchPath "include" [
       pkgs.libGL.dev
       pkgs.libglvnd.dev
-      pkgs.xorg.libX11.dev
-      pkgs.xorg.libxcb.dev
+      pkgs.libX11.dev
+      pkgs.libxcb.dev
       pkgs.libxkbcommon.dev
     ];
   };
