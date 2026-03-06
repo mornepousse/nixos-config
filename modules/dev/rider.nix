@@ -56,7 +56,7 @@
     libXext
     libXrender
     pkg-config
-    xorg.libXxf86vm
+    libxxf86vm
     
     # ICU (Unicode support)
     icu

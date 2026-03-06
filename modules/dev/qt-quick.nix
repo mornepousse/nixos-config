@@ -68,14 +68,14 @@ in
     libGL
     libGL.dev
     libGLU
-    xorg.libX11
-    xorg.libXrandr
-    xorg.libXcursor
-    xorg.libXi
-    xorg.libXext
-    xorg.libXrender
-    xorg.libXinerama
-    xorg.libxcb
+    libX11
+    libXrandr
+    libXcursor
+    libXi
+    libXext
+    libXrender
+    libXinerama
+    libxcb
     libxkbcommon
     libxkbcommon.dev
     fontconfig

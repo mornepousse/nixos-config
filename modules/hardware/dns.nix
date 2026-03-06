@@ -5,11 +5,13 @@
   # Accélère la résolution DNS en cachant les réponses localement
   services.resolved = {
     enable = true;
-    fallbackDns = [
-      "8.8.8.8"
-      "9.9.9.9"
-    ];
-    dnssec = "false";
+    settings.Resolve = {
+      FallbackDNS = [
+        "8.8.8.8"
+        "9.9.9.9"
+      ];
+      DNSSEC = "false";
+    };
   };
 
   # Cloudflare en priorité, Pi-hole disponible quand sur le réseau local

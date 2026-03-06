@@ -32,13 +32,13 @@
     wayland-scanner
 
     # Backend X11 (fallback)
-    xorg.libX11
-    xorg.libXcursor
-    xorg.libXrandr
-    xorg.libXi
-    xorg.libXext
-    xorg.libXrender
-    xorg.libxcb
+    libX11
+    libXcursor
+    libXrandr
+    libXi
+    libXext
+    libXrender
+    libxcb
 
     mesa
     libGL
@@ -46,8 +46,8 @@
     udev
 
     # Headers OpenGL supplémentaires
-    xorg.libX11.dev
-    xorg.libxcb.dev
+    libX11.dev
+    libxcb.dev
     libxkbcommon.dev
     wayland.dev
 
