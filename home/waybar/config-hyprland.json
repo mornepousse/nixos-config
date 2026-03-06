@@ -34,7 +34,8 @@
   "pulseaudio": {
     "format": "󰕾 {volume}%",
     "format-muted": "󰖁 muted",
-    "on-click": "pavucontrol"
+    "on-click": "pavucontrol",
+    "on-click-right": "audio-switcher"
   },
 
   "network": {

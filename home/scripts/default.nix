@@ -4,5 +4,6 @@ let
   powerMenu = import ./power-menu.nix { inherit pkgs; };
   projectScaffolds = import ./project-scaffolds.nix { inherit pkgs; };
   nasUtils = import ./nas-utils.nix { inherit pkgs; };
+  audioSwitcher = import ./audio-switcher.nix { inherit pkgs; };
 in
-wallpaper ++ powerMenu ++ projectScaffolds ++ nasUtils
+wallpaper ++ powerMenu ++ projectScaffolds ++ nasUtils ++ audioSwitcher
