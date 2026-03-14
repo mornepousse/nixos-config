@@ -70,7 +70,12 @@
       "WebFetch(domain:wiki.hyprland.org)",
       "WebFetch(domain:wiki.hypr.land)",
       "WebFetch(domain:nixos.wiki)",
-      "Bash(hyprctl clients:*)"
+      "Bash(hyprctl clients:*)",
+      "Bash(sudo dmesg:*)",
+      "Bash(modinfo ch341:*)",
+      "Bash(modprobe ch341:*)",
+      "Read(//usr/lib/udev/**)",
+      "Read(//etc/udev/**)"
     ]
   }
 }
