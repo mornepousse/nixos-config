@@ -7,6 +7,7 @@ set $mod Mod4
 # Input configuration
 input type:keyboard {
     xkb_layout us
+    xkb_variant intl
 }
 
 input type:touchpad {

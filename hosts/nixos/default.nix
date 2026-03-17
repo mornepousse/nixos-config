@@ -61,7 +61,7 @@
   # Clavier X11 (pour compatibilité)
   services.xserver.xkb = {
     layout = "us";
-    variant = "";
+    variant = "intl";
   };
 
   # User

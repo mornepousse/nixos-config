@@ -191,6 +191,7 @@
 
     input {
         kb_layout = ${if hostname == "x230t" then "fr" else "us"}
+        kb_variant = ${if hostname == "x230t" then "" else "intl"}
         numlock_by_default = true
 
         touchpad {

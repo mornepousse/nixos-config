@@ -3,6 +3,7 @@
 {
   environment.systemPackages = with pkgs; [
     signal-cli
+    vivaldi
     #brave
     vitetris
     kdePackages.elisa
@@ -10,5 +11,6 @@
     discord
     inkscape
     ardour
+    mgba
   ];
 }

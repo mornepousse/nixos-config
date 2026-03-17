@@ -27,6 +27,7 @@
     ../../modules/dev/dev_other.nix
     ../../modules/dev/kicad.nix              # Conception PCB
     ../../modules/dev/stm32.nix              # STM32 + ST-Link
+    ../../modules/dev/nrf52.nix              # nRF52840 (nice!nano, KaSe keyboard)
     ../../modules/dev/esp-idf.nix            # ESP32 (tous les chips)
     ../../modules/dev/freecad.nix            # CAO 3D
     ../../modules/dev/slint-rust.nix         # Slint + Rust
@@ -72,7 +73,7 @@
   # ── Clavier (X11 compat) ────────────────────────────────────
   services.xserver.xkb = {
     layout = "us";
-    variant = "";
+    variant = "intl";
   };
 
   # ── Utilisateur ─────────────────────────────────────────────

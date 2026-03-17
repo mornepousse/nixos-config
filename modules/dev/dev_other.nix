@@ -6,6 +6,11 @@
    esphome
    platformio
    disktui
+   filezilla
+   github-copilot-cli
+   gperf
+   ccache
+   python314Packages.tkinter
   ];
-
+  networking.firewall.allowedUDPPorts = [ 69 ];
 }
