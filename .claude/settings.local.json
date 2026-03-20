@@ -75,7 +75,12 @@
       "Bash(modinfo ch341:*)",
       "Bash(modprobe ch341:*)",
       "Read(//usr/lib/udev/**)",
-      "Read(//etc/udev/**)"
+      "Read(//etc/udev/**)",
+      "Bash(bluetoothctl show:*)",
+      "Bash(rfkill list:*)",
+      "Bash(bluetoothctl devices:*)",
+      "Bash(bluetoothctl info:*)",
+      "Bash(bluetoothctl trust:*)"
     ]
   }
 }

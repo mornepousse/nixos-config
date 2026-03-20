@@ -11,6 +11,10 @@
    gperf
    ccache
    python314Packages.tkinter
+   file
+   dtc
+   smartmontools
+   gparted
   ];
   networking.firewall.allowedUDPPorts = [ 69 ];
 }

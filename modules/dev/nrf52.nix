@@ -8,10 +8,19 @@
     # Build system
     cmake
     gnumake
+    ninja
+    dtc             # devicetree compiler (requis par Zephyr)
 
-    # Python + intelhex (conversion HEX → UF2)
-    python3
-    python3Packages.intelhex
+    # Python + deps (UF2, Zephyr/PlatformIO)
+    (python3.withPackages (ps: with ps; [
+      intelhex      # conversion HEX → UF2
+      pykwalify     # Zephyr
+      pyelftools    # Zephyr
+      pyyaml        # Zephyr
+      west          # Zephyr build system (west)
+      canopen       # Zephyr dep
+      packaging     # Zephyr dep
+    ]))
 
     # nRF Command Line Tools (optionnel, pour J-Link)
     # nrf-command-line-tools  # pas dans nixpkgs, utiliser J-Link directement si besoin

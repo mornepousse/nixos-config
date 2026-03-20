@@ -514,9 +514,9 @@ EOF
     enable = true;
     defaultApplications = {
       # Navigateur web
-      "text/html" = "firefox.desktop";
-      "x-scheme-handler/http" = "firefox.desktop";
-      "x-scheme-handler/https" = "firefox.desktop";
+      "text/html" = "vivaldi.desktop";
+      "x-scheme-handler/http" = "vivaldi.desktop";
+      "x-scheme-handler/https" = "vivaldi.desktop";
 
       # Images
       "image/jpeg" = "imv.desktop";
@@ -535,7 +535,7 @@ EOF
       "audio/ogg" = "mpv.desktop";
 
       # PDF
-      "application/pdf" = "firefox.desktop";
+      "application/pdf" = "vivaldi.desktop";
 
       # Texte
       "text/plain" = "nvim.desktop";
