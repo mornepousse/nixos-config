@@ -80,7 +80,26 @@
       "Bash(rfkill list:*)",
       "Bash(bluetoothctl devices:*)",
       "Bash(bluetoothctl info:*)",
-      "Bash(bluetoothctl trust:*)"
+      "Bash(bluetoothctl trust:*)",
+      "Bash(xdg-settings set:*)",
+      "Bash(fc-list:*)",
+      "Bash(ghostty --help)",
+      "Read(//home/mae/.config/ghostty/**)",
+      "Read(//nix/store/**)",
+      "WebFetch(domain:ghostty.org)",
+      "Bash(ghostty +show-config)",
+      "WebFetch(domain:man.archlinux.org)",
+      "WebFetch(domain:gist.github.com)",
+      "WebFetch(domain:ghostty.in-one.page)",
+      "WebFetch(domain:wiki.gentoo.org)",
+      "Bash(gh api:*)",
+      "Bash(gh search:*)",
+      "WebFetch(domain:ghostty.zerebos.com)",
+      "WebFetch(domain:docs.gtk.org)",
+      "WebFetch(domain:www.mintlify.com)",
+      "Bash(git push:*)",
+      "Bash(nix flake:*)",
+      "Bash(npm --version)"
     ]
   }
 }

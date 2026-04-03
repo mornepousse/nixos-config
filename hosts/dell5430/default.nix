@@ -2,14 +2,14 @@
 
 {
   # ══════════════════════════════════════════════════════════════
-  #  dell5340 — Dell Latitude 5340 (remplace morthinkpad)
+  #  dell5430 — Dell Latitude 5430 (remplace morthinkpad)
   # ══════════════════════════════════════════════════════════════
 
   imports = [
     ./hardware-configuration.nix
 
     # ── Hardware ────────────────────────────────────────────────
-    # Pas de DisplayLink sur le Dell Latitude 5340
+    # Pas de DisplayLink sur le Dell Latitude 5430
     ../../modules/hardware/usb-serial.nix    # CH340, CP210x
     ../../modules/hardware/dns.nix
     ../../modules/hardware/smb.nix           # Partages réseau SMB/CIFS
@@ -52,7 +52,7 @@
   boot.kernelPackages = pkgs.linuxPackages_zen;
 
   # ── Réseau ──────────────────────────────────────────────────
-  networking.hostName = "dell5340";
+  networking.hostName = "dell5430";
   networking.networkmanager.enable = true;
 
   # ── Locale ──────────────────────────────────────────────────

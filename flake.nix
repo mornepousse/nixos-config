@@ -85,12 +85,12 @@
         ];
       };
 
-      # Dell Latitude 5340 (remplace morthinkpad, sans DisplayLink)
-      dell5340 = nixpkgs.lib.nixosSystem {
+      # Dell Latitude 5430 (remplace morthinkpad, sans DisplayLink)
+      dell5430 = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         specialArgs = { inherit inputs; };
         modules = [
-          ./hosts/dell5340
+          ./hosts/dell5430
 
           # Overlay rust-overlay pour toolchain Rust à jour
           ({ config, pkgs, ... }: {
@@ -102,7 +102,7 @@
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
             home-manager.users.mae = import ./home/mae.nix;
-            home-manager.extraSpecialArgs = { inherit inputs; hostname = "dell5340"; };
+            home-manager.extraSpecialArgs = { inherit inputs; hostname = "dell5430"; };
             home-manager.backupFileExtension = "backup";
           }
         ];

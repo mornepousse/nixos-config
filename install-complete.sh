@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
-# Script d'installation NixOS COMPLÈTE depuis clé USB live
-# À exécuter depuis la clé NixOS live AVANT Calamares
-# Usage: sudo bash install-complete.sh --device /dev/sda --machine x230t
+# Script d'installation NixOS COMPLÈTE
+# Supporte : install graphique (post-Calamares) ou install manuelle (partitionnement auto)
+#
+# Usage post-install graphique :
+#   bash install-complete.sh --post-install --machine dell5430
+#
+# Usage install complète (depuis clé live) :
+#   sudo bash install-complete.sh --device /dev/nvme0n1 --machine dell5430
 
 set -e
 
@@ -17,12 +22,6 @@ log_success() { echo -e "${GREEN}[✓]${NC} $1"; }
 log_warning() { echo -e "${YELLOW}[⚠]${NC} $1"; }
 log_error() { echo -e "${RED}[✗]${NC} $1"; }
 
-# Vérifier root
-if [ "$EUID" -ne 0 ]; then
-  log_error "Ce script doit être exécuté avec sudo"
-  exit 1
-fi
-
 # Variables par défaut
 DEVICE=""
 MACHINE=""
@@ -32,11 +31,16 @@ MOUNT_POINT="/mnt"
 SWAP_SIZE="4"  # en GB
 ENCRYPT=false
 USERNAME="mae"
+POST_INSTALL=false
 
 # Parser arguments
 USER_PASSWORD=""
 while [[ $# -gt 0 ]]; do
   case $1 in
+    --post-install)
+      POST_INSTALL=true
+      shift
+      ;;
     --device)
       DEVICE="$2"
       shift 2
@@ -67,30 +71,45 @@ while [[ $# -gt 0 ]]; do
       ;;
     --help)
       cat << 'EOF'
-Installation NixOS complète depuis clé live
+Installation NixOS complète
 
-Usage: sudo bash install-complete.sh --device /dev/sda --machine <nom> [options]
+=== Mode post-install graphique (après Calamares) ===
 
-Options requises:
+  bash install-complete.sh --post-install --machine <nom>
+
+  Copie le hardware-configuration.nix et applique la config flake.
+  À lancer depuis le système fraîchement installé.
+
+=== Mode install complète (depuis clé live) ===
+
+  sudo bash install-complete.sh --device /dev/sda --machine <nom> [options]
+
+Options requises (mode complet):
   --device <path>       Disque cible (/dev/sda, /dev/nvme0n1, etc.)
-  --machine <name>      Machine : morthinkpad ou x230t
+
+Options requises (tous les modes):
+  --machine <name>      Machine : dell5430, morthinkpad, x230t
 
 Options optionnelles:
-  --hostname <name>     Hostname (ex: x230t, morthinkpad, etc.)
-  --password <pwd>      Mot de passe pour mae (sinon: demandé à l'installation)
+  --post-install        Mode post-install graphique (pas de partitionnement)
+  --hostname <name>     Hostname (défaut: même que --machine)
+  --password <pwd>      Mot de passe pour mae (sinon: demandé)
   --repo-url <url>      URL de la config (défaut: GitHub mornepousse)
   --swap <size>         Taille swap en GB (défaut: 4)
-  --encrypt             Activer le chiffrement LUKS (même mot de passe que l'utilisateur)
+  --encrypt             Activer le chiffrement LUKS
   --help                Affiche cette aide
 
-Exemple:
-  sudo bash install-complete.sh --device /dev/sda --machine x230t
-  sudo bash install-complete.sh --device /dev/nvme0n1 --machine morthinkpad --hostname morthinkpad --swap 8
+Machines disponibles:
+  dell5430              Dell Latitude 5430 (UEFI, Intel 12th gen, sans DisplayLink)
+  morthinkpad           ThinkPad (UEFI, AMD, avec DisplayLink)
+  x230t                 ThinkPad X230t (BIOS/Libreboot)
 
-ATTENTION:
-  • Assure-toi de spécifier le bon disque (/dev/sda et NON /dev/sda1)
-  • Le disque sera entièrement supprimé
-  • Les données existantes seront perdues
+Exemples:
+  # Après install graphique sur le Dell :
+  bash install-complete.sh --post-install --machine dell5430
+
+  # Install complète depuis clé live :
+  sudo bash install-complete.sh --device /dev/nvme0n1 --machine dell5430 --swap 8
 EOF
       exit 0
       ;;
@@ -101,22 +120,101 @@ EOF
   esac
 done
 
+# ══════════════════════════════════════════════════════════════
+#  MODE POST-INSTALL GRAPHIQUE
+# ══════════════════════════════════════════════════════════════
+if [ "$POST_INSTALL" = true ]; then
+
+  if [ -z "$MACHINE" ]; then
+    log_error "Argument --machine obligatoire"
+    echo ""
+    echo "Machines disponibles :"
+    SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+    if [ -d "$SCRIPT_DIR/hosts" ]; then
+      for host in "$SCRIPT_DIR"/hosts/*/; do
+        echo "  - $(basename "$host")"
+      done
+    fi
+    exit 1
+  fi
+
+  # Trouver ou cloner la config
+  SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+  if [ -f "$SCRIPT_DIR/flake.nix" ]; then
+    CONFIG_DIR="$SCRIPT_DIR"
+  elif [ -f "$HOME/nixos-config/flake.nix" ]; then
+    CONFIG_DIR="$HOME/nixos-config"
+  else
+    log_info "Clonage de la config..."
+    if command -v git &> /dev/null; then
+      git clone "$REPO_URL" "$HOME/nixos-config"
+    else
+      nix-shell -p git --run "git clone '$REPO_URL' '$HOME/nixos-config'"
+    fi
+    CONFIG_DIR="$HOME/nixos-config"
+  fi
+
+  HOST_DIR="$CONFIG_DIR/hosts/$MACHINE"
+  if [ ! -d "$HOST_DIR" ]; then
+    log_error "Host '$MACHINE' introuvable dans hosts/"
+    exit 1
+  fi
+
+  # Copier hardware-configuration.nix
+  if [ -f /etc/nixos/hardware-configuration.nix ]; then
+    log_info "Copie de /etc/nixos/hardware-configuration.nix -> hosts/$MACHINE/"
+    cp /etc/nixos/hardware-configuration.nix "$HOST_DIR/hardware-configuration.nix"
+    log_success "hardware-configuration.nix copié"
+  else
+    log_error "/etc/nixos/hardware-configuration.nix introuvable"
+    log_info "L'installateur graphique n'a pas généré ce fichier ?"
+    exit 1
+  fi
+
+  # Appliquer la config
+  log_info ""
+  log_info "Application de la config flake#$MACHINE..."
+  log_warning "Cela peut prendre 15-30 minutes au premier rebuild..."
+  echo ""
+
+  sudo nixos-rebuild switch --flake "$CONFIG_DIR#$MACHINE"
+
+  log_success ""
+  log_success "============================"
+  log_success "Configuration appliquée !"
+  log_success "============================"
+  echo ""
+  echo -e "${YELLOW}Prochaines étapes:${NC}"
+  echo "  1. Reboot : ${BLUE}sudo reboot${NC}"
+  echo "  2. La config est dans : ${BLUE}$CONFIG_DIR${NC}"
+  echo "  3. Commandes utiles :"
+  echo "     - ${BLUE}update${NC}        # Rebuild sans mise à jour"
+  echo "     - ${BLUE}upgrade${NC}       # Mise à jour + rebuild"
+  echo "     - ${BLUE}check-updates${NC} # Voir les mises à jour dispo"
+  echo ""
+  exit 0
+fi
+
+# ══════════════════════════════════════════════════════════════
+#  MODE INSTALL COMPLÈTE (depuis clé live)
+# ══════════════════════════════════════════════════════════════
+
+# Vérifier root
+if [ "$EUID" -ne 0 ]; then
+  log_error "Ce script doit être exécuté avec sudo"
+  exit 1
+fi
+
 # Vérifier les arguments obligatoires
 if [ -z "$DEVICE" ]; then
   log_error "Argument --device obligatoire"
-  echo "Usage: sudo bash install-complete.sh --device /dev/sda --machine x230t"
+  echo "Usage: sudo bash install-complete.sh --device /dev/sda --machine dell5430"
   exit 1
 fi
 
 if [ -z "$MACHINE" ]; then
-  log_error "Argument --machine obligatoire (morthinkpad ou x230t)"
-  echo "Usage: sudo bash install-complete.sh --device /dev/sda --machine x230t"
-  exit 1
-fi
-
-# Valider la machine
-if [[ ! "$MACHINE" =~ ^(morthinkpad|x230t)$ ]]; then
-  log_error "Machine inconnue: $MACHINE (doit être morthinkpad ou x230t)"
+  log_error "Argument --machine obligatoire"
+  echo "Usage: sudo bash install-complete.sh --device /dev/sda --machine dell5430"
   exit 1
 fi
 
