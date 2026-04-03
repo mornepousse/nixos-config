@@ -8,5 +8,6 @@ let
   checkUpdates = import ./check-updates.nix { inherit pkgs; };
   dnsSwitcher = import ./dns-switcher.nix { inherit pkgs; };
   toolsMenu = import ./tools-menu.nix { inherit pkgs; };
+  bootstrap = import ./bootstrap.nix { inherit pkgs; };
 in
-wallpaper ++ powerMenu ++ projectScaffolds ++ nasUtils ++ audioSwitcher ++ checkUpdates ++ dnsSwitcher ++ toolsMenu
+wallpaper ++ powerMenu ++ projectScaffolds ++ nasUtils ++ audioSwitcher ++ checkUpdates ++ dnsSwitcher ++ toolsMenu ++ bootstrap
