@@ -2,6 +2,7 @@
 
 {
   environment.systemPackages = with pkgs; [
-    # claude-code  # Temporairement désactivé — version 2.1.88 retirée de npm (404)
+    # claude-code géré via npm (pas Nix) — nixpkgs souvent en retard ou cassé
+    nodejs
   ];
 }

@@ -118,6 +118,7 @@
       setopt PUSHD_IGNORE_DUPS
       setopt CORRECT
       setopt CORRECT_ALL
+      alias claude='nocorrect claude'
 
       # Key bindings (emacs-like)
       bindkey "^A" beginning-of-line
@@ -318,7 +319,12 @@
   home.sessionVariables = {
     GTK_THEME = "Catppuccin-Mocha";
     QT_QPA_PLATFORMTHEME = "gtk3";
+    NPM_CONFIG_PREFIX = "$HOME/.npm-global";
   };
+
+  home.sessionPath = [
+    "$HOME/.npm-global/bin"
+  ];
 
   # ── Services utilisateur ────────────────────────────────────
   # Mako (notifications Wayland)
