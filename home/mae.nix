@@ -13,6 +13,7 @@
     # Multimédia
     mpv
     imv
+    vlc
 
     # Outils système
     btop
@@ -26,6 +27,9 @@
     wdisplays     # Disposition d'écrans
     cliphist      # Clipboard manager (Hyprland)
     udiskie       # Auto-mount USB
+    hyprpicker    # Color picker
+    wf-recorder   # Enregistrement d'écran
+    hyprsunset    # Filtre lumière bleue
 
     # Thèmes Catppuccin (dark mode)
     catppuccin-gtk
@@ -42,6 +46,19 @@
     ripgrep
     fd
     lazygit
+
+    # Jeux
+    (rustPlatform.buildRustPackage {
+      pname = "tetro-tui";
+      version = "0-unstable";
+      src = fetchFromGitHub {
+        owner = "Strophox";
+        repo = "tetro-tui";
+        rev = "main";
+        hash = "sha256-lycsilqkXnyDuxcWNvsW56jSjiB27oNWsVgNde8jhVI=";
+      };
+      cargoHash = "sha256-y0TH7DTRhxYqNBLzlj+xXZTCipUsBM60DVTCA/wSDbY=";
+    })
   ] ++ (import ./scripts { inherit pkgs; })
     ++ (import ./hypr/scripts.nix { inherit pkgs; });
 
@@ -131,6 +148,7 @@
     enable = true;
     settings = {
       add_newline = false;
+      scan_timeout = 100;
       character = {
         success_symbol = "[➜](bold green)";
         error_symbol = "[➜](bold red)";
@@ -138,41 +156,39 @@
     };
   };
 
-  # ── Kitty terminal ──────────────────────────────────────────
-  programs.kitty = {
+  # ── Alacritty terminal ──────────────────────────────────────
+  programs.alacritty = {
     enable = true;
     settings = {
-      # Ne pas demander confirmation à la fermeture
-      confirm_os_window_close = 0;
+      # Importer les couleurs générées par matugen
+      general.import = [ "~/.config/alacritty/colors.toml" ];
 
-      # Appearance
-      font_family = "JetBrains Mono";
-      font_size = 12;
-      background_opacity = 0.95;
-
-      # Colors (Catppuccin Mocha)
-      background = "#1e1e2e";
-      foreground = "#cdd6f4";
-      cursor = "#f5e0dc";
-
-      # Scrollback
-      scrollback_lines = 10000;
-
-      # Copy/Paste
-      copy_on_select = "clipboard";
-      strip_trailing_spaces = "smart";
+      # Font
+      font.normal.family = "0xProto Nerd Font Mono";
+      font.bold.family = "0xProto Nerd Font Mono";
+      font.italic.family = "0xProto Nerd Font Mono";
+      font.size = 12;
 
       # Window
-      window_padding_width = 10;
-      hide_window_decorations = "no";
+      window.opacity = 0.92;
+      window.padding = { x = 12; y = 10; };
+      window.decorations = "None";
+      window.dynamic_padding = true;
+      window.startup_mode = "Maximized";
 
-      # Tab bar
-      tab_bar_edge = "bottom";
-      tab_bar_style = "powerline";
-      active_tab_foreground = "#1e1e2e";
-      active_tab_background = "#a6e3a1";
-      inactive_tab_foreground = "#cdd6f4";
-      inactive_tab_background = "#313244";
+      # Scrolling
+      scrolling.history = 10000;
+
+      # Cursor
+      cursor.style.shape = "Beam";
+      cursor.style.blinking = "On";
+      cursor.blink_interval = 500;
+
+      # Selection
+      selection.save_to_clipboard = true;
+
+      # Env
+      env.TERM = "xterm-256color";
     };
   };
 
@@ -191,7 +207,7 @@
 
     input {
         kb_layout = ${if hostname == "x230t" then "fr" else "us"}
-        kb_variant = ${if hostname == "x230t" then "" else "intl"}
+        kb_variant = ${if hostname == "x230t" then "" else "altgr-intl"}
         numlock_by_default = true
 
         touchpad {
@@ -237,6 +253,25 @@
   home.file.".config/matugen/templates/waybar-colors.css".source    = ./matugen/templates/waybar-colors.css;
   home.file.".config/matugen/templates/fuzzel.ini".source           = ./matugen/templates/fuzzel.ini;
   home.file.".config/matugen/templates/mako.ini".source             = ./matugen/templates/mako.ini;
+  home.file.".config/matugen/templates/alacritty.toml".source       = ./matugen/templates/alacritty.toml;
+  home.file.".config/matugen/templates/ghostty.conf".source         = ./matugen/templates/ghostty.conf;
+
+  # ── Ghostty terminal ──────────────────────────────────────
+  home.file.".config/ghostty/config".text = ''
+    font-family = 0xProto Nerd Font Mono
+    font-size = 12
+    window-padding-x = 12
+    window-padding-y = 10
+    window-decoration = false
+    background-opacity = 0.92
+    cursor-style = bar
+    cursor-style-blink = true
+    copy-on-select = clipboard
+    scrollback-limit = 10000
+    window-inherit-working-directory = false
+    working-directory = home
+    config-file = ~/.config/ghostty/colors
+  '';
 
   # ── Thèmes & Apparence ──────────────────────────────────────
   # GTK — Catppuccin Mocha (dark mode)
@@ -327,9 +362,9 @@
     fill = fill
   '';
 
-  # Thunar - Open in Terminal avec kitty
+  # Thunar - Open in Terminal avec ghostty
   home.file.".config/xfce4/helpers.rc".text = ''
-    TerminalEmulator=kitty
+    TerminalEmulator=ghostty
   '';
 
   # ── Fichiers .desktop ───────────────────────────────────────
@@ -453,30 +488,62 @@ EOF
     if [ ! -f ~/.config/waybar/colors.css ]; then
       cat > ~/.config/waybar/colors.css << 'EOF'
 /* Couleurs waybar — fallback Catppuccin Mocha */
-:root {
-  --background:              #1e1e2e;
-  --surface:                 #181825;
-  --surface-variant:         #45475a;
-  --surface-container:       #313244;
-  --surface-container-high:  #45475a;
-  --on-surface:              #cdd6f4;
-  --on-surface-variant:      #bac2de;
-  --primary:                 #cba6f7;
-  --on-primary:              #1e1e2e;
-  --primary-container:       #313244;
-  --on-primary-container:    #cdd6f4;
-  --secondary:               #89b4fa;
-  --on-secondary:            #1e1e2e;
-  --secondary-container:     #45475a;
-  --on-secondary-container:  #cdd6f4;
-  --tertiary:                #f5c2e7;
-  --tertiary-container:      #45475a;
-  --on-tertiary-container:   #cdd6f4;
-  --error:                   #f38ba8;
-  --error-container:         #93000a;
-  --outline:                 #6c7086;
-  --outline-variant:         #45475a;
-}
+@define-color background              #1e1e2e;
+@define-color surface                  #181825;
+@define-color surface_variant          #45475a;
+@define-color surface_container        #313244;
+@define-color surface_container_high   #45475a;
+@define-color on_surface               #cdd6f4;
+@define-color on_surface_variant       #bac2de;
+@define-color primary                  #cba6f7;
+@define-color on_primary               #1e1e2e;
+@define-color primary_container        #313244;
+@define-color on_primary_container     #cdd6f4;
+@define-color secondary                #89b4fa;
+@define-color on_secondary             #1e1e2e;
+@define-color secondary_container      #45475a;
+@define-color on_secondary_container   #cdd6f4;
+@define-color tertiary                 #f5c2e7;
+@define-color tertiary_container       #45475a;
+@define-color on_tertiary_container    #cdd6f4;
+@define-color error                    #f38ba8;
+@define-color error_container          #93000a;
+@define-color outline                  #6c7086;
+@define-color outline_variant          #45475a;
+EOF
+    fi
+
+    # Alacritty colors — fallback si matugen n'a pas encore tourné
+    mkdir -p ~/.config/alacritty
+    if [ ! -f ~/.config/alacritty/colors.toml ]; then
+      cat > ~/.config/alacritty/colors.toml << 'EOF'
+[colors.primary]
+background = "#1e1e2e"
+foreground = "#cdd6f4"
+[colors.cursor]
+text   = "#1e1e2e"
+cursor = "#cba6f7"
+[colors.selection]
+text       = "#cdd6f4"
+background = "#313244"
+[colors.normal]
+black   = "#1e1e2e"
+red     = "#f38ba8"
+green   = "#a6e3a1"
+yellow  = "#f9e2af"
+blue    = "#89b4fa"
+magenta = "#cba6f7"
+cyan    = "#94e2d5"
+white   = "#cdd6f4"
+[colors.bright]
+black   = "#6c7086"
+red     = "#f38ba8"
+green   = "#a6e3a1"
+yellow  = "#f9e2af"
+blue    = "#89b4fa"
+magenta = "#cba6f7"
+cyan    = "#94e2d5"
+white   = "#cdd6f4"
 EOF
     fi
   '';
@@ -514,9 +581,9 @@ EOF
     enable = true;
     defaultApplications = {
       # Navigateur web
-      "text/html" = "vivaldi.desktop";
-      "x-scheme-handler/http" = "vivaldi.desktop";
-      "x-scheme-handler/https" = "vivaldi.desktop";
+      "text/html" = "vivaldi-stable.desktop";
+      "x-scheme-handler/http" = "vivaldi-stable.desktop";
+      "x-scheme-handler/https" = "vivaldi-stable.desktop";
 
       # Images
       "image/jpeg" = "imv.desktop";
@@ -535,7 +602,7 @@ EOF
       "audio/ogg" = "mpv.desktop";
 
       # PDF
-      "application/pdf" = "vivaldi.desktop";
+      "application/pdf" = "vivaldi-stable.desktop";
 
       # Texte
       "text/plain" = "nvim.desktop";

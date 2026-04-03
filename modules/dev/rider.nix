@@ -1,7 +1,8 @@
 { config, pkgs, ... }:
 
 {
-  # nix-ld : libs nécessaires aux binaires non-NixOS (libSkiaSharp, Avalonia, etc.)
+  # nix-ld nécessaire pour les binaires non-NixOS (libSkiaSharp, Avalonia, etc.)
+  programs.nix-ld.enable = true;
   programs.nix-ld.libraries = with pkgs; [
     stdenv.cc.cc.lib
     fontconfig.lib

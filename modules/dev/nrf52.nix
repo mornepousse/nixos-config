@@ -34,5 +34,9 @@
 
     # SEGGER J-Link
     SUBSYSTEM=="usb", ATTRS{idVendor}=="1366", MODE="0666", GROUP="plugdev"
+
+    # Nordic Semiconductor (nRF52840 DFU bootloader VID 1915:521f, nrfutil)
+    SUBSYSTEM=="usb", ATTRS{idVendor}=="1915", MODE="0666", GROUP="plugdev"
+    KERNEL=="ttyACM[0-9]*", SUBSYSTEM=="tty", SUBSYSTEMS=="usb", ATTRS{idVendor}=="1915", MODE="0666", GROUP="plugdev"
   '';
 }

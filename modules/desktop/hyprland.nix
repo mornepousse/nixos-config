@@ -14,6 +14,7 @@
     ungoogled-chromium
     alacritty
     kitty
+    ghostty
     fuzzel
 
     # Thème d'icônes
@@ -90,6 +91,8 @@
     noto-fonts-color-emoji
     nerd-fonts.jetbrains-mono
     nerd-fonts.fira-code
+    nerd-fonts.monaspace
+    nerd-fonts._0xproto
     font-awesome
   ];
 }

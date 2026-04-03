@@ -73,7 +73,7 @@
   # ── Clavier (X11 compat) ────────────────────────────────────
   services.xserver.xkb = {
     layout = "us";
-    variant = "intl";
+    variant = "altgr-intl";
   };
 
   # ── Utilisateur ─────────────────────────────────────────────

@@ -15,6 +15,8 @@
    dtc
    smartmontools
    gparted
+   nmap
   ];
   networking.firewall.allowedUDPPorts = [ 69 ];
+  services.udev.packages = [ pkgs.platformio-core.udev ];
 }

@@ -24,3 +24,11 @@ output_path = "~/.config/fuzzel/fuzzel.ini"
 [templates.mako]
 input_path  = "~/.config/matugen/templates/mako.ini"
 output_path = "~/.config/mako/config"
+
+[templates.alacritty]
+input_path  = "~/.config/matugen/templates/alacritty.toml"
+output_path = "~/.config/alacritty/colors.toml"
+
+[templates.ghostty]
+input_path  = "~/.config/matugen/templates/ghostty.conf"
+output_path = "~/.config/ghostty/colors"

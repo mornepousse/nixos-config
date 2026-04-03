@@ -15,6 +15,7 @@
     ../../modules/desktop/quickshell.nix
     ../../modules/dev/kicad.nix
     ../../modules/dev/stm32.nix
+    ../../modules/dev/nrf52.nix
     ../../modules/dev/esp-idf.nix
     ../../modules/dev/freecad.nix
     ../../modules/dev/slint-rust.nix
@@ -61,7 +62,7 @@
   # Clavier X11 (pour compatibilité)
   services.xserver.xkb = {
     layout = "us";
-    variant = "intl";
+    variant = "altgr-intl";
   };
 
   # User
