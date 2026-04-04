@@ -165,17 +165,16 @@ vim.o.scrolloff = 10
 vim.o.confirm = true
 
 -- [[ Dvorak Layout ]]
--- Remap navigation et commandes déplacées pour Dvorak.
--- Les touches HJKL (navigation Vim) sont aux positions physiques DHTN sur Dvorak.
+-- Remap navigation pour Dvorak (main gauche).
 -- langmap traduit automatiquement en mode normal/visual (pas en insert/commande).
 --
--- Navigation (même position physique que HJKL en QWERTY) :
---   d → h (gauche)    h → j (bas)    t → k (haut)    n → l (droite)
+-- Navigation :
+--   o → gauche (h)    e → haut (k)    u → droite (l)    j → bas (j, inchangé)
 -- Commandes déplacées :
---   j → d (delete)    k → t (till)   l → n (next search)
+--   h → undo (u)      k → end of word (e)    l → open line (o)
 --
 -- Désactive cette ligne si tu repasses en QWERTY :
-vim.o.langmap = 'd;h,h;j,t;k,n;l,D;H,H;J,T;K,N;L,j;d,k;t,l;n,J;D,K;T,L;N'
+vim.o.langmap = 'o;h,e;k,u;l,O;H,E;K,U;L,h;u,k;e,l;o,H;U,K;E,L;O'
 
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
@@ -217,12 +216,12 @@ vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' }
 -- vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
 
 -- Keybinds to make split navigation easier.
---  Dvorak : Ctrl+DHTN (mêmes positions physiques que Ctrl+HJKL en QWERTY)
+--  Dvorak : Ctrl+OEUJ (mêmes touches que la navigation)
 --  See `:help wincmd` for a list of all window commands
-vim.keymap.set('n', '<C-d>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
-vim.keymap.set('n', '<C-n>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
-vim.keymap.set('n', '<C-h>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
-vim.keymap.set('n', '<C-t>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+vim.keymap.set('n', '<C-o>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
+vim.keymap.set('n', '<C-u>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
+vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
+vim.keymap.set('n', '<C-e>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
 -- NOTE: Some terminals have colliding keymaps or are not able to send distinct keycodes
 -- vim.keymap.set("n", "<C-S-h>", "<C-w>H", { desc = "Move window to the left" })
