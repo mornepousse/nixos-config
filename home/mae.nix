@@ -62,7 +62,7 @@
   ] ++ (import ./scripts { inherit pkgs; })
     ++ (import ./hypr/scripts.nix { inherit pkgs; });
 
-  # ── Neovim (LazyVim) ────────────────────────────────────────
+  # ── Neovim (kickstart.nvim + Dvorak) ────────────────────────
   programs.neovim = {
     enable = true;
     defaultEditor = true;
