@@ -98,6 +98,9 @@ vim.g.have_nerd_font = true
 -- NOTE: You can change these options as you wish!
 --  For more options, you can see `:help option-list`
 
+-- Slint filetype detection (.slint files)
+vim.cmd [[ autocmd BufRead,BufNewFile *.slint set filetype=slint ]]
+
 -- Make line numbers default
 vim.o.number = true
 -- You can also add relative line numbers, to help with jumping.
@@ -615,6 +618,7 @@ require('lazy').setup({
         rust_analyzer = {},   -- Rust (Slint, keyboard firmware)
         pyright = {},         -- Python
         nil_ls = {},          -- Nix
+        slint_lsp = {},       -- Slint UI (.slint files)
         -- ts_ls = {},        -- TypeScript (décommenter si besoin)
 
         stylua = {}, -- Used to format Lua code
