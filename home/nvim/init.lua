@@ -618,7 +618,9 @@ require('lazy').setup({
         rust_analyzer = {},   -- Rust (Slint, keyboard firmware)
         pyright = {},         -- Python
         nil_ls = {},          -- Nix
-        slint_lsp = {},       -- Slint UI (.slint files)
+        slint_lsp = {         -- Slint UI (.slint files)
+          cmd = { '/run/current-system/sw/bin/slint-lsp' },  -- Version Nix (Mason cassé sur NixOS)
+        },
         -- ts_ls = {},        -- TypeScript (décommenter si besoin)
 
         stylua = {}, -- Used to format Lua code
