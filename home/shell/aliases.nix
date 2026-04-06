@@ -24,6 +24,9 @@
   gc = "git commit";
   gp = "git push";
 
+  # ── Hardware ────────────────────────────────────────────────
+  usb-reset = "sudo modprobe -r xhci_pci && sudo modprobe xhci_pci";
+
   # ── Nettoyage ──────────────────────────────────────────────
   clean = "nh clean all";
 }
