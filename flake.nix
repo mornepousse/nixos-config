@@ -24,6 +24,13 @@
       url = "github:mrshmllow/affinity-nix";
     };
 
+    # ── Outils dev (upgrade) ────────────────────────────────
+    # Claude Code CLI — flake communautaire (nixpkgs souvent en retard)
+    claude-code = {
+      url = "github:sadjow/claude-code-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # ── Toolchains dev (upgrade-dev) ──────────────────────────
     # Rust toolchain à jour via overlay
     rust-overlay = {
@@ -48,7 +55,10 @@
 
           # Overlay rust-overlay pour toolchain Rust à jour
           ({ config, pkgs, ... }: {
-            nixpkgs.overlays = [ inputs.rust-overlay.overlays.default ];
+            nixpkgs.overlays = [
+              inputs.rust-overlay.overlays.default
+              inputs.claude-code.overlays.default
+            ];
           })
 
           home-manager.nixosModules.home-manager
@@ -71,7 +81,10 @@
 
           # Overlay rust-overlay pour toolchain Rust à jour
           ({ config, pkgs, ... }: {
-            nixpkgs.overlays = [ inputs.rust-overlay.overlays.default ];
+            nixpkgs.overlays = [
+              inputs.rust-overlay.overlays.default
+              inputs.claude-code.overlays.default
+            ];
           })
 
           home-manager.nixosModules.home-manager
@@ -94,7 +107,10 @@
 
           # Overlay rust-overlay pour toolchain Rust à jour
           ({ config, pkgs, ... }: {
-            nixpkgs.overlays = [ inputs.rust-overlay.overlays.default ];
+            nixpkgs.overlays = [
+              inputs.rust-overlay.overlays.default
+              inputs.claude-code.overlays.default
+            ];
           })
 
           home-manager.nixosModules.home-manager
@@ -117,7 +133,10 @@
 
           # Overlay rust-overlay pour toolchain Rust à jour
           ({ config, pkgs, ... }: {
-            nixpkgs.overlays = [ inputs.rust-overlay.overlays.default ];
+            nixpkgs.overlays = [
+              inputs.rust-overlay.overlays.default
+              inputs.claude-code.overlays.default
+            ];
           })
 
           home-manager.nixosModules.home-manager

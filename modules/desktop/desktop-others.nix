@@ -12,5 +12,6 @@
     inkscape
     ardour
     mgba
+    legcord
   ];
 }

@@ -2,7 +2,7 @@
 
 {
   environment.systemPackages = with pkgs; [
-    # claude-code géré via npm (pas Nix) — nixpkgs souvent en retard ou cassé
-    nodejs
+    # Claude Code via flake sadjow/claude-code-nix (overlay, updates horaires)
+    claude-code
   ];
 }
