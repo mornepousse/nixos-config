@@ -190,6 +190,11 @@
 
       # Env
       env.TERM = "xterm-256color";
+
+      # Keybindings
+      keyboard.bindings = [
+        { key = "Return"; mods = "Shift"; chars = "\\u000a"; }  # Shift+Enter = newline (pour claude-code)
+      ];
     };
   };
 
