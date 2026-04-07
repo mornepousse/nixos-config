@@ -48,17 +48,8 @@
     lazygit
 
     # Jeux
-    (rustPlatform.buildRustPackage {
-      pname = "tetro-tui";
-      version = "0-unstable";
-      src = fetchFromGitHub {
-        owner = "Strophox";
-        repo = "tetro-tui";
-        rev = "main";
-        hash = "sha256-lycsilqkXnyDuxcWNvsW56jSjiB27oNWsVgNde8jhVI=";
-      };
-      cargoHash = "sha256-y0TH7DTRhxYqNBLzlj+xXZTCipUsBM60DVTCA/wSDbY=";
-    })
+    # tetro-tui désactivé — hash instable (fetchFromGitHub sur main)
+    # Réactiver avec un hash fixe après install
   ] ++ (import ./scripts { inherit pkgs; })
     ++ (import ./hypr/scripts.nix { inherit pkgs; });
 

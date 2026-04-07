@@ -18,7 +18,7 @@
     # ── Desktop / Wayland ──────────────────────────────────────
     ../../modules/desktop/hyprland.nix       # Compositor principal
     ../../modules/desktop/console.nix        # TTY
-    ../../modules/desktop/desktop-others.nix # Paquets desktop divers
+    # ../../modules/desktop/desktop-others.nix # réactiver après install
     ../../modules/desktop/quickshell.nix     # Waybar
 
     # ── Dev (désactivés pour l'install, réactiver après) ───────

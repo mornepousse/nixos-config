@@ -105,11 +105,10 @@
         modules = [
           ./hosts/dell5430
 
-          # Overlay rust-overlay pour toolchain Rust à jour
+          # Overlay minimal pour l'install (claude-code ajouté après)
           ({ config, pkgs, ... }: {
             nixpkgs.overlays = [
               inputs.rust-overlay.overlays.default
-              inputs.claude-code.overlays.default
             ];
           })
 
