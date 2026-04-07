@@ -120,6 +120,32 @@ EOF
   esac
 done
 
+# Si aucun mode n'est spécifié, afficher l'aide rapide
+if [ "$POST_INSTALL" = false ] && [ -z "$DEVICE" ] && [ -z "$MACHINE" ]; then
+  echo ""
+  echo -e "${BLUE}Installation NixOS — Mae OS${NC}"
+  echo ""
+  echo -e "${YELLOW}Après une install graphique (Calamares) :${NC}"
+  echo ""
+  echo -e "  ${GREEN}bash install-complete.sh --post-install --machine dell5430${NC}"
+  echo ""
+  echo -e "${YELLOW}Install complète depuis clé live :${NC}"
+  echo ""
+  echo -e "  ${GREEN}sudo bash install-complete.sh --device /dev/nvme0n1 --machine dell5430${NC}"
+  echo ""
+  echo "Machines disponibles :"
+  SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+  if [ -d "$SCRIPT_DIR/hosts" ]; then
+    for host in "$SCRIPT_DIR"/hosts/*/; do
+      echo "  - $(basename "$host")"
+    done
+  fi
+  echo ""
+  echo "Plus d'options : bash install-complete.sh --help"
+  echo ""
+  exit 0
+fi
+
 # ── Fonction : demander et hasher le mot de passe ─────────────
 ask_password() {
   if [ -n "$USER_PASSWORD" ]; then return; fi
