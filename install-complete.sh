@@ -77,8 +77,8 @@ Installation NixOS complète
 
   bash install-complete.sh --post-install --machine <nom>
 
-  Copie le hardware-configuration.nix et applique la config flake.
-  À lancer depuis le système fraîchement installé.
+  Copie le hardware-configuration.nix, configure le mot de passe,
+  et applique la config flake. À lancer depuis le système fraîchement installé.
 
 === Mode install complète (depuis clé live) ===
 
@@ -93,7 +93,7 @@ Options requises (tous les modes):
 Options optionnelles:
   --post-install        Mode post-install graphique (pas de partitionnement)
   --hostname <name>     Hostname (défaut: même que --machine)
-  --password <pwd>      Mot de passe pour mae (sinon: demandé)
+  --password <pwd>      Mot de passe pour mae (sinon: demandé interactivement)
   --repo-url <url>      URL de la config (défaut: GitHub mornepousse)
   --swap <size>         Taille swap en GB (défaut: 4)
   --encrypt             Activer le chiffrement LUKS
@@ -120,6 +120,67 @@ EOF
   esac
 done
 
+# ── Fonction : demander et hasher le mot de passe ─────────────
+ask_password() {
+  if [ -n "$USER_PASSWORD" ]; then return; fi
+  log_info ""
+  log_warning "Mot de passe pour l'utilisateur $USERNAME"
+  while true; do
+    read -sp "Mot de passe: " pass1
+    echo
+    read -sp "Confirmez: " pass2
+    echo
+    if [ "$pass1" = "$pass2" ]; then
+      USER_PASSWORD="$pass1"
+      break
+    else
+      log_error "Les mots de passe ne correspondent pas, réessayez."
+    fi
+  done
+  unset pass1 pass2
+}
+
+hash_password() {
+  log_info "Génération du hash du mot de passe..."
+  if command -v mkpasswd &> /dev/null; then
+    PASS_HASH=$(echo -n "$USER_PASSWORD" | mkpasswd -m sha-512 -s 2>/dev/null)
+  elif command -v openssl &> /dev/null; then
+    PASS_HASH=$(echo -n "$USER_PASSWORD" | openssl passwd -6 -stdin 2>/dev/null)
+  else
+    log_error "Aucun outil disponible pour hasher le mot de passe (besoin mkpasswd ou openssl)"
+    exit 1
+  fi
+  if [ -z "$PASS_HASH" ]; then
+    log_error "Impossible de générer le hash du mot de passe"
+    exit 1
+  fi
+  log_success "Hash généré"
+}
+
+# ── Fonction : injecter le mot de passe dans la config ────────
+inject_password() {
+  local config_file="$1"
+  # Supprimer l'ancien hashedPassword s'il existe
+  sed -i '/hashedPassword = "/d' "$config_file"
+  # Injecter après "shell = pkgs.zsh;"
+  local temp=$(mktemp)
+  awk -v hash="$PASS_HASH" '
+    /shell = pkgs.zsh;/ {
+      print $0
+      print "    hashedPassword = \"" hash "\";"
+      next
+    }
+    { print }
+  ' "$config_file" > "$temp"
+  if grep -q 'hashedPassword' "$temp"; then
+    mv "$temp" "$config_file"
+    log_success "Mot de passe configuré pour $USERNAME"
+  else
+    log_warning "Impossible d'injecter le mot de passe automatiquement"
+    rm -f "$temp"
+  fi
+}
+
 # ══════════════════════════════════════════════════════════════
 #  MODE POST-INSTALL GRAPHIQUE
 # ══════════════════════════════════════════════════════════════
@@ -135,6 +196,8 @@ if [ "$POST_INSTALL" = true ]; then
         echo "  - $(basename "$host")"
       done
     fi
+    echo ""
+    echo "Usage: bash install-complete.sh --post-install --machine <nom>"
     exit 1
   fi
 
@@ -157,6 +220,10 @@ if [ "$POST_INSTALL" = true ]; then
   HOST_DIR="$CONFIG_DIR/hosts/$MACHINE"
   if [ ! -d "$HOST_DIR" ]; then
     log_error "Host '$MACHINE' introuvable dans hosts/"
+    echo "Hosts disponibles :"
+    for host in "$CONFIG_DIR"/hosts/*/; do
+      echo "  - $(basename "$host")"
+    done
     exit 1
   fi
 
@@ -171,13 +238,18 @@ if [ "$POST_INSTALL" = true ]; then
     exit 1
   fi
 
+  # Configurer le mot de passe (important : sans ça, mae n'a pas de mot de passe après rebuild)
+  ask_password
+  hash_password
+  inject_password "$HOST_DIR/default.nix"
+
   # Appliquer la config
   log_info ""
   log_info "Application de la config flake#$MACHINE..."
   log_warning "Cela peut prendre 15-30 minutes au premier rebuild..."
   echo ""
 
-  sudo nixos-rebuild switch --flake "$CONFIG_DIR#$MACHINE"
+  sudo nixos-rebuild switch --flake "$CONFIG_DIR#$MACHINE" --show-trace
 
   log_success ""
   log_success "============================"
@@ -186,11 +258,13 @@ if [ "$POST_INSTALL" = true ]; then
   echo ""
   echo -e "${YELLOW}Prochaines étapes:${NC}"
   echo "  1. Reboot : ${BLUE}sudo reboot${NC}"
-  echo "  2. La config est dans : ${BLUE}$CONFIG_DIR${NC}"
-  echo "  3. Commandes utiles :"
-  echo "     - ${BLUE}update${NC}        # Rebuild sans mise à jour"
-  echo "     - ${BLUE}upgrade${NC}       # Mise à jour + rebuild"
-  echo "     - ${BLUE}check-updates${NC} # Voir les mises à jour dispo"
+  echo "  2. Login avec : ${BLUE}$USERNAME${NC} / ton mot de passe"
+  echo "  3. La config est dans : ${BLUE}$CONFIG_DIR${NC}"
+  echo ""
+  echo -e "${YELLOW}Commandes utiles (après reboot):${NC}"
+  echo "  ${BLUE}update${NC}        — Rebuild sans mise à jour"
+  echo "  ${BLUE}upgrade${NC}       — Mise à jour + rebuild"
+  echo "  ${BLUE}check-updates${NC} — Voir les mises à jour dispo"
   echo ""
   exit 0
 fi
@@ -218,53 +292,14 @@ if [ -z "$MACHINE" ]; then
   exit 1
 fi
 
-# Demander le mot de passe si non fourni
-if [ -z "$USER_PASSWORD" ]; then
-  log_info ""
-  log_warning "Veuillez entrer un mot de passe pour l'utilisateur $USERNAME"
-  while true; do
-    read -sp "Mot de passe: " pass1
-    echo
-    read -sp "Confirmez le mot de passe: " pass2
-    echo
-    if [ "$pass1" = "$pass2" ]; then
-      USER_PASSWORD="$pass1"
-      break
-    else
-      log_error "Les mots de passe ne correspondent pas, réessayez."
-    fi
-  done
-  # Sécuriser: ne pas l'afficher
-  unset pass1 pass2
-fi
-
-# Générer le hash du mot de passe (SHA-512 requis pour NixOS hashedPassword)
-log_info "Génération du hash du mot de passe..."
-if command -v mkpasswd &> /dev/null; then
-  PASS_HASH=$(echo -n "$USER_PASSWORD" | mkpasswd -m sha-512 -s 2>/dev/null)
-elif command -v openssl &> /dev/null; then
-  PASS_HASH=$(echo -n "$USER_PASSWORD" | openssl passwd -6 -stdin 2>/dev/null)
-else
-  log_error "Aucun outil disponible pour hasher le mot de passe (besoin mkpasswd ou openssl)"
-  exit 1
-fi
-
-if [ -z "$PASS_HASH" ]; then
-  log_error "Impossible de générer le hash du mot de passe"
-  exit 1
-fi
-log_success "Hash généré"
-
-# Définir le hostname par défaut en fonction de la machine si non spécifié
+# Définir le hostname par défaut
 if [ -z "$HOSTNAME" ]; then
   HOSTNAME="$MACHINE"
 fi
 
-# Vérifier que c'est bien une clé live
-if ! [ -f "/etc/os-release" ]; then
-  log_error "Impossible de déterminer l'OS"
-  exit 1
-fi
+# Demander et hasher le mot de passe
+ask_password
+hash_password
 
 log_info "============================"
 log_info "Installation NixOS COMPLÈTE"
@@ -278,7 +313,7 @@ log_info "  Boot: $([ "$MACHINE" = "x230t" ] && echo 'GRUB BIOS (Libreboot)' || 
 log_info "  Swap: ${SWAP_SIZE}GB"
 log_info "  Chiffrement: $([ "$ENCRYPT" = true ] && echo 'OUI' || echo 'NON')"
 log_warning ""
-log_warning "⚠️  ATTENTION ⚠️"
+log_warning "ATTENTION"
 log_warning "Toutes les données sur $DEVICE seront SUPPRIMÉES"
 log_warning ""
 read -p "Continuer? (taper 'OUI' pour confirmer) " confirm
@@ -299,14 +334,12 @@ fi
 log_success "Disque trouvé: $DEVICE"
 lsblk "$DEVICE"
 
-# Étape 2: Nettoyage + Partitionnement et formatage
+# Étape 2: Nettoyage + Partitionnement
 log_info ""
 log_info "Étape 2: Nettoyage et partitionnement..."
 
-# --- Nettoyage complet (gère un re-run après échec) ---
 log_info "Nettoyage des montages/swap/LUKS existants..."
 
-# Démonter les sous-montages de /mnt en premier (ordre inverse)
 for mnt in "$MOUNT_POINT/boot" "$MOUNT_POINT/nix" "$MOUNT_POINT/home" "$MOUNT_POINT"; do
   if mountpoint -q "$mnt" 2>/dev/null; then
     log_warning "Démontage de $mnt..."
@@ -314,7 +347,6 @@ for mnt in "$MOUNT_POINT/boot" "$MOUNT_POINT/nix" "$MOUNT_POINT/home" "$MOUNT_PO
   fi
 done
 
-# Désactiver le swap sur les partitions du device
 for part in "${DEVICE}"*; do
   if [ -b "$part" ] && grep -q "$part" /proc/swaps 2>/dev/null; then
     log_warning "Désactivation du swap sur $part..."
@@ -322,14 +354,12 @@ for part in "${DEVICE}"*; do
   fi
 done
 
-# Fermer LUKS si ouvert (re-run avec --encrypt)
 if [ -b /dev/mapper/nixos-root ]; then
   log_warning "Fermeture du volume LUKS nixos-root..."
   umount -l /dev/mapper/nixos-root 2>/dev/null || true
   cryptsetup luksClose nixos-root || true
 fi
 
-# Démonter toute partition du device encore montée (filet de sécurité)
 for part in "${DEVICE}"*; do
   if [ -b "$part" ] && findmnt -rn "$part" > /dev/null 2>&1; then
     log_warning "Démontage de $part..."
@@ -337,28 +367,22 @@ for part in "${DEVICE}"*; do
   fi
 done
 
-# Effacer table de partition existante
-log_warning "Suppression de la table de partition..."
 wipefs -af "$DEVICE" || true
 partprobe "$DEVICE" 2>/dev/null || true
-sleep 1  # Laisser le kernel relire la table de partitions
+sleep 1
 
-# Créer table GPT
 log_info "Création table GPT..."
 parted -s "$DEVICE" mklabel gpt
 
-# Partitions : schéma différent selon UEFI ou BIOS (Libreboot)
 log_info "Création des partitions..."
 
 if [ "$MACHINE" = "x230t" ]; then
-  # x230t avec Libreboot : BIOS boot partition (ef02) + swap + root
-  BOOT_SIZE="2"  # 2 MiB pour BIOS boot
+  BOOT_SIZE="2"
   parted -s "$DEVICE" mkpart bios_boot 1MiB ${BOOT_SIZE}MiB
   parted -s "$DEVICE" set 1 bios_grub on
   parted -s "$DEVICE" mkpart swap linux-swap ${BOOT_SIZE}MiB $((BOOT_SIZE + SWAP_SIZE * 1024))MiB
   parted -s "$DEVICE" mkpart nixos btrfs $((BOOT_SIZE + SWAP_SIZE * 1024))MiB 100%
 else
-  # morthinkpad et autres : ESP (UEFI) + swap + root
   EFI_SIZE="512"
   parted -s "$DEVICE" mkpart ESP fat32 1MiB ${EFI_SIZE}MiB
   parted -s "$DEVICE" mkpart swap linux-swap ${EFI_SIZE}MiB $((EFI_SIZE + SWAP_SIZE * 1024))MiB
@@ -366,7 +390,6 @@ else
   parted -s "$DEVICE" set 1 boot on
 fi
 
-# Obtenir les noms de partitions
 if [[ "$DEVICE" =~ nvme ]]; then
   BOOT_PART="${DEVICE}p1"
   SWAP_PART="${DEVICE}p2"
@@ -377,7 +400,6 @@ else
   ROOT_PART="${DEVICE}3"
 fi
 
-# Formatage partition 1 : seulement pour UEFI (BIOS boot n'a pas de filesystem)
 if [ "$MACHINE" != "x230t" ]; then
   log_info "Formatage EFI..."
   mkfs.fat -F 32 "$BOOT_PART"
@@ -389,7 +411,7 @@ swapon "$SWAP_PART"
 
 log_info "Formatage Root (Btrfs)..."
 if [ "$ENCRYPT" = true ]; then
-  log_warning "Chiffrement LUKS2 en cours (même mot de passe que l'utilisateur)..."
+  log_warning "Chiffrement LUKS2 en cours..."
   echo -n "$USER_PASSWORD" | cryptsetup luksFormat --type luks2 "$ROOT_PART" --key-file=-
   echo -n "$USER_PASSWORD" | cryptsetup luksOpen "$ROOT_PART" nixos-root --key-file=-
   ROOT_PART_OPEN="/dev/mapper/nixos-root"
@@ -401,18 +423,16 @@ fi
 
 log_success "Disque partitionné et formaté"
 
-# Étape 3: Montage des partitions
+# Étape 3: Montage
 log_info ""
 log_info "Étape 3: Montage des partitions..."
 
 mkdir -p "$MOUNT_POINT"
 mount "$ROOT_PART_OPEN" "$MOUNT_POINT"
 
-# Subvolumes Btrfs (optionnel mais recommandé)
 btrfs subvolume create "$MOUNT_POINT/nix" || log_warning "Subvolume nix existe déjà"
 btrfs subvolume create "$MOUNT_POINT/home" || log_warning "Subvolume home existe déjà"
 
-# Monter /boot seulement en UEFI (la partition BIOS boot ne se monte pas)
 if [ "$MACHINE" != "x230t" ]; then
   mkdir -p "$MOUNT_POINT/boot"
   mount "$BOOT_PART" "$MOUNT_POINT/boot"
@@ -427,70 +447,51 @@ log_info "Étape 4: Génération du hardware-configuration.nix..."
 nixos-generate-config --root "$MOUNT_POINT"
 log_success "hardware-configuration.nix généré"
 
-# Étape 5: Cloner la config NixOS
+# Étape 5: Cloner la config
 log_info ""
 log_info "Étape 5: Clonage de la config NixOS..."
 
-# Nettoyer un éventuel clone précédent (re-run du script)
 CONFIG_DIR="/tmp/nixos-config"
 if [ -d "$CONFIG_DIR" ]; then
-  log_warning "Suppression de l'ancien clone $CONFIG_DIR..."
   rm -rf "$CONFIG_DIR"
 fi
 
-# Cloner la config (nix-shell -p git si git absent sur la clé live)
 if command -v git &> /dev/null; then
   git clone "$REPO_URL" "$CONFIG_DIR"
 else
-  log_warning "Git non trouvé, utilisation de nix-shell..."
   nix-shell -p git --run "git clone '$REPO_URL' '$CONFIG_DIR'"
 fi
 log_success "Config clonée"
 
-# Copier la config générée
+# Vérifier que le host existe dans la config clonée
+if [ ! -d "$CONFIG_DIR/hosts/$MACHINE" ]; then
+  log_error "Host '$MACHINE' introuvable dans le repo cloné"
+  echo "Hosts disponibles :"
+  for host in "$CONFIG_DIR"/hosts/*/; do
+    echo "  - $(basename "$host")"
+  done
+  exit 1
+fi
+
 mv "$MOUNT_POINT/etc/nixos/hardware-configuration.nix" "$CONFIG_DIR/hosts/$MACHINE/hardware-configuration.nix"
 log_success "hardware-configuration.nix copié vers hosts/$MACHINE/"
 
-# Étape 6: Configurer le hostname et le mot de passe
+# Étape 6: Configurer hostname et mot de passe
 log_info ""
 log_info "Étape 6: Configuration du hostname et du mot de passe..."
 
 CONFIG_FILE="$CONFIG_DIR/hosts/$MACHINE/default.nix"
 if grep -q 'networking.hostName = "' "$CONFIG_FILE"; then
-  # Remplacer le hostname existant (utiliser | comme délimiteur pour éviter //// dans les chemins)
   sed -i "s|networking.hostName = \"[^\"]*\"|networking.hostName = \"$HOSTNAME\"|" "$CONFIG_FILE"
   log_success "Hostname configuré: $HOSTNAME"
-else
-  log_warning "Impossible de trouver la ligne hostname"
 fi
 
-# Configurer le mot de passe dans la config
-# Créer un fichier temporaire avec les modifications
-TEMP_CONFIG=$(mktemp)
-awk -v hash="$PASS_HASH" '
-  /users.users.mae = \{/ { in_user=1 }
-  in_user && /shell = pkgs.zsh;/ {
-    print $0
-    print "    hashedPassword = \"" hash "\";"
-    next
-  }
-  { print }
-  /^  \};$/ && in_user { in_user=0 }
-' "$CONFIG_FILE" > "$TEMP_CONFIG"
+inject_password "$CONFIG_FILE"
 
-if grep -q 'hashedPassword' "$TEMP_CONFIG"; then
-  mv "$TEMP_CONFIG" "$CONFIG_FILE"
-  log_success "Mot de passe configuré pour $USERNAME"
-else
-  log_warning "Impossible de configurer le mot de passe"
-  rm -f "$TEMP_CONFIG"
-fi
-
-# Étape 7: Installation NixOS
+# Étape 7: Installation
 log_info ""
 log_info "Étape 7: Installation NixOS (nixos-install)..."
-log_warning "Cela peut prendre 20-45 minutes selon la connexion et le matériel..."
-log_info "Machine: $MACHINE"
+log_warning "Cela peut prendre 20-45 minutes..."
 
 if nixos-install \
   --flake "$CONFIG_DIR#$MACHINE" \
@@ -507,45 +508,31 @@ fi
 log_info ""
 log_info "Étape 8: Finalisation..."
 
-# Copier la config dans le système installé
 mkdir -p "$MOUNT_POINT/home/$USERNAME/"
 cp -r "$CONFIG_DIR" "$MOUNT_POINT/home/$USERNAME/nixos-config"
-# UID 1000 = premier utilisateur normal créé par NixOS (mae)
 chown -R 1000:100 "$MOUNT_POINT/home/$USERNAME/nixos-config" || true
 
 log_success "Configuration copiée dans le système"
 
-# Résumé final
-log_info ""
+log_success ""
 log_success "============================"
-log_success "Installation terminée! ✓"
+log_success "Installation terminée !"
 log_success "============================"
-log_info ""
+echo ""
 echo -e "${YELLOW}Prochaines étapes:${NC}"
 echo ""
 echo "  1. Reboot: ${BLUE}reboot${NC}"
 echo "  2. Enlever la clé USB"
-echo "  3. Login avec: ${BLUE}$USERNAME${NC} / mot de passe que tu viens de défini"
-echo "  4. Vérifier la config:"
-echo "     ${BLUE}home-manager switch${NC}"
+echo "  3. Login avec: ${BLUE}$USERNAME${NC} / ton mot de passe"
 echo ""
-echo -e "${YELLOW}Notes:${NC}"
-echo "  • Config disponible dans: /home/$USERNAME/nixos-config"
-echo "  • Commandes utiles:"
-echo "    - ${BLUE}update${NC}       # Rebuild et applique"
-echo "    - ${BLUE}upgrade${NC}      # Upgrade flake + rebuild"
-echo "    - ${BLUE}check-updates${NC} # Voir les changements"
+echo -e "${YELLOW}Commandes utiles (après login):${NC}"
+echo "  ${BLUE}update${NC}        — Rebuild et applique"
+echo "  ${BLUE}upgrade${NC}       — Mise à jour + rebuild"
+echo "  ${BLUE}check-updates${NC} — Voir les changements"
 echo ""
 if [ "$ENCRYPT" = true ]; then
   echo -e "${YELLOW}Chiffrement LUKS:${NC}"
-  echo "  • Le mot de passe LUKS = mot de passe de $USERNAME"
-  echo "  • À chaque boot, tu devras le saisir pour déverrouiller le disque"
-  echo "  • Tu peux ajouter un autre mot de passe LUKS plus tard avec:"
-  echo "    ${BLUE}sudo cryptsetup luksAddKey /dev/sda3${NC}"
+  echo "  Mot de passe LUKS = mot de passe de $USERNAME"
+  echo "  Saisie requise à chaque boot"
   echo ""
 fi
-echo -e "${YELLOW}Important:${NC}"
-echo "  • Le mot de passe a été configuré automatiquement ✓"
-echo "  • Tu peux le changer plus tard avec: ${BLUE}passwd${NC}"
-echo "  • Si affichage USB bugué, reboot et enlève la clé avant de boot"
-echo ""
