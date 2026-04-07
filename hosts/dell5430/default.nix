@@ -21,26 +21,26 @@
     ../../modules/desktop/desktop-others.nix # Paquets desktop divers
     ../../modules/desktop/quickshell.nix     # Waybar
 
-    # ── Dev ─────────────────────────────────────────────────────
+    # ── Dev (désactivés pour l'install, réactiver après) ───────
     ../../modules/dev/ssh.nix
-    ../../modules/dev/ai.nix
-    ../../modules/dev/dev_other.nix
-    ../../modules/dev/kicad.nix              # Conception PCB
-    ../../modules/dev/stm32.nix              # STM32 + ST-Link
-    ../../modules/dev/nrf52.nix              # nRF52840 (nice!nano, KaSe keyboard)
-    ../../modules/dev/esp-idf.nix            # ESP32 (tous les chips)
-    ../../modules/dev/freecad.nix            # CAO 3D
-    ../../modules/dev/slint-rust.nix         # Slint + Rust
-    ../../modules/dev/qt-quick.nix           # Qt Quick / QML
-    ../../modules/dev/rider.nix              # IDE .NET/C#
+    # ../../modules/dev/ai.nix              # claude-code — réactiver après install
+    # ../../modules/dev/dev_other.nix       # réactiver après install
+    # ../../modules/dev/kicad.nix           # réactiver après install
+    # ../../modules/dev/stm32.nix           # réactiver après install
+    # ../../modules/dev/nrf52.nix           # réactiver après install
+    # ../../modules/dev/esp-idf.nix         # réactiver après install
+    # ../../modules/dev/freecad.nix         # réactiver après install
+    # ../../modules/dev/slint-rust.nix      # réactiver après install
+    # ../../modules/dev/qt-quick.nix        # réactiver après install
+    # ../../modules/dev/rider.nix           # réactiver après install
 
-    # ── Apps ────────────────────────────────────────────────────
+    # ── Apps (désactivées pour l'install, réactiver après) ─────
     ../../modules/apps/thunar.nix            # Gestionnaire de fichiers
-    ../../modules/apps/discord.nix           # Vesktop + Ripcord
-    ../../modules/apps/disk-tools.nix        # Partition Manager, filelight…
+    # ../../modules/apps/discord.nix        # réactiver après install
+    # ../../modules/apps/disk-tools.nix     # réactiver après install
     ../../modules/apps/flatpak.nix
-    # ../../modules/apps/affinity.nix        # Photo/Designer/Publisher (Wine) — à réactiver après install
-    # ../../modules/apps/retroarch.nix       # Émulation — à réactiver après install
+    # ../../modules/apps/affinity.nix       # réactiver après install
+    # ../../modules/apps/retroarch.nix      # réactiver après install
   ];
 
   # ── Boot ────────────────────────────────────────────────────
