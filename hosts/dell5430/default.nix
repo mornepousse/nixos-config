@@ -39,8 +39,8 @@
     ../../modules/apps/discord.nix           # Vesktop + Ripcord
     ../../modules/apps/disk-tools.nix        # Partition Manager, filelight…
     ../../modules/apps/flatpak.nix
-    ../../modules/apps/affinity.nix          # Photo/Designer/Publisher (Wine)
-    ../../modules/apps/retroarch.nix         # Émulation
+    # ../../modules/apps/affinity.nix        # Photo/Designer/Publisher (Wine) — à réactiver après install
+    # ../../modules/apps/retroarch.nix       # Émulation — à réactiver après install
   ];
 
   # ── Boot ────────────────────────────────────────────────────
