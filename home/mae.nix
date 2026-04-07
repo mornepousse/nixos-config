@@ -370,7 +370,7 @@
 
   # Thunar - Open in Terminal avec ghostty
   home.file.".config/xfce4/helpers.rc".text = ''
-    TerminalEmulator=ghostty
+    TerminalEmulator=alacritty
   '';
 
   # ── Fichiers .desktop ───────────────────────────────────────
