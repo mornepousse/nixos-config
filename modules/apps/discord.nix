@@ -2,11 +2,7 @@
 
 {
   environment.systemPackages = with pkgs; [
-    # Vesktop - Client Discord avec Vencord intégré
-    # Meilleur support Wayland/Niri que le client officiel
-    vesktop
-    ripcord
-    # Discord officiel (peut avoir des problèmes sur Wayland)
-    # discord
+    # Legcord — client Discord léger (installé via desktop-others.nix)
+    # Ce module est conservé pour l'import dans les hosts
   ];
 }

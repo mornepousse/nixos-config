@@ -47,6 +47,9 @@
     fd
     lazygit
 
+    # Projets perso
+    inputs.kesp-controller.packages.x86_64-linux.default
+
     # Jeux
     # tetro-tui désactivé — hash instable (fetchFromGitHub sur main)
     # Réactiver avec un hash fixe après install
@@ -304,6 +307,12 @@
       icon-theme = "Papirus-Dark";
     };
 
+    # Terminal par défaut pour gio (Thunar "Open With" les apps Terminal=true)
+    "org/gnome/desktop/default-applications/terminal" = {
+      exec = "alacritty";
+      exec-arg = "-e";
+    };
+
     # Thunar file manager preferences
     "org/xfce/thunar" = {
       misc-show-hidden = true;
@@ -405,6 +414,19 @@
     Categories=System;TerminalEmulator;
   '';
 
+  # Nvim lancé dans alacritty (Terminal=false → gio n'a pas besoin de chercher un terminal)
+  home.file.".local/share/applications/nvim.desktop".text = ''
+    [Desktop Entry]
+    Type=Application
+    Name=Neovim
+    Comment=Edit text files
+    Icon=nvim
+    Exec=alacritty -e nvim %F
+    Terminal=false
+    Categories=Utility;TextEditor;Development;
+    MimeType=text/plain;text/x-c;text/x-c++src;text/x-chdr;text/x-csrc;text/x-java;text/x-python;application/json;application/xml;text/x-shellscript;text/x-makefile;
+  '';
+
   # ── XDG ──────────────────────────────────────────────────────
   xdg.userDirs = {
     enable = true;
@@ -412,6 +434,23 @@
   };
 
   # ── Activation scripts ──────────────────────────────────────
+
+  # Fix KiCad 10 NixOS : les nested tables générées par défaut pointent vers
+  # kicad-base/share/kicad/template/ qui ne contient pas fp-lib-table ni sym-lib-table.
+  # On remplace par les templates complets (avec variables ${KICAD10_FOOTPRINT_DIR} etc.)
+  home.activation.fixKicadLibTables = config.lib.dag.entryAfter ["writeBoundary"] (let
+    templateDir = pkgs.kicad.template_dir;
+  in ''
+    KICAD_CFG="$HOME/.config/kicad/10.0"
+    if [ -d "$KICAD_CFG" ]; then
+      for table in fp-lib-table sym-lib-table; do
+        if [ -f "$KICAD_CFG/$table" ] && ${pkgs.gnugrep}/bin/grep -q 'type "Table"' "$KICAD_CFG/$table" 2>/dev/null; then
+          $DRY_RUN_CMD cp "${templateDir}/$table" "$KICAD_CFG/$table"
+        fi
+      done
+    fi
+  '');
+
   # Couleurs Hyprland de fallback (utilisées avant le premier matugen)
   # Ce fichier est écrasé par matugen à chaque set-wallpaper / restore-wallpaper
   # Les couleurs par défaut sont inspirées de Catppuccin Mocha pour cohérence
@@ -606,15 +645,23 @@ EOF
       # PDF
       "application/pdf" = "vivaldi-stable.desktop";
 
-      # Texte
+      # Texte / Code
       "text/plain" = "nvim.desktop";
+      "application/json" = "nvim.desktop";
+      "text/x-python" = "nvim.desktop";
+      "text/x-shellscript" = "nvim.desktop";
+      "text/x-c" = "nvim.desktop";
+      "text/x-c++src" = "nvim.desktop";
 
       # Archives (file-roller via thunar-archive-plugin)
-      "application/zip" = "file-roller.desktop";
-      "application/x-tar" = "file-roller.desktop";
-      "application/x-7z-compressed" = "file-roller.desktop";
-      "application/x-rar" = "file-roller.desktop";
-      "application/gzip" = "file-roller.desktop";
+      "application/zip" = "org.gnome.FileRoller.desktop";
+      "application/x-tar" = "org.gnome.FileRoller.desktop";
+      "application/x-7z-compressed" = "org.gnome.FileRoller.desktop";
+      "application/x-rar" = "org.gnome.FileRoller.desktop";
+      "application/vnd.rar" = "org.gnome.FileRoller.desktop";
+      "application/gzip" = "org.gnome.FileRoller.desktop";
+      "application/x-bzip2" = "org.gnome.FileRoller.desktop";
+      "application/x-xz" = "org.gnome.FileRoller.desktop";
 
       # File manager
       "inode/directory" = "thunar.desktop";

@@ -614,7 +614,15 @@ require('lazy').setup({
       --  See `:help lsp-config` for information about keys and how to configure
       ---@type table<string, vim.lsp.Config>
       local servers = {
-        clangd = {},          -- C/C++ (ESP32, STM32, firmware)
+        clangd = {            -- C/C++ (ESP32, STM32, firmware)
+          cmd = {
+            'clangd',
+            '--background-index',
+            '--compile-commands-dir=build',
+            '--query-driver=**/xtensa-esp*-elf-gcc,**/riscv32-esp-elf-gcc',
+            '--header-insertion=iwyu',
+          },
+        },
         rust_analyzer = {},   -- Rust (Slint, keyboard firmware)
         pyright = {},         -- Python
         nil_ls = {},          -- Nix

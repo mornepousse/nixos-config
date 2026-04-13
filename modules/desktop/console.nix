@@ -17,6 +17,5 @@
     xrandr
     wdisplays
     yt-dlp
-    discordo
   ];
 }

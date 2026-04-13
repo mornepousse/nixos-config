@@ -31,6 +31,13 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # ── Projets perso ─────────────────────────────────────────
+    # KeSp — configurateur clavier split ergonomique (Slint UI)
+    kesp-controller = {
+      url = "github:mornepousse/KeSp_controller";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # ── Toolchains dev (upgrade-dev) ──────────────────────────
     # Rust toolchain à jour via overlay
     rust-overlay = {

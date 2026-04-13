@@ -29,6 +29,7 @@
     ../../modules/dev/stm32.nix              # STM32 + ST-Link
     ../../modules/dev/nrf52.nix              # nRF52840 (nice!nano, KaSe keyboard)
     ../../modules/dev/esp-idf.nix            # ESP32 (tous les chips)
+    ../../modules/dev/lpc40.nix              # LPC4074 (NXP Cortex-M4)
     ../../modules/dev/freecad.nix            # CAO 3D
     ../../modules/dev/slint-rust.nix         # Slint + Rust
     ../../modules/dev/qt-quick.nix           # Qt Quick / QML

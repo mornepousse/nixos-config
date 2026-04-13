@@ -26,6 +26,9 @@
     esptool
     dfu-util
 
+    # LSP pour C/C++ (clangd)
+    clang-tools
+
     # Script pour entrer dans l'environnement ESP-IDF (tous les chips)
     (pkgs.writeShellScriptBin "esp-shell" ''
       echo "Entering ESP-IDF development environment (all chips)..."
@@ -36,6 +39,12 @@
     (pkgs.writeShellScriptBin "code-esp" ''
       echo "Launching VSCode with ESP-IDF environment..."
       nix develop github:mirrexagon/nixpkgs-esp-dev#esp-idf-full --command code "$@"
+    '')
+
+    # Script pour lancer Neovim avec l'environnement ESP-IDF (LSP clangd fonctionnel)
+    (pkgs.writeShellScriptBin "nvim-esp" ''
+      echo "Launching Neovim with ESP-IDF environment..."
+      nix develop github:mirrexagon/nixpkgs-esp-dev#esp-idf-full --command nvim "$@"
     '')
   ];
 
